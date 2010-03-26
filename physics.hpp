@@ -1,0 +1,8 @@
+#ifndef PHYSICS_HPP
+#define PHYSICS_HPP
+
+#define PHYSICS_FRAME (0.020)
+#define MOVE_SPEED (PHYSICS_FRAME * 1.5)
+#define TURN_SPEED (PHYSICS_FRAME * 1)
+
+#endif
