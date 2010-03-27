@@ -1,4 +1,5 @@
 #include "Area.hpp"
+#include<iostream>
 #include "Unit.hpp"
 #include "physics.hpp"
 
@@ -25,14 +26,14 @@ static void handleWalls(Unit& u, const Area& a)
 	if (a.blocked(ix-1,iy+1)) fix(v, ix,iy+1, d);
 }
 
-void moveUnits(Unit** us, int n, const Area& a)
+void moveUnits(Unit* us, int n, const Area& a,double dt)
 {
 	for(int i=0; i<n; ++i) {
-		Unit& u = *us[i];
-		Vec2 d(cos(u.d), sin(u.d));
-		d *= MOVE_SPEED;
+		Unit& u = us[i];
+		Vec2 d(cos(u.d), -sin(u.d));
+		d *= MOVE_SPEED*dt;
 		u.loc += u.movey * d;
-		u.loc += u.movex * Vec2(d.x, d.y);
+		u.loc += u.movex * Vec2(d.y, -d.x);
 
 		handleWalls(u, a);
 	}
