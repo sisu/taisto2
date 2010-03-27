@@ -66,9 +66,15 @@ void ClientSocket::readState(DataReader r)
 	int n = r.readInt();
 //	cout<<"reading "<<n<<" units\n";
 	double d = g.player->d;
+	int mx=g.player->movex, my=g.player->movey;
 	g.units.resize(n);
 	memcpy(&g.units[0], r.cur, n*sizeof(Unit));
-	for(int i=0; i<n; ++i) if (g.units[i].type==0 && g.units[i].id==g.id) g.units[i].d=d;
+	for(int i=0; i<n; ++i) if (g.units[i].type==0 && g.units[i].id==g.id) {
+		Unit& u = g.units[i];
+		u.d=d;
+		u.movex = mx, u.movey = my;
+		break;
+	}
 
 //	Unit& u = g.units[0]; cout<<"jee "<<u.loc<<'\n';
 }
@@ -81,5 +87,7 @@ void ClientSocket::sendState()
 	w.writeInt(p->movex);
 	w.writeInt(p->movey);
 	w.writeDouble(p->d);
+	w.writeByte(p->shooting);
+	w.writeInt(g.weapon);
 	conn.write(w.Buf,w.len());
 }

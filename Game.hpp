@@ -4,12 +4,14 @@
 #include "Unit.hpp"
 #include "Area.hpp"
 #include "ClientSocket.hpp"
+#include "Bullet.hpp"
 #include <vector>
 
 struct Game {
 	Game();
 	Area area;
 	std::vector<Unit> units;
+	std::vector<Bullet> bullets;
 
 	ClientSocket socket;
 
@@ -17,6 +19,7 @@ struct Game {
 	void updateNetwork();
 	int id;
 	Unit* player;
+	int weapon;
 };
 
 #endif

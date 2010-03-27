@@ -6,7 +6,7 @@
 #include <iostream>
 using namespace std;
 
-ClientInfo::ClientInfo(Server& s, int fd): server(s)
+ClientInfo::ClientInfo(Server& s, int fd): server(s), weapon(0)
 {
 	conn.fd=fd;
 }
@@ -46,4 +46,6 @@ void ClientInfo::readState(DataReader r)
 	u->movex = r.readInt();
 	u->movey = r.readInt();
 	u->d = r.readDouble();
+	u->shooting = r.readByte();
+	weapon = r.readInt();
 }

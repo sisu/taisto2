@@ -5,6 +5,7 @@
 #include "Unit.hpp"
 #include "ClientInfo.hpp"
 #include "Area.hpp"
+#include "Bullet.hpp"
 
 const int SERVER_PORT = 56125;
 
@@ -23,11 +24,13 @@ struct Server {
 
 	std::vector<Unit> units;
 	std::vector<ClientInfo*> clients;
+	std::vector<Bullet> bullets;
 
 	int sockfd;
 	int nextID;
 
 	Area area;
+	int* clID;
 };
 
 #endif

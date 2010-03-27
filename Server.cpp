@@ -16,6 +16,7 @@ using namespace std;
 
 Server::Server(): end(0), nextID(1), area("field.in.1")
 {
+	clID = new int[1<<16];
 	initSocket();
 }
 
@@ -40,15 +41,27 @@ void Server::loop()
 		updatePhysics(nt-t);
 		sendState();
 		t=nt;
-		SDL_Delay(20);
+		SDL_Delay(15);
 	}
 }
 
 void Server::updatePhysics(double t)
 {
 	moveUnits(&units[0], units.size(), area, t);
-	if (units.empty()) return;
-	Unit& u = units[0]; cout<<"updated physics; "<<u.movex<<' '<<u.movey<<" ; "<<u.loc<<'\n';
+	moveBullets(&bullets[0], bullets.size(), &units[0], units.size(), area, t);
+
+	for(unsigned i=0; i<units.size(); ++i) {
+		Unit& u = units[i];
+		u.shootTime -= t;
+		if (u.shooting && u.shootTime<=0) {
+			int t = u.type>0 ? u.type-1 : clients[clID[u.id]]->weapon;
+			u.shootTime = loadTimes[t];
+		}
+	}
+
+	if (!units.empty()) {
+		Unit& u = units[0]; cout<<"updated physics; "<<u.movex<<' '<<u.movey<<" ; "<<u.loc<<" ; "<<u.shooting<<'\n';
+	}
 }
 
 void Server::initSocket()
@@ -96,6 +109,7 @@ void Server::pollConnections()
 		clients.push_back(cl);
 		cl->sendInit();
 		units.push_back(Unit(area.getSpawn(), 0, cl->id));
+		clID[cl->id] = units.size()-1;
 //		sockets[sockets_used] = newsockfd;
 //		++sockets_used;
 

@@ -2,6 +2,7 @@
 #include<iostream>
 #include "Unit.hpp"
 #include "physics.hpp"
+#include "Bullet.hpp"
 
 static void fix(Vec2& v, double px, double py, double d)
 {
@@ -42,5 +43,13 @@ void moveUnits(Unit* us, int n, const Area& a,double dt)
 #endif
 
 		handleWalls(u, a);
+	}
+}
+
+void moveBullets(Bullet* bs, int n, Unit* us, int m, const Area& a, double dt)
+{
+	for(int i=0; i<n; ++i) {
+		Bullet& b = bs[i];
+		b.loc += dt*b.v;
 	}
 }

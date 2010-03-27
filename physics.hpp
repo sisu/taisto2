@@ -5,6 +5,9 @@
 #define MOVE_SPEED ( 4.5)
 #define TURN_SPEED ( 1)
 struct Area;
+struct Unit;
+struct Bullet;
 void moveUnits(Unit* us, int n, const Area& a,double dt=PHYSICS_FRAME);
+void moveBullets(Bullet* bs, int n, Unit* us, int m, const Area& a, double dt);
 
 #endif

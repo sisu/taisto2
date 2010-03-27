@@ -66,6 +66,8 @@ void handleInput()
         player.movex--;
     if(keyboard[SDLK_d])
         player.movex++;
+	
+	player.shooting = mouse[0];
 }
 void draw_model(Model* m)
 {

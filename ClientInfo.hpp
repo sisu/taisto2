@@ -17,6 +17,7 @@ struct ClientInfo {
 	Unit* u;
 	Connection conn;
 	int id;
+	int weapon;
 };
 
 #endif
