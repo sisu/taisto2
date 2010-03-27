@@ -3,6 +3,7 @@
 #include "DataWriter.hpp"
 #include "msg.hpp"
 #include "Area.hpp"
+#include "Bot.hpp"
 #include <sys/types.h> 
 #include <sys/socket.h>
 #include <netinet/in.h>
@@ -17,6 +18,7 @@ using namespace std;
 Server::Server(): end(0), nextID(1), area("field.in.1")
 {
 	clID = new int[1<<16];
+	spawnTime = 0;
 	initSocket();
 }
 
@@ -29,13 +31,8 @@ void Server::loop()
 		pollConnections();
 		for(unsigned i=0; i<units.size(); ++i) {
 			Unit& u = units[i];
-			if (u.type==0) {
-				unsigned k;
-				for(k=0; k<clients.size(); ++k) if (clients[k]->id==u.id) {
-					clients[k]->u = &u;
-					break;
-				}
-			}
+			if (u.type!=0) continue;
+			clients[clID[u.id]]->u = &u;
 		}
 		readInputs();
 		updatePhysics(nt-t);
@@ -47,6 +44,13 @@ void Server::loop()
 static int bulletid = 0;
 void Server::updatePhysics(double t)
 {
+	spawnTime -= t;
+	if (spawnTime <= 0) {
+		Unit b(Vec2(7,5), 1, -1);
+		units.push_back(b);
+		spawnTime = 5;
+	}
+	for(unsigned i=0; i<units.size(); ++i) if (units[i].type!=0) moveBot(units[i]);
 	moveUnits(&units[0], units.size(), area, t);
 //	moveBullets(&bullets[0], bullets.size(), &units[0], units.size(), area, t);
 	updateBullets(t);
@@ -65,12 +69,11 @@ void Server::updatePhysics(double t)
 			DataWriter w;
 			w.writeByte(SRV_SHOOT);
 			w.write(&b, sizeof(b));
-
-			sendToAll(w.Buf, w.len());
+			sendToAll(w);
 		}
 	}
 
-//	if (!units.empty()) {Unit& u = units[0]; cout<<"updated physics; "<<u.movex<<' '<<u.movey<<" ; "<<u.loc<<" ; "<<u.shooting<<'\n';}
+	if (units.size()>1) {Unit& u = units[1]; cout<<"updated physics; "<<u.movex<<' '<<u.movey<<" ; "<<u.loc<<" ; "<<u.shooting<<' '<<u.id<<' '<<clID[u.id]<<'\n';}
 }
 
 void Server::initSocket()
@@ -118,7 +121,7 @@ void Server::pollConnections()
 		clients.push_back(cl);
 		cl->sendInit();
 		units.push_back(Unit(area.getSpawn(), 0, cl->id));
-		clID[cl->id] = units.size()-1;
+		clID[cl->id] = clients.size()-1;
 //		sockets[sockets_used] = newsockfd;
 //		++sockets_used;
 

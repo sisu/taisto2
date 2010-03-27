@@ -132,7 +132,7 @@ struct Area {
 		return a[w*y+x];
 	}
 	Vec2 getSpawn() {
-		return Vec2(1.5,1.5);
+		return Vec2(1.5,2.5);
 	}
 };
 

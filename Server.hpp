@@ -34,6 +34,7 @@ struct Server {
 
 	Area area;
 	int* clID;
+	double spawnTime;
 };
 
 #endif
