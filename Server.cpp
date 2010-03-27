@@ -162,6 +162,8 @@ void Server::readInputs()
 		clients[i]->handleMessages();
 }
 
+static const double damages[]={1};
+static const double shields[]={10,2.8};
 void Server::updateBullets(double t)
 {
 	for(unsigned i=0; i<bullets.size(); ++i) {
@@ -208,7 +210,16 @@ void Server::updateBullets(double t)
 			}
 		}
 		if (bj>=0 || hit) {
-			if (!hit) c=b.loc + normalize(b.v)*sqrt(l2);
+			if (!hit) {
+				c=b.loc + normalize(b.v)*sqrt(l2);
+				Unit& u =units[bj];
+				u.health -= damages[b.type]/shields[u.type];
+				if (u.health<0) {
+					if (u.type==0) clients[clID[u.id]]->u=0;
+					units[bj] = units.back();
+					units.pop_back();
+				}
+			}
 //			cout<<"collision @ "<<c<<' '<<b.loc<<' '<<length(c-b.loc)<<'\n';
 			DataWriter w;
 			w.writeByte(SRV_HIT);
