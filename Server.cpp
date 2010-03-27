@@ -11,26 +11,63 @@
 #include <cstdlib>
 #include <cstdio>
 #include <iostream>
+#include "SDL.h"
 using namespace std;
 
-Server::Server()
+Server::Server(): end(0), nextID(1), area("field.in.1")
 {
+	clID = new int[1<<16];
 	initSocket();
 }
 
 void Server::loop()
 {
 	cout<<"starting server loop\n";
+	double t=SDL_GetTicks()/1e3;
 	while(!end) {
+		double nt = SDL_GetTicks()/1e3;
 		pollConnections();
-		updatePhysics();
+		for(unsigned i=0; i<units.size(); ++i) {
+			Unit& u = units[i];
+			if (u.type==0) {
+				unsigned k;
+				for(k=0; k<clients.size(); ++k) if (clients[k]->id==u.id) {
+					clients[k]->u = &u;
+					break;
+				}
+			}
+		}
+		readInputs();
+		updatePhysics(nt-t);
 		sendState();
+		t=nt;
+		SDL_Delay(15);
 	}
 }
-
-void Server::updatePhysics()
+static int bulletid = 0;
+void Server::updatePhysics(double t)
 {
-	moveUnits(&units[0], units.size(), area);
+	moveUnits(&units[0], units.size(), area, t);
+	moveBullets(&bullets[0], bullets.size(), &units[0], units.size(), area, t);
+
+	for(unsigned i=0; i<units.size(); ++i) {
+		Unit& u = units[i];
+		u.shootTime -= t;
+		if (u.shooting && u.shootTime<=0) {
+			int t = u.type>0 ? u.type-1 : clients[clID[u.id]]->weapon;
+			u.shootTime = loadTimes[t];
+            Bullet b;
+            b.loc = u.loc;
+            b.v = Vec2(cos(u.d),sin(u.d))*20;
+            b.type = 0;
+            b.id = bulletid++;
+            bullets.push_back(b);
+		}
+	}
+
+	if (!units.empty()) {
+		Unit& u = units[0]; cout<<"updated physics; "<<u.movex<<' '<<u.movey<<" ; "<<u.loc<<" ; "<<u.shooting<<'\n';
+	}
 }
 
 void Server::initSocket()
@@ -54,7 +91,7 @@ void Server::pollConnections()
 {
 	while(true) {
 		sockaddr_in cli_addr;
-		int clilen;
+		int clilen=0;
 		int newsockfd = accept(sockfd, (struct sockaddr *) &cli_addr, (socklen_t *) &clilen);
 		if (newsockfd < 0) break;
 		cout<<"Newsockfd: "<<newsockfd<<endl;
@@ -77,6 +114,8 @@ void Server::pollConnections()
 		ClientInfo* cl = new ClientInfo(*this, newsockfd);
 		clients.push_back(cl);
 		cl->sendInit();
+		units.push_back(Unit(area.getSpawn(), 0, cl->id));
+		clID[cl->id] = units.size()-1;
 //		sockets[sockets_used] = newsockfd;
 //		++sockets_used;
 
@@ -93,10 +132,19 @@ void Server::sendState()
 	w.writeByte(SRV_STATE);
 	w.writeInt(units.size());
 	w.write(&units[0], units.size() * sizeof(Unit));
+
+    w.writeInt(bullets.size());
+	w.write(&bullets[0], bullets.size() * sizeof(Bullet));
 	sendToAll(w.Buf, w.len());
 }
 void Server::sendToAll(const void* s, int n)
 {
 	for(unsigned i=0; i<clients.size(); ++i)
 		clients[i]->conn.write(s,n);
+}
+
+void Server::readInputs()
+{
+	for(unsigned i=0; i<clients.size(); ++i)
+		clients[i]->handleMessages();
 }

@@ -3,6 +3,8 @@
 #include "Server.hpp"
 #include "msg.hpp"
 #include "Game.hpp"
+#include "Unit.hpp"
+#include "DataWriter.hpp"
 #include <sys/types.h>
 #include <sys/socket.h>
 #include <netinet/in.h>
@@ -37,7 +39,7 @@ void ClientSocket::handleMessages()
 	while(conn.read()) {
 		DataReader r(conn.buf+4);
 		int type=r.readByte();
-		cout<<"got message "<<type<<'\n';
+//		cout<<"got message "<<type<<'\n';
 		switch(type) {
 			case SRV_INIT:
 				readInit(r);
@@ -51,13 +53,47 @@ void ClientSocket::handleMessages()
 
 void ClientSocket::readInit(DataReader r)
 {
-	int id = r.readInt();
-	cout<<"reading init "<<id<<'\n';
+	g.id = r.readInt();
+	cout<<"got ID "<<g.id<<'\n';
+	int w=r.readInt(), h=r.readInt();
+	Area& a=g.area;
+	a.w=w,a.h=h;
+	a.a = new int[w*h];
+	memcpy(a.a, r.cur, 4*w*h);
 }
 void ClientSocket::readState(DataReader r)
 {
 	int n = r.readInt();
-	cout<<"reading "<<n<<" units\n";
+//	cout<<"reading "<<n<<" units\n";
+	double d = g.player->d;
+	int mx=g.player->movex, my=g.player->movey;
 	g.units.resize(n);
 	memcpy(&g.units[0], r.cur, n*sizeof(Unit));
+	for(int i=0; i<n; ++i) if (g.units[i].type==0 && g.units[i].id==g.id) {
+		Unit& u = g.units[i];
+		u.d=d;
+		u.movex = mx, u.movey = my;
+		break;
+	}
+    r.cur+=n*sizeof(Unit);
+    //bullets
+	 n = r.readInt();
+//	cout<<"reading "<<n<<" units\n";
+	g.bullets.resize(n);
+	memcpy(&g.bullets[0], r.cur, n*sizeof(Bullet));
+
+//	Unit& u = g.units[0]; cout<<"jee "<<u.loc<<'\n';
+}
+
+void ClientSocket::sendState()
+{
+	Unit* p = g.player;
+	DataWriter w;
+	w.writeByte(CLI_STATE);
+	w.writeInt(p->movex);
+	w.writeInt(p->movey);
+	w.writeDouble(p->d);
+	w.writeByte(p->shooting);
+	w.writeInt(g.weapon);
+	conn.write(w.Buf,w.len());
 }

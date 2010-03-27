@@ -6,13 +6,13 @@ project(taisto2)
 
 find_package(SDL REQUIRED)
 find_package(OpenGL REQUIRED)
-link_libraries(${SDL_LIBRARY} ${OPENGL_LIBRARY})
+link_libraries(${OPENGL_LIBRARY} "SDL")
 include_directories(${SDL_INCLUDE_DIR})
 
 add_definitions("-Wall -g")
 
 set(sources main.cpp physics.cpp Server.cpp Game.cpp ClientSocket.cpp
-        ClientInfo.cpp Connection.cpp DataWriter.cpp texgen.cpp)
+        ClientInfo.cpp Connection.cpp DataWriter.cpp Bullet.cpp texgen.cpp)
 
 #MESSAGE( STATUS "flags : ${OPENGL_LIBRARY}" )
 

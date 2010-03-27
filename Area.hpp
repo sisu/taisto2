@@ -3,6 +3,7 @@
 #include<stdlib.h>
 #include<string>
 #include<fstream>
+#include "Vector.hpp"
 
 struct Area {
     private:
@@ -31,8 +32,7 @@ struct Area {
     }
 #undef set
 #define set(x,y,v) a[(x)+(w)*(y)]=v
-    Area(int w_,int h_):w(w_),h(h_)
-    {
+    Area(int w_,int h_):w(w_),h(h_) {
         srand(time(0)+rand());
         
         a = new int[w*h];
@@ -130,6 +130,9 @@ struct Area {
         if(x>=w || y>=h)return 1;//+(((abs(x)^abs(y)))&7);
         if(x<0 || y<0)return 1;//+((abs(x)^abs(y))&7);
 		return a[w*y+x];
+	}
+	Vec2 getSpawn() {
+		return Vec2(.5,.5);
 	}
 };
 
