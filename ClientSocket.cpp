@@ -92,13 +92,21 @@ void ClientSocket::readBullet(DataReader r)
 	g.bullets.push_back(*(Bullet*)r.cur);
 	g.bulletIndex[g.bullets.back().id] = g.bullets.size()-1;
 }
+#include "timef.h"
 void ClientSocket::readHit(DataReader r)
 {
 	int id = r.readInt();
 	int x = g.bulletIndex[id];
+    Vec2 c;
+    c.x = r.readFloat();
+    c.y = r.readFloat();
+    Bullet bx = g.bullets[x];
 	g.bullets[x] = g.bullets.back();
 	g.bullets.pop_back();
 	g.bulletIndex[g.bullets[x].id] = x;
+    bx.loc = c;
+    bx.hitt = timef();
+    g.lastBullets.push_back(bx);
 }
 
 void ClientSocket::sendState()

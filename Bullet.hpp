@@ -8,9 +8,10 @@ struct Bullet {
 	Vec2 loc;
 	Vec2 v;
 	int type,id;
+    float hitt;
 
 	Bullet(){}
-	Bullet(Vec2 l, Vec2 v, int t, int i):origin(l), loc(l), v(v), type(t), id(i) {}
+	Bullet(Vec2 l, Vec2 v, int t, int i):origin(l), loc(l), v(v), type(t), id(i) ,hitt(-1){}
 };
 
 extern double loadTimes[];
