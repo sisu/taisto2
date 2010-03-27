@@ -46,6 +46,10 @@ void ClientSocket::handleMessages()
 				break;
 			case SRV_STATE:
 				readState(r);
+				break;
+			case SRV_SHOOT:
+				readBullet(r);
+				break;
 			default: break;
 		}
 	}
@@ -60,6 +64,7 @@ void ClientSocket::readInit(DataReader r)
 	a.w=w,a.h=h;
 	a.a = new int[w*h];
 	memcpy(a.a, r.cur, 4*w*h);
+	cout<<"got map "<<a.w<<' '<<a.h<<'\n';
 }
 void ClientSocket::readState(DataReader r)
 {
@@ -75,14 +80,20 @@ void ClientSocket::readState(DataReader r)
 		u.movex = mx, u.movey = my;
 		break;
 	}
+#if 0
     r.cur+=n*sizeof(Unit);
     //bullets
 	 n = r.readInt();
 //	cout<<"reading "<<n<<" units\n";
 	g.bullets.resize(n);
 	memcpy(&g.bullets[0], r.cur, n*sizeof(Bullet));
+#endif
 
 //	Unit& u = g.units[0]; cout<<"jee "<<u.loc<<'\n';
+}
+void ClientSocket::readBullet(DataReader r)
+{
+	g.bullets.push_back(*(Bullet*)r.cur);
 }
 
 void ClientSocket::sendState()

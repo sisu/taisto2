@@ -56,12 +56,14 @@ void Server::updatePhysics(double t)
 		if (u.shooting && u.shootTime<=0) {
 			int t = u.type>0 ? u.type-1 : clients[clID[u.id]]->weapon;
 			u.shootTime = loadTimes[t];
-            Bullet b;
-            b.loc = u.loc;
-            b.v = Vec2(cos(u.d),sin(u.d))*20;
-            b.type = 0;
-            b.id = bulletid++;
+			Vec2 v(cos(u.d),sin(u.d));
+            Bullet b(u.loc, 20*v, t, bulletid++);
             bullets.push_back(b);
+
+			DataWriter w;
+			w.writeByte(SRV_SHOOT);
+			w.write(&b, sizeof(b));
+			sendToAll(w.Buf, w.len());
 		}
 	}
 
@@ -133,8 +135,10 @@ void Server::sendState()
 	w.writeInt(units.size());
 	w.write(&units[0], units.size() * sizeof(Unit));
 
+#if 0
     w.writeInt(bullets.size());
 	w.write(&bullets[0], bullets.size() * sizeof(Bullet));
+#endif
 	sendToAll(w.Buf, w.len());
 }
 void Server::sendToAll(const void* s, int n)

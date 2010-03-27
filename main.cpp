@@ -244,15 +244,17 @@ void mainLoop()
         handleInput();
 		game.player = &player;
 		game.updateNetwork();
-		game.updateState();
+		game.updateState(dt);
 		for(unsigned i=0; i<game.units.size(); ++i)
             if (game.units[i].type==0 && game.units[i].id==game.id)
                 player=game.units[i];
         draw();
+#if 0
         double d = player.d;
         player.d=-M_PI/2;
         moveUnits(&player,1,area,dt);
         player.d = d;
+#endif
         SDL_GL_SwapBuffers();
         SDL_Delay(10);
 

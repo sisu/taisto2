@@ -117,7 +117,7 @@ struct Area {
         }
     }
     void setBlocked(int x,int y,int b=1) {
-        if(x<=0||y<=0||x>=w-1||y>=h-1)return;
+        if(x<0||y<0||x>=w||y>=h)return;
         a[x+y*w]=b;
     }
 
@@ -132,7 +132,7 @@ struct Area {
 		return a[w*y+x];
 	}
 	Vec2 getSpawn() {
-		return Vec2(.5,.5);
+		return Vec2(1.5,1.5);
 	}
 };
 
