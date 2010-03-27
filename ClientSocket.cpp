@@ -107,6 +107,8 @@ void ClientSocket::readHit(DataReader r)
     bx.loc = c;
     bx.hitt = timef();
     g.lastBullets.push_back(bx);
+
+//	cout<<"asd "<<bx.origin<<' '<<g.player->loc<<' '<<bx.loc<<' '<<bx.v<<'\n';
 }
 
 void ClientSocket::sendState()
