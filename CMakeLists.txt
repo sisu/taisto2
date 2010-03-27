@@ -6,7 +6,7 @@ project(taisto2)
 
 find_package(SDL REQUIRED)
 find_package(OpenGL REQUIRED)
-link_libraries(${SDL_LIBRARY} ${OPENGL_LIBRARY})
+link_libraries(${OPENGL_LIBRARY} "SDL")
 include_directories(${SDL_INCLUDE_DIR})
 
 add_definitions("-Wall -g")

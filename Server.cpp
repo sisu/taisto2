@@ -44,7 +44,7 @@ void Server::loop()
 		SDL_Delay(15);
 	}
 }
-
+static int bulletid = 0;
 void Server::updatePhysics(double t)
 {
 	moveUnits(&units[0], units.size(), area, t);
@@ -56,6 +56,12 @@ void Server::updatePhysics(double t)
 		if (u.shooting && u.shootTime<=0) {
 			int t = u.type>0 ? u.type-1 : clients[clID[u.id]]->weapon;
 			u.shootTime = loadTimes[t];
+            Bullet b;
+            b.loc = u.loc;
+            b.v = Vec2(cos(u.d),sin(u.d))*20;
+            b.type = 0;
+            b.id = bulletid++;
+            bullets.push_back(b);
 		}
 	}
 
@@ -126,6 +132,9 @@ void Server::sendState()
 	w.writeByte(SRV_STATE);
 	w.writeInt(units.size());
 	w.write(&units[0], units.size() * sizeof(Unit));
+
+    w.writeInt(bullets.size());
+	w.write(&bullets[0], bullets.size() * sizeof(Bullet));
 	sendToAll(w.Buf, w.len());
 }
 void Server::sendToAll(const void* s, int n)

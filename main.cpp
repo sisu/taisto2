@@ -1,3 +1,4 @@
+
 #include <SDL/SDL.h>
 #include"Unit.hpp"
 #include"Area.hpp"
@@ -116,7 +117,7 @@ void draw_area()
             if(area.blocked(i,j)){
                 glPushMatrix();
                 glTranslatef(i,j,0);
-                glScalef(0.5,0.5,2+2*area.height(i,j));
+                glScalef(0.51,0.51,2+2*area.height(i,j));
             
                 drawcube();
                 glPopMatrix();
@@ -132,6 +133,28 @@ void draw_area()
         glVertex3f(-1000,1000,0);
     glEnd();
     glPopMatrix();
+}
+void draw_bullet(Vec2 loc)
+{
+    glPushMatrix();
+    glScalef(0.5,0.5,0.5);
+    //glTranslatef(-player.loc.x,-player.loc.y,0.0);
+
+    
+    glTranslatef(-player.loc.x+0.5,-player.loc.y+0.5,0);
+    glTranslatef(loc.x-0.5,loc.y-0.5,0);
+    glScalef(0.5,0.5,0.5);
+    //glTranslatef(-area.w/2,-area.h/2,0);
+    glColor3f(0.2,0.8,0.2);
+    glBegin(GL_QUADS);
+		glNormal3f(0,0,1);
+        glVertex3f(-1,-1,1);
+        glVertex3f(1,-1,1);
+        glVertex3f(1,1,1);
+        glVertex3f(-1,1,1);
+    glEnd();
+    glPopMatrix();
+
 }
 
 void translateTo(float x,float y)
@@ -181,6 +204,12 @@ void draw(){
 		Unit& u=game.units[i];
 		draw_player(u.loc.x,u.loc.y,u.d);
 	}
+    if(rand()%100==0)
+        std::cout<<"bullets.size() = "<<game.bullets.size()<<"\n";
+	for(unsigned i=0; i<game.bullets.size(); ++i) {
+        Bullet b = game.bullets[i];
+        draw_bullet(b.loc);
+	}
     /*
        glBegin(GL_TRIANGLES);
        glVertex3d(0,0,0);
@@ -216,7 +245,9 @@ void mainLoop()
 		game.player = &player;
 		game.updateNetwork();
 		game.updateState();
-		for(unsigned i=0; i<game.units.size(); ++i) if (game.units[i].type==0 && game.units[i].id==game.id) player=game.units[i];
+		for(unsigned i=0; i<game.units.size(); ++i)
+            if (game.units[i].type==0 && game.units[i].id==game.id)
+                player=game.units[i];
         draw();
         double d = player.d;
         player.d=-M_PI/2;
@@ -235,7 +266,7 @@ void mainLoop()
 void setPerspective()
 {
     glEnable(GL_DEPTH_TEST);
-    //glDepthFunc(GL_GREATER);
+    glDepthFunc(GL_LESS);
     glMatrixMode(GL_PROJECTION);
     gluPerspective(45,4.0/3.0,0.01,1000);
     glMatrixMode(GL_MODELVIEW);

@@ -48,6 +48,7 @@ void moveUnits(Unit* us, int n, const Area& a,double dt)
 
 void moveBullets(Bullet* bs, int n, Unit* us, int m, const Area& a, double dt)
 {
+    std::cout<<"wtf: "<<n<<" bullets\n";
 	for(int i=0; i<n; ++i) {
 		Bullet& b = bs[i];
 		b.loc += dt*b.v;

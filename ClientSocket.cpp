@@ -75,6 +75,12 @@ void ClientSocket::readState(DataReader r)
 		u.movex = mx, u.movey = my;
 		break;
 	}
+    r.cur+=n*sizeof(Unit);
+    //bullets
+	 n = r.readInt();
+//	cout<<"reading "<<n<<" units\n";
+	g.bullets.resize(n);
+	memcpy(&g.bullets[0], r.cur, n*sizeof(Bullet));
 
 //	Unit& u = g.units[0]; cout<<"jee "<<u.loc<<'\n';
 }
