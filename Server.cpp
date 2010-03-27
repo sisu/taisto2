@@ -63,7 +63,7 @@ void Server::updatePhysics(double t)
 			u.shootTime = loadTimes[t];
 			Vec2 v(cos(u.d),sin(u.d));
 
-            Bullet b(u.loc, 1000*v, t, bulletid++);
+            Bullet b(u.loc+.1*v, 1000*v, t, bulletid++);
             bullets.push_back(b);
 
 			DataWriter w;
@@ -168,11 +168,22 @@ void Server::updateBullets(double t)
 		Bullet& b = bullets[i];
 		Vec2 l = b.loc + b.v*t;
 		// FIXME: optimize
+		Vec2 nv = normalize(b.v);
+		double bdd2=1e50, bj=-1;
 		for(unsigned j=0; j<units.size(); ++j) {
-//			Unit& u = units[j];
+			Unit& u = units[j];
+			Vec2 w = u.loc-b.loc;
+			if (dot(w,nv)<0) continue;
+			double d = fabs(cross(w, nv));
+			if (d>.4) continue;
+			double dd2 = length2(w) - d*d;
+			if (dd2 < bdd2) bdd2=dd2, bj=j;
 		}
+//		if (bj>=0) cout<<"asd "<<bj<<' '<<bdd2<<' '<<sqrt(bdd2)<<'\n';
 
 		double l2 = length2(b.v*t);
+		if (bdd2<l2) l2=bdd2;
+		else bj=-1;
 		Vec2 c = b.loc;
 		int dx=b.v.x>0?1:-1, dy=b.v.y>0?1:-1;
 		int ix=c.x, iy=c.y;
@@ -196,8 +207,9 @@ void Server::updateBullets(double t)
 				iy+=dy, iiy+=dy;
 			}
 		}
-		if (hit) {
-			cout<<"collision @ "<<c<<'\n';
+		if (bj>=0 || hit) {
+			if (!hit) c=b.loc + normalize(b.v)*sqrt(l2);
+//			cout<<"collision @ "<<c<<' '<<b.loc<<' '<<length(c-b.loc)<<'\n';
 			DataWriter w;
 			w.writeByte(SRV_HIT);
 			w.writeInt(b.id);

@@ -58,6 +58,14 @@ inline Vec2 normalize(Vec2 v)
 {
 	return v/=length(v);
 }
+inline double dot(const Vec2& a, const Vec2& b)
+{
+	return a.x*b.x+a.y*b.y;
+}
+inline double cross(const Vec2& a, const Vec2& b)
+{
+	return a.x*b.y - a.y*b.x;
+}
 
 #include <ostream>
 inline std::ostream& operator<<(std::ostream& o, const Vec2& v)
