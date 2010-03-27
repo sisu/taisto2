@@ -57,7 +57,7 @@ void Server::updatePhysics(double t)
 			int t = u.type>0 ? u.type-1 : clients[clID[u.id]]->weapon;
 			u.shootTime = loadTimes[t];
 			Vec2 v(cos(u.d),sin(u.d));
-            Bullet b(u.loc, 20*v, t, bulletid++);
+            Bullet b(u.loc, 1000*v, t, bulletid++);
             bullets.push_back(b);
 
 			DataWriter w;
