@@ -4,7 +4,9 @@
 struct Game;
 struct ClientSocket {
 	Game& g;
-	void connect(const char* host);
+	bool connect(const char* host);
+
+	int sockfd;
 };
 
 #endif
