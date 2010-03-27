@@ -15,6 +15,7 @@ struct Server {
 
 	void initSocket();
 	void pollConnections();
+	void readInputs();
 	void sendState();
 	void sendToAll(const void* s, int n);
 

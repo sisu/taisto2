@@ -3,6 +3,8 @@
 #include "Server.hpp"
 #include "msg.hpp"
 #include "Game.hpp"
+#include "Unit.hpp"
+#include "DataWriter.hpp"
 #include <sys/types.h>
 #include <sys/socket.h>
 #include <netinet/in.h>
@@ -51,8 +53,13 @@ void ClientSocket::handleMessages()
 
 void ClientSocket::readInit(DataReader r)
 {
-	int id = r.readInt();
-	cout<<"reading init "<<id<<'\n';
+	g.id = r.readInt();
+	cout<<"got ID "<<g.id<<'\n';
+	int w=r.readInt(), h=r.readInt();
+	Area& a=g.area;
+	a.w=w,a.h=h;
+	a.a = new int[w*h];
+	memcpy(a.a, r.cur, 4*w*h);
 }
 void ClientSocket::readState(DataReader r)
 {
@@ -60,4 +67,18 @@ void ClientSocket::readState(DataReader r)
 	cout<<"reading "<<n<<" units\n";
 	g.units.resize(n);
 	memcpy(&g.units[0], r.cur, n*sizeof(Unit));
+
+	Unit& u = g.units[0];
+	cout<<"jee "<<u.loc<<'\n';
+}
+
+void ClientSocket::sendState()
+{
+	Unit* p = g.player;
+	DataWriter w;
+	w.writeByte(CLI_STATE);
+	w.writeInt(p->movex);
+	w.writeInt(p->movey);
+	w.writeDouble(p->d);
+	conn.write(w.Buf,w.len());
 }

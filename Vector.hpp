@@ -59,4 +59,10 @@ inline Vec2 normalize(Vec2 v)
 	return v/=length(v);
 }
 
+#include <ostream>
+inline std::ostream& operator<<(std::ostream& o, const Vec2& v)
+{
+	return o<<'('<<v.x<<','<<v.y<<')';
+}
+
 #endif

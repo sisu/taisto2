@@ -14,7 +14,7 @@
 #include "SDL.h"
 using namespace std;
 
-Server::Server(): end(0)
+Server::Server(): end(0), area("field.in.1")
 {
 	initSocket();
 }
@@ -24,6 +24,17 @@ void Server::loop()
 	cout<<"starting server loop\n";
 	while(!end) {
 		pollConnections();
+		for(unsigned i=0; i<units.size(); ++i) {
+			Unit& u = units[i];
+			if (u.type==0) {
+				unsigned k;
+				for(k=0; k<clients.size(); ++k) if (clients[k]->id==u.id) {
+					clients[k]->u = &u;
+					break;
+				}
+			}
+		}
+		readInputs();
 		updatePhysics();
 		sendState();
 		SDL_Delay(20);
@@ -33,6 +44,9 @@ void Server::loop()
 void Server::updatePhysics()
 {
 	moveUnits(&units[0], units.size(), area);
+	if (units.empty()) return;
+	Unit& u = units[0];
+	cout<<"updated physics; "<<u.movex<<' '<<u.movey<<" ; "<<u.loc<<'\n';
 }
 
 void Server::initSocket()
@@ -79,7 +93,7 @@ void Server::pollConnections()
 		ClientInfo* cl = new ClientInfo(*this, newsockfd);
 		clients.push_back(cl);
 		cl->sendInit();
-//		units.push_back(Unit(area.getSpawn(), cl->id));
+		units.push_back(Unit(area.getSpawn(), 0, cl->id));
 //		sockets[sockets_used] = newsockfd;
 //		++sockets_used;
 
@@ -102,4 +116,10 @@ void Server::sendToAll(const void* s, int n)
 {
 	for(unsigned i=0; i<clients.size(); ++i)
 		clients[i]->conn.write(s,n);
+}
+
+void Server::readInputs()
+{
+	for(unsigned i=0; i<clients.size(); ++i)
+		clients[i]->handleMessages();
 }

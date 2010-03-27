@@ -32,8 +32,7 @@ struct Area {
     }
 #undef set
 #define set(x,y,v) a[(x)+(w)*(y)]=v
-    Area(int w_,int h_):w(w_),h(h_)
-    {
+    Area(int w_,int h_):w(w_),h(h_) {
         srand(time(0)+rand());
         
         a = new int[w*h];

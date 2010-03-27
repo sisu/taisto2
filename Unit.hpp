@@ -11,6 +11,9 @@ struct Unit {
 	double health;
 
 	int type,id;
+
+	Unit() {}
+	Unit(Vec2 l, int t, int i): loc(l), d(0), movex(0), movey(0), health(1), type(t), id(i) {}
 };
 
 #endif

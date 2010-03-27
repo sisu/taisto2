@@ -202,6 +202,7 @@ void mainLoop()
         }
         readInput();
         handleInput();
+		game.player = &player;
 		game.updateNetwork();
 		game.updateState();
         draw();
@@ -211,6 +212,11 @@ void mainLoop()
         player.d = d;
         SDL_GL_SwapBuffers();
         SDL_Delay(10);
+
+		if (game.area.w && game.area.w!=area.w) {
+			Area& a=game.area;
+			area.w=a.w, area.h=a.h, area.a=a.a;
+		}
     }
 
 }

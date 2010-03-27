@@ -15,6 +15,8 @@ struct Game {
 
 	void updateState();
 	void updateNetwork();
+	int id;
+	Unit* player;
 };
 
 #endif

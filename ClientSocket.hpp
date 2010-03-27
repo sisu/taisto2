@@ -12,6 +12,7 @@ struct ClientSocket {
 	void handleMessages();
 	void readInit(DataReader r);
 	void readState(DataReader r);
+	void sendState();
 
 	Connection conn;
 };
