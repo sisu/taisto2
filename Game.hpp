@@ -20,6 +20,8 @@ struct Game {
 	int id;
 	Unit* player;
 	int weapon;
+
+	int* bulletIndex;
 };
 
 #endif

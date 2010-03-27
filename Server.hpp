@@ -9,6 +9,7 @@
 
 const int SERVER_PORT = 56125;
 
+struct DataWriter;
 struct Server {
 	Server();
 	void loop();
@@ -19,6 +20,8 @@ struct Server {
 	void readInputs();
 	void sendState();
 	void sendToAll(const void* s, int n);
+	void sendToAll(DataWriter w);
+	void updateBullets(double t);
 
 	bool end;
 

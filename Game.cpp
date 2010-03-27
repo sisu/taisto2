@@ -4,6 +4,7 @@
 Game::Game(): socket(*this)
 {
 	weapon=0;
+	bulletIndex = new int[1<<16];
 }
 void Game::updateNetwork()
 {

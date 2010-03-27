@@ -48,7 +48,8 @@ static int bulletid = 0;
 void Server::updatePhysics(double t)
 {
 	moveUnits(&units[0], units.size(), area, t);
-	moveBullets(&bullets[0], bullets.size(), &units[0], units.size(), area, t);
+//	moveBullets(&bullets[0], bullets.size(), &units[0], units.size(), area, t);
+	updateBullets(t);
 
 	for(unsigned i=0; i<units.size(); ++i) {
 		Unit& u = units[i];
@@ -67,9 +68,7 @@ void Server::updatePhysics(double t)
 		}
 	}
 
-	if (!units.empty()) {
-		Unit& u = units[0]; cout<<"updated physics; "<<u.movex<<' '<<u.movey<<" ; "<<u.loc<<" ; "<<u.shooting<<'\n';
-	}
+//	if (!units.empty()) {Unit& u = units[0]; cout<<"updated physics; "<<u.movex<<' '<<u.movey<<" ; "<<u.loc<<" ; "<<u.shooting<<'\n';}
 }
 
 void Server::initSocket()
@@ -146,9 +145,60 @@ void Server::sendToAll(const void* s, int n)
 	for(unsigned i=0; i<clients.size(); ++i)
 		clients[i]->conn.write(s,n);
 }
+void Server::sendToAll(DataWriter w)
+{
+	for(unsigned i=0; i<clients.size(); ++i)
+		clients[i]->conn.write(w);
+}
 
 void Server::readInputs()
 {
 	for(unsigned i=0; i<clients.size(); ++i)
 		clients[i]->handleMessages();
+}
+
+void Server::updateBullets(double t)
+{
+	for(unsigned i=0; i<bullets.size(); ++i) {
+		Bullet& b = bullets[i];
+		Vec2 l = b.loc + b.v*t;
+		// FIXME: optimize
+		for(unsigned j=0; j<units.size(); ++j) {
+//			Unit& u = units[j];
+		}
+
+		double l2 = length2(l-b.loc);
+		Vec2 c = b.loc;
+		int dx=b.v.x>0?1:-1, dy=b.v.y>0?1:-1;
+		int ix=c.x, iy=c.y;
+		int iix=dx>0?ix+1:ix, iiy=dy>0?iy+1:iy;
+		double ryx = fabs(b.v.y/b.v.x), rxy = fabs(b.v.x/b.v.y);
+		bool hit=0;
+		while(length2(c-b.loc) < l2) {
+			if (area.blocked(ix,iy)) {
+				hit=1;
+				break;
+			}
+			double xx = fabs(iix-c.x);
+			double yy = fabs(iiy-c.y);
+			if (b.v.x*yy < b.v.y*xx) {
+				c.y += dy * xx * ryx;
+				c.x = iix;
+				ix+=dx,iix+=dx;
+			} else {
+				c.x += dx * xx * rxy;
+				c.y = iiy;
+				iy+=dy, iiy+=dy;
+			}
+		}
+		if (hit) {
+			DataWriter w;
+			w.writeByte(SRV_HIT);
+			w.writeInt(b.id);
+			sendToAll(w);
+			bullets[i] = bullets.back();
+			bullets.pop_back();
+			--i;
+		} else b.loc = l;
+	}
 }

@@ -50,7 +50,12 @@ void ClientSocket::handleMessages()
 			case SRV_SHOOT:
 				readBullet(r);
 				break;
-			default: break;
+			case SRV_HIT:
+				readHit(r);
+				break;
+			default:
+				cout<<"Unknown message "<<type<<'\n';
+				break;
 		}
 	}
 }
@@ -80,20 +85,20 @@ void ClientSocket::readState(DataReader r)
 		u.movex = mx, u.movey = my;
 		break;
 	}
-#if 0
-    r.cur+=n*sizeof(Unit);
-    //bullets
-	 n = r.readInt();
-//	cout<<"reading "<<n<<" units\n";
-	g.bullets.resize(n);
-	memcpy(&g.bullets[0], r.cur, n*sizeof(Bullet));
-#endif
-
 //	Unit& u = g.units[0]; cout<<"jee "<<u.loc<<'\n';
 }
 void ClientSocket::readBullet(DataReader r)
 {
 	g.bullets.push_back(*(Bullet*)r.cur);
+	g.bulletIndex[g.bullets.back().id] = g.bullets.size()-1;
+}
+void ClientSocket::readHit(DataReader r)
+{
+	int id = r.readInt();
+	int x = g.bulletIndex[id];
+	g.bullets[x] = g.bullets.back();
+	g.bullets.pop_back();
+	g.bulletIndex[g.bullets[x].id] = x;
 }
 
 void ClientSocket::sendState()

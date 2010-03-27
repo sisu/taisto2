@@ -1,4 +1,5 @@
 #include "Connection.hpp"
+#include "DataWriter.hpp"
 #include <unistd.h>
 #include <iostream>
 #include <cassert>
@@ -33,4 +34,9 @@ void Connection::write(const void* s, int n)
 //	for(int i=0; i<n; ++i) cout<<hex<<(int)((char*)s)[i]<<' '; cout<<'\n';
 	::write(fd, &n, 4);
 	::write(fd, s, n);
+}
+void Connection::write(DataWriter w)
+{
+	*(int*)w.Data = w.len();
+	::write(fd, w.Data, 4+w.len());
 }

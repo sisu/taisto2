@@ -26,7 +26,8 @@ struct DataWriter {
 		memcpy(cur,s,n);
 		cur+=n;
 	}
-	static char Buf[];
+	static char* const Buf;
+	static char Data[];
 };
 
 #endif

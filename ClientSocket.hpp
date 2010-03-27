@@ -13,6 +13,7 @@ struct ClientSocket {
 	void readInit(DataReader r);
 	void readState(DataReader r);
 	void readBullet(DataReader r);
+	void readHit(DataReader r);
 	void sendState();
 
 	Connection conn;
