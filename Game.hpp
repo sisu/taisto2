@@ -12,6 +12,7 @@ struct Game {
 	Area area;
 	std::vector<Unit> units;
 	std::vector<Bullet> bullets;
+	std::vector<Bullet> lastBullets;
 
 	ClientSocket socket;
 

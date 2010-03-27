@@ -12,13 +12,9 @@
 #include"physics.hpp"
 #include "Server.hpp"
 #include "Game.hpp"
+#include"timef.h"
 using namespace std;
 
-float timef()
-{
-    int t = SDL_GetTicks();
-    return t/1000.0;
-}
 
 Game game;
 
@@ -169,24 +165,34 @@ void draw_bullet(Bullet bu)
     v = std::min(z,v);
     glRotatef(a*180/M_PI+90,0,0,1);
     glScalef(0.5,1,1);
+    float part=1;
+    if(bu.hitt>=0)
+    {
+        part = ( z/2 ) / length(bu.origin-(bu.loc+bu.v*(timef()-bu.hitt)));
+        part*=2;
+    }
 
     glBegin(GL_QUADS);
         
+        glColor4f(part,part,part,part);
         glNormal3f(1,0,0);
 		glTexCoord2f(0,0);
         glVertex3f(-1,-1,1);
 		glTexCoord2f(1,0);
+        glVertex3f(-1,1,1);
+        float xz = part*(v-1)/v;
+        glColor4f(xz,xz,xz,xz);
         glVertex3f(1,-1,1);
 		glTexCoord2f(1,0.5);
         glVertex3f(1,1,1);
 		glTexCoord2f(0,0.5);
-        glVertex3f(-1,1,1);
 
 		glTexCoord2f(0,0.5);
         glVertex3f(-1,1+-1,1);
 		glTexCoord2f(1,0.5);
         glVertex3f(1,1+-1,1);
         glColor4f(0,0,0,0);
+
 		glTexCoord2f(1,0.5);
         glVertex3f(0.5,1+v,1);
 		glTexCoord2f(0,0.5);
@@ -250,6 +256,10 @@ void draw(){
 	}
 	for(unsigned i=0; i<game.bullets.size(); ++i) {
         Bullet b = game.bullets[i];
+        //draw_bullet(b);
+	}
+	for(unsigned i=0; i<game.lastBullets.size(); ++i) {
+        Bullet b = game.lastBullets[i];
         draw_bullet(b);
 	}
     /*

@@ -58,12 +58,14 @@ void Server::updatePhysics(double t)
 			int t = u.type>0 ? u.type-1 : clients[clID[u.id]]->weapon;
 			u.shootTime = loadTimes[t];
 			Vec2 v(cos(u.d),sin(u.d));
+
             Bullet b(u.loc, 1000*v, t, bulletid++);
             bullets.push_back(b);
 
 			DataWriter w;
 			w.writeByte(SRV_SHOOT);
 			w.write(&b, sizeof(b));
+
 			sendToAll(w.Buf, w.len());
 		}
 	}
@@ -181,7 +183,7 @@ void Server::updateBullets(double t)
 			}
 			double xx = fabs(iix-c.x);
 			double yy = fabs(iiy-c.y);
-			if (b.v.x*yy < b.v.y*xx) {
+			if (fabs(b.v.x)*yy > fabs(b.v.y)*xx) {
 				c.y += dy * xx * ryx;
 				c.x = iix;
 				ix+=dx,iix+=dx;
@@ -195,6 +197,8 @@ void Server::updateBullets(double t)
 			DataWriter w;
 			w.writeByte(SRV_HIT);
 			w.writeInt(b.id);
+			w.writeFloat(c.x);
+			w.writeFloat(c.y);
 			sendToAll(w);
 			bullets[i] = bullets.back();
 			bullets.pop_back();
