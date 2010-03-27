@@ -7,6 +7,7 @@
 #include <vector>
 
 struct Game {
+	Game();
 	Area area;
 	std::vector<Unit> units;
 

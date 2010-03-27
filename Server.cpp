@@ -50,9 +50,10 @@ void Server::pollConnections()
 		sockaddr_in cli_addr;
 		int clilen;
 		int newsockfd = accept(sockfd, (struct sockaddr *) &cli_addr, (socklen_t *) &clilen);
-		cout<<"Newsockfd: "<<newsockfd<<endl;
 		if (newsockfd < 0) break;
+		cout<<"Newsockfd: "<<newsockfd<<endl;
 
+#if 0
 		const int BSIZE = 255;
 		char buffer[BSIZE];
 
@@ -63,17 +64,20 @@ void Server::pollConnections()
 			cout<<"CONTINUING"<<endl;
 			continue;		
 		}
+#endif
 
 		cout<<"Adding socket"<<endl;
 
-		clients.push_back(new ClientInfo(*this, newsockfd));
+		ClientInfo* cl = new ClientInfo(*this, newsockfd);
+		clients.push_back(cl);
+		cl->sendInit();
 //		sockets[sockets_used] = newsockfd;
 //		++sockets_used;
 
 		fcntl(newsockfd, F_SETFL, O_NONBLOCK);
 
 
-		const char* message = "Connection established";
-		n = write(newsockfd,message,strlen(message));
+//		const char* message = "Connection established";
+//		n = write(newsockfd,message,strlen(message));
 	}
 }

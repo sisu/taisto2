@@ -8,6 +8,9 @@
 #include<GL/glext.h>
 #include"ukko.c"
 #include"physics.hpp"
+#include "Server.hpp"
+#include "Game.hpp"
+using namespace std;
 
 float timef()
 {
@@ -153,6 +156,9 @@ void mainLoop()
 
     int r  = 0;
     double lasttime = 0;
+	Game game;
+	bool res = game.socket.connect("127.0.0.1");
+	cout<<"connect res "<<res<<'\n';
     while(!gameEnd) {
         double t = timef();
         double dt=t-lasttime;
@@ -164,6 +170,8 @@ void mainLoop()
         }
         readInput();
         handleInput();
+		game.updateNetwork();
+		game.updateState();
         draw();
         moveUnits(&player,1,area,dt);
         SDL_GL_SwapBuffers();
@@ -180,9 +188,14 @@ void setPerspective()
     glMatrixMode(GL_MODELVIEW);
 }
 
-int main()
+int main(int argc, char* argv[])
 {
     SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO | SDL_INIT_TIMER);
+	if (argc>1) {
+		Server s;
+		s.loop();
+		return 0;
+	}
     SDL_SetVideoMode(screenW,screenH,0,SDL_OPENGL);
 
     setPerspective();
