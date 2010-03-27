@@ -158,7 +158,7 @@ void draw_bullet(Bullet bu)
     //glColor4f(0.2,0.8,0.2,0.1);
     float a = atan2(bu.v.y,bu.v.x);
     glColor3f(1,1,1);
-    float v = length(bu.v)*8.5;
+    float v = length(bu.v)*4.5;
     float z = length(bu.loc-bu.origin)*2.0;
     //std::cout<<z<<"\n";
     z = std::max(0.0f,z-0);
@@ -224,6 +224,8 @@ void draw_player(float x,float y,float dir)
     glRotatef(180,0,1,0);
     glScalef(0.15,0.1,0.15);
     glTranslatef(0,3.5,0);
+    glEnable(GL_NORMALIZE);
+    glColor3f(0.2,1,0.4);
     draw_model(&ukko_model);
     glPopMatrix();
 }
@@ -256,11 +258,21 @@ void draw(){
 	}
 	for(unsigned i=0; i<game.bullets.size(); ++i) {
         Bullet b = game.bullets[i];
-        //draw_bullet(b);
+        draw_bullet(b);
 	}
 	for(unsigned i=0; i<game.lastBullets.size(); ++i) {
         Bullet b = game.lastBullets[i];
         draw_bullet(b);
+	}
+
+	for(unsigned i=0; i<game.lastBullets.size(); ++i) {
+        Bullet b = game.lastBullets[i];
+        if(b.hitt<timef()-5)
+        {
+            game.lastBullets[i]=game.lastBullets.back();
+            game.lastBullets.pop_back();
+            i--;
+        }
 	}
     /*
        glBegin(GL_TRIANGLES);

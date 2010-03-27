@@ -15,7 +15,7 @@
 #include "SDL.h"
 using namespace std;
 
-Server::Server(): end(0), nextID(1), area("field.in.1")
+Server::Server(): end(0), nextID(1),area(20,300)// area("field.in.1")
 {
 	clID = new int[1<<16];
 	spawnTime = 0;
