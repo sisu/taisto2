@@ -11,7 +11,7 @@ include_directories(${SDL_INCLUDE_DIR})
 
 add_definitions("-Wall -g")
 
-set(sources main.cpp physics.cpp Server.cpp Game.cpp ClientSocket.cpp Server.cpp)
+set(sources main.cpp physics.cpp Server.cpp Game.cpp ClientSocket.cpp ClientInfo.cpp Connection.cpp)
 
 #MESSAGE( STATUS "flags : ${OPENGL_LIBRARY}" )
 

@@ -5,15 +5,22 @@
 #include "Unit.hpp"
 #include "ClientInfo.hpp"
 
-struct Server {
-	void loop();
+const int SERVER_PORT = 56125;
 
+struct Server {
+	Server();
+	void loop();
 	void updatePhysics();
+
+	void initSocket();
+	void pollConnections();
 
 	bool end;
 
 	std::vector<Unit> units;
-	std::vector<ClientInfo> clients;
+	std::vector<ClientInfo*> clients;
+
+	int sockfd;
 };
 
 #endif
