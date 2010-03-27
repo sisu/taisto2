@@ -39,7 +39,7 @@ void ClientSocket::handleMessages()
 	while(conn.read()) {
 		DataReader r(conn.buf+4);
 		int type=r.readByte();
-		cout<<"got message "<<type<<'\n';
+//		cout<<"got message "<<type<<'\n';
 		switch(type) {
 			case SRV_INIT:
 				readInit(r);
@@ -64,12 +64,13 @@ void ClientSocket::readInit(DataReader r)
 void ClientSocket::readState(DataReader r)
 {
 	int n = r.readInt();
-	cout<<"reading "<<n<<" units\n";
+//	cout<<"reading "<<n<<" units\n";
+	double d = g.player->d;
 	g.units.resize(n);
 	memcpy(&g.units[0], r.cur, n*sizeof(Unit));
+	for(int i=0; i<n; ++i) if (g.units[i].type==0 && g.units[i].id==g.id) g.units[i].d=d;
 
-	Unit& u = g.units[0];
-	cout<<"jee "<<u.loc<<'\n';
+//	Unit& u = g.units[0]; cout<<"jee "<<u.loc<<'\n';
 }
 
 void ClientSocket::sendState()

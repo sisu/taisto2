@@ -14,7 +14,7 @@
 #include "SDL.h"
 using namespace std;
 
-Server::Server(): end(0), area("field.in.1")
+Server::Server(): end(0), nextID(1), area("field.in.1")
 {
 	initSocket();
 }
@@ -22,7 +22,9 @@ Server::Server(): end(0), area("field.in.1")
 void Server::loop()
 {
 	cout<<"starting server loop\n";
+	double t=SDL_GetTicks()/1e3;
 	while(!end) {
+		double nt = SDL_GetTicks()/1e3;
 		pollConnections();
 		for(unsigned i=0; i<units.size(); ++i) {
 			Unit& u = units[i];
@@ -35,18 +37,18 @@ void Server::loop()
 			}
 		}
 		readInputs();
-		updatePhysics();
+		updatePhysics(nt-t);
 		sendState();
+		t=nt;
 		SDL_Delay(20);
 	}
 }
 
-void Server::updatePhysics()
+void Server::updatePhysics(double t)
 {
-	moveUnits(&units[0], units.size(), area);
+	moveUnits(&units[0], units.size(), area, t);
 	if (units.empty()) return;
-	Unit& u = units[0];
-	cout<<"updated physics; "<<u.movex<<' '<<u.movey<<" ; "<<u.loc<<'\n';
+	Unit& u = units[0]; cout<<"updated physics; "<<u.movex<<' '<<u.movey<<" ; "<<u.loc<<'\n';
 }
 
 void Server::initSocket()

@@ -11,7 +11,7 @@ const int SERVER_PORT = 56125;
 struct Server {
 	Server();
 	void loop();
-	void updatePhysics();
+	void updatePhysics(double t);
 
 	void initSocket();
 	void pollConnections();

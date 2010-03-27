@@ -18,14 +18,14 @@ float timef()
     return t/1000.0;
 }
 
-
+Game game;
 
 bool keyboard[256];
 int mouseX, mouseY;
 bool mouse[4];
 int screenW=1024, screenH=768;
 
-double ay=0;
+//double ay=0;
 int gameEnd = false;
 
 Area area(100,10000);//("field.in.1");
@@ -134,16 +134,19 @@ void draw_area()
 
 void translateTo(float x,float y)
 {
-    glTranslatef(x*2-1,y*2-1,0);
+//    glTranslatef(x*2-1,y*2-1,0);
+    glTranslatef(.5*x,.5*y,0);
+//    glTranslatef(y*2-1,x*2-1,0);
 }
 
 void draw_player(float x,float y,float dir)
 {
+	x-=player.loc.x, y-=player.loc.y;
     glPushMatrix();
-    glRotatef(player.d*180/M_PI-90,0,0,1);
+    translateTo(x,y);
+    glRotatef(dir*180/M_PI-90,0,0,1);
     glRotatef(90,1,0,0);
     glRotatef(180,0,1,0);
-    translateTo(x,y);
     glScalef(0.15,0.1,0.15);
     glTranslatef(0,3.5,0);
     draw_model(&ukko_model);
@@ -170,7 +173,12 @@ void draw(){
     glTranslatef(0,0,-20);
 //    glRotatef(-45+ay*40,1,0,0);
     draw_area();
-    draw_player(0.5,0.5,playerdir);
+//    draw_player(0.5,0.5,playerdir);
+//    draw_player(player.loc.x,player.loc.y,playerdir);
+	for(unsigned i=0; i<game.units.size(); ++i) {
+		Unit& u=game.units[i];
+		draw_player(u.loc.x,u.loc.y,u.d);
+	}
     /*
        glBegin(GL_TRIANGLES);
        glVertex3d(0,0,0);
@@ -181,13 +189,13 @@ void draw(){
 
 void mainLoop()
 {
-    player.loc.x = 5;
-    player.loc.y = 3;
+//    player.loc.x = 5;
+//    player.loc.y = 3;
+	player.loc = Vec2(.5,.5);
     std::cout<<player.loc.x<<" "<<player.loc.y<<"\n";
 
     int r  = 0;
     double lasttime = 0;
-	Game game;
 	bool res = game.socket.connect("127.0.0.1");
 	cout<<"connect res "<<res<<'\n';
     while(!gameEnd) {
@@ -197,14 +205,16 @@ void mainLoop()
         r++;
         if(r%104==0){
             std::cout<<player.loc.x<<" "<<player.loc.y<<"\n";
-            std::cout<<"dir = "<<player.d<<"\n";
-            std::cout<<"dir = "<<dt<<"\n";
+//            std::cout<<"dir = "<<player.d<<"\n";
+//            std::cout<<"dir = "<<dt<<"\n";
+			std::cout<<"pl "<<player.loc<<'\n';
         }
         readInput();
         handleInput();
 		game.player = &player;
 		game.updateNetwork();
 		game.updateState();
+		for(unsigned i=0; i<game.units.size(); ++i) if (game.units[i].type==0 && game.units[i].id==game.id) player=game.units[i];
         draw();
         double d = player.d;
         player.d=-M_PI/2;
