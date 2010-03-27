@@ -2,6 +2,7 @@
 #include "DataReader.hpp"
 #include "Server.hpp"
 #include "msg.hpp"
+#include "Game.hpp"
 #include <sys/types.h>
 #include <sys/socket.h>
 #include <netinet/in.h>
@@ -41,6 +42,8 @@ void ClientSocket::handleMessages()
 			case SRV_INIT:
 				readInit(r);
 				break;
+			case SRV_STATE:
+				readState(r);
 			default: break;
 		}
 	}
@@ -48,5 +51,13 @@ void ClientSocket::handleMessages()
 
 void ClientSocket::readInit(DataReader r)
 {
-	cout<<"reading init\n";
+	int id = r.readInt();
+	cout<<"reading init "<<id<<'\n';
+}
+void ClientSocket::readState(DataReader r)
+{
+	int n = r.readInt();
+	cout<<"reading "<<n<<" units\n";
+	g.units.resize(n);
+	memcpy(&g.units[0], r.cur, n*sizeof(Unit));
 }

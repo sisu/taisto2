@@ -11,6 +11,7 @@ struct ClientSocket {
 	bool connect(const char* host);
 	void handleMessages();
 	void readInit(DataReader r);
+	void readState(DataReader r);
 
 	Connection conn;
 };

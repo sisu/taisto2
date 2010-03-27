@@ -1,4 +1,8 @@
 #include "Server.hpp"
+#include "physics.hpp"
+#include "DataWriter.hpp"
+#include "msg.hpp"
+#include "Area.hpp"
 #include <sys/types.h> 
 #include <sys/socket.h>
 #include <netinet/in.h>
@@ -20,11 +24,13 @@ void Server::loop()
 	while(!end) {
 		pollConnections();
 		updatePhysics();
+		sendState();
 	}
 }
 
 void Server::updatePhysics()
 {
+	moveUnits(&units[0], units.size(), area);
 }
 
 void Server::initSocket()
@@ -80,4 +86,17 @@ void Server::pollConnections()
 //		const char* message = "Connection established";
 //		n = write(newsockfd,message,strlen(message));
 	}
+}
+void Server::sendState()
+{
+	DataWriter w;
+	w.writeByte(SRV_STATE);
+	w.writeInt(units.size());
+	w.write(&units[0], units.size() * sizeof(Unit));
+	sendToAll(w.Buf, w.len());
+}
+void Server::sendToAll(const void* s, int n)
+{
+	for(unsigned i=0; i<clients.size(); ++i)
+		clients[i]->conn.write(s,n);
 }
