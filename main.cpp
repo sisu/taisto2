@@ -138,27 +138,67 @@ void draw_area()
     glEnd();
     glPopMatrix();
 }
-void draw_bullet(Vec2 loc)
+void draw_bullet(Bullet bu)
 {
+    Vec2 loc = bu.loc;
     glPushMatrix();
     glScalef(0.5,0.5,0.5);
     //glTranslatef(-player.loc.x,-player.loc.y,0.0);
-
+    
+    glDisable(GL_COLOR);
+    glDisable(GL_LIGHTING);
+    glDisable(GL_DEPTH_TEST);
+    glEnable(GL_TEXTURE_2D);
+    glEnable(GL_BLEND);
+    glEnable (GL_BLEND); 
+    glBlendFunc (GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);  
+    glBindTexture(GL_TEXTURE_2D,ammo.glid);
     
     glTranslatef(-player.loc.x+0.5,-player.loc.y+0.5,0);
     glTranslatef(loc.x-0.5,loc.y-0.5,0);
+
     glScalef(0.5,0.5,0.5);
     //glTranslatef(-area.w/2,-area.h/2,0);
-    glColor4f(0.2,0.8,0.2,0.1);
+    //glColor4f(0.2,0.8,0.2,0.1);
+    float a = atan2(bu.v.y,bu.v.x);
+    glColor3f(1,1,1);
+    float v = length(bu.v)*8.5;
+    float z = length(bu.loc-bu.origin)*2.0;
+    //std::cout<<z<<"\n";
+    z = std::max(0.0f,z-0);
+    v = std::min(z,v);
+    glRotatef(a*180/M_PI+90,0,0,1);
+    glScalef(0.5,1,1);
+
     glBegin(GL_QUADS);
-		glNormal3f(0,0,1);
+        
+        glNormal3f(1,0,0);
+		glTexCoord2f(0,0);
         glVertex3f(-1,-1,1);
+		glTexCoord2f(1,0);
         glVertex3f(1,-1,1);
+		glTexCoord2f(1,0.5);
         glVertex3f(1,1,1);
+		glTexCoord2f(0,0.5);
         glVertex3f(-1,1,1);
+
+		glTexCoord2f(0,0.5);
+        glVertex3f(-1,1+-1,1);
+		glTexCoord2f(1,0.5);
+        glVertex3f(1,1+-1,1);
+        glColor4f(0,0,0,0);
+		glTexCoord2f(1,0.5);
+        glVertex3f(0.5,1+v,1);
+		glTexCoord2f(0,0.5);
+        glVertex3f(-0.5,1+v,1);
+
     glEnd();
     glPopMatrix();
-
+    glEnable(GL_COLOR);
+    glDisable(GL_BLEND);
+    glDisable(GL_TEXTURE_2D);
+    glEnable(GL_DEPTH_TEST);
+    glEnable(GL_LIGHTING);
 }
 
 void translateTo(float x,float y)
@@ -208,11 +248,9 @@ void draw(){
 		Unit& u=game.units[i];
 		draw_player(u.loc.x,u.loc.y,u.d);
 	}
-    if(rand()%100==0)
-        std::cout<<"bullets.size() = "<<game.bullets.size()<<"\n";
 	for(unsigned i=0; i<game.bullets.size(); ++i) {
         Bullet b = game.bullets[i];
-        draw_bullet(b.loc);
+        draw_bullet(b);
 	}
     /*
        glBegin(GL_TRIANGLES);
@@ -239,10 +277,10 @@ void mainLoop()
         lasttime=t;
         r++;
         if(r%104==0){
-            std::cout<<player.loc.x<<" "<<player.loc.y<<"\n";
+            //std::cout<<player.loc.x<<" "<<player.loc.y<<"\n";
 //            std::cout<<"dir = "<<player.d<<"\n";
 //            std::cout<<"dir = "<<dt<<"\n";
-			std::cout<<"pl "<<player.loc<<'\n';
+			//std::cout<<"pl "<<player.loc<<'\n';
         }
         readInput();
         handleInput();
@@ -273,9 +311,12 @@ void setPerspective()
 {
     glEnable(GL_DEPTH_TEST);
     glDepthFunc(GL_LESS);
+    glShadeModel(GL_SMOOTH);
     glMatrixMode(GL_PROJECTION);
     gluPerspective(45,4.0/3.0,0.01,1000);
     glMatrixMode(GL_MODELVIEW);
+
+    glClear(GL_ACCUM_BUFFER_BIT);
 }
 
 int main(int argc, char* argv[])
