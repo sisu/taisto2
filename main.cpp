@@ -22,9 +22,10 @@ int mouseX, mouseY;
 bool mouse[4];
 int screenW=1024, screenH=768;
 
+double ay=0;
 int gameEnd = false;
 
-Area area("field.in.1");
+Area area(100,10000);//("field.in.1");
 Unit player;
 float playerdir;
 int mouseState;
@@ -49,8 +50,9 @@ void readInput()
 void handleInput()
 {
     static float lasttime = 0;
-    player.d+=(mouseX-screenW/2)*.2*(timef()-lasttime);
-    lasttime=timef();
+    double t= timef();
+    player.d=-atan2(mouseY-screenH/2.0,mouseX-screenW/2.0);
+    lasttime=t;
     player.movex=0;
     player.movey=0;
     if(keyboard[SDLK_w])
@@ -61,20 +63,19 @@ void handleInput()
         player.movex--;
     if(keyboard[SDLK_d])
         player.movex++;
-    if(mouseX!=screenW/2){
-        SDL_EventState(SDL_MOUSEMOTION, SDL_IGNORE);
-        SDL_WarpMouse(screenW/2,screenH/2);
-        SDL_EventState(SDL_MOUSEMOTION, SDL_ENABLE);
-    }
 }
 void draw_model(Model* m)
 {
-#if 0 
+#if 1 
     glEnableClientState(GL_VERTEX_ARRAY);
-    //glEnableClientState(GL_NORMAL_ARRAY);
-    glVertexPointer(3,GL_FLOAT,6,m->data);
-    //glNormalPointer(GL_FLOAT,3,m->data+3);
+    glEnableClientState(GL_NORMAL_ARRAY);
+    glColor3d(1,0,0);
+
+    glVertexPointer(3,GL_FLOAT,6*sizeof(float),m->data);
+    glNormalPointer(GL_FLOAT,6*sizeof(float),m->data+3);
     glDrawElements(GL_TRIANGLES,m->in,GL_UNSIGNED_SHORT,(GLvoid*)m->index);
+    glDisableClientState(GL_VERTEX_ARRAY);
+    glDisableClientState(GL_NORMAL_ARRAY);
 #else
     glBegin(GL_TRIANGLES);
     for(int i=0;i<m->in;i++)
@@ -93,24 +94,36 @@ void draw_area()
     glScalef(0.5,0.5,0.5);
     //glTranslatef(-player.loc.x,-player.loc.y,0.0);
 
-    glRotatef(player.d*180/M_PI+90,0,0,1);
+    
     glTranslatef(-player.loc.x+0.5,-player.loc.y+0.5,0);
     //glTranslatef(-area.w/2,-area.h/2,0);
 
-    for(int i=0;i<area.w;i++)
+    int w = 50;
+    int h = 50;
+    int sx = player.loc.x-w/2;
+    int sy = player.loc.y-h/2;
+    for(int i=sx;i<sx+w;i++)
     {
-        for(int j=0;j<area.h;j++)
+        for(int j=sy;j<sy+h;j++)
         {
 
             if(area.blocked(i,j)){
                 glPushMatrix();
                 glTranslatef(i,j,0);
-                glScalef(0.5,0.5,0.5);
+                glScalef(0.5,0.5,2+2*area.height(i,j));
+            
                 drawcube();
                 glPopMatrix();
             }
         }
     }
+    glColor3f(0.2,0.2,0.2);
+    glBegin(GL_QUADS);
+        glVertex3f(-1009,-1000,0);
+        glVertex3f(1000,-1000,0);
+        glVertex3f(1000,1000,0);
+        glVertex3f(-1000,1000,0);
+    glEnd();
     glPopMatrix();
 }
 
@@ -122,10 +135,12 @@ void translateTo(float x,float y)
 void draw_player(float x,float y,float dir)
 {
     glPushMatrix();
+    glRotatef(player.d*180/M_PI-90,0,0,1);
     glRotatef(90,1,0,0);
     glRotatef(180,0,1,0);
     translateTo(x,y);
-    glScalef(0.2,0.2,0.2);
+    glScalef(0.15,0.1,0.15);
+    glTranslatef(0,3.5,0);
     draw_model(&ukko_model);
     glPopMatrix();
 }
@@ -134,8 +149,8 @@ double spin = 0;
 void draw(){
     glClear(GL_COLOR_BUFFER_BIT|GL_DEPTH_BUFFER_BIT);
     glLoadIdentity();
-    glTranslatef(0,0,-10);
-    glRotatef(-45,1,0,0);
+    glTranslatef(0,0,-22);
+    //glRotatef(-45+ay*40,1,0,0);
     draw_area();
     draw_player(0.5,0.5,playerdir);
     /*
@@ -150,6 +165,7 @@ void mainLoop()
 {
     player.loc.x = 5;
     player.loc.y = 3;
+    std::cout<<player.loc.x<<" "<<player.loc.y<<"\n";
 
     int r  = 0;
     double lasttime = 0;
@@ -159,13 +175,17 @@ void mainLoop()
         lasttime=t;
         r++;
         if(r%104==0){
+            std::cout<<player.loc.x<<" "<<player.loc.y<<"\n";
             std::cout<<"dir = "<<player.d<<"\n";
             std::cout<<"dir = "<<dt<<"\n";
         }
         readInput();
         handleInput();
         draw();
+        double d = player.d;
+        player.d=-M_PI/2;
         moveUnits(&player,1,area,dt);
+        player.d = d;
         SDL_GL_SwapBuffers();
         SDL_Delay(10);
     }
@@ -182,6 +202,7 @@ void setPerspective()
 
 int main()
 {
+    srand(time(0));
     SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO | SDL_INIT_TIMER);
     SDL_SetVideoMode(screenW,screenH,0,SDL_OPENGL);
 
