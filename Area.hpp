@@ -3,6 +3,7 @@
 #include<stdlib.h>
 #include<string>
 #include<fstream>
+#include "Vector.hpp"
 
 struct Area {
     private:
@@ -130,6 +131,9 @@ struct Area {
         if(x>=w || y>=h)return 1;//+(((abs(x)^abs(y)))&7);
         if(x<0 || y<0)return 1;//+((abs(x)^abs(y))&7);
 		return a[w*y+x];
+	}
+	Vec2 getSpawn() {
+		return Vec2(.5,.5);
 	}
 };
 

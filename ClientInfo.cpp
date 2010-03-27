@@ -28,7 +28,8 @@ void ClientInfo::sendInit()
 {
 	DataWriter out;
 	out.writeByte(SRV_INIT);
-	out.writeInt(server.nextID++);
+	id = server.nextID++;
+	out.writeInt(id);
 	conn.write(out.Buf, out.len());
 	cout<<"sent init "<<out.len()<<'\n';;
 }

@@ -11,9 +11,10 @@
 #include <cstdlib>
 #include <cstdio>
 #include <iostream>
+#include "SDL.h"
 using namespace std;
 
-Server::Server()
+Server::Server(): end(0)
 {
 	initSocket();
 }
@@ -25,6 +26,7 @@ void Server::loop()
 		pollConnections();
 		updatePhysics();
 		sendState();
+		SDL_Delay(20);
 	}
 }
 
@@ -54,7 +56,7 @@ void Server::pollConnections()
 {
 	while(true) {
 		sockaddr_in cli_addr;
-		int clilen;
+		int clilen=0;
 		int newsockfd = accept(sockfd, (struct sockaddr *) &cli_addr, (socklen_t *) &clilen);
 		if (newsockfd < 0) break;
 		cout<<"Newsockfd: "<<newsockfd<<endl;
@@ -77,6 +79,7 @@ void Server::pollConnections()
 		ClientInfo* cl = new ClientInfo(*this, newsockfd);
 		clients.push_back(cl);
 		cl->sendInit();
+//		units.push_back(Unit(area.getSpawn(), cl->id));
 //		sockets[sockets_used] = newsockfd;
 //		++sockets_used;
 

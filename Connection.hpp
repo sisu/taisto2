@@ -2,7 +2,7 @@
 #define CONNECTION_HPP
 
 struct Connection {
-	Connection(): buf(new char[1<<16]), cur(0) {}
+	Connection(): buf(new char[1<<16]), cur(0), need(0) {}
 	~Connection() {delete[] buf;}
 	char* buf;
 	int cur;

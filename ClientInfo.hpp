@@ -14,6 +14,7 @@ struct ClientInfo {
 	Server& server;
 	Unit* u;
 	Connection conn;
+	int id;
 };
 
 #endif
