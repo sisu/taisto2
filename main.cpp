@@ -69,7 +69,7 @@ void handleInput()
 }
 void draw_model(Model* m)
 {
-#if 1 
+#if 0
     glEnableClientState(GL_VERTEX_ARRAY);
     glEnableClientState(GL_NORMAL_ARRAY);
     glColor3d(1,0,0);
@@ -84,7 +84,8 @@ void draw_model(Model* m)
     for(int i=0;i<m->in;i++)
     {
         int j = m->index[i]*6;
-        glColor3f(m->data[j+3],m->data[j+4],m->data[j+5]);
+//        glColor3f(m->data[j+3],m->data[j+4],m->data[j+5]);
+        glNormal3f(m->data[j+3],m->data[j+4],m->data[j+5]);
         glVertex3f(m->data[j+0],m->data[j+1],m->data[j+2]);
         //std::cout<<m->data[i+0]<<" "<<m->data[i+1]<<" "<<m->data[i+2]<<"\n";;
     }
@@ -122,6 +123,7 @@ void draw_area()
     }
     glColor3f(0.2,0.2,0.2);
     glBegin(GL_QUADS);
+		glNormal3f(0,0,1);
         glVertex3f(-1009,-1000,0);
         glVertex3f(1000,-1000,0);
         glVertex3f(1000,1000,0);
@@ -148,12 +150,25 @@ void draw_player(float x,float y,float dir)
     glPopMatrix();
 }
 
+void setLights()
+{
+	glEnable(GL_COLOR_MATERIAL);
+	glEnable(GL_LIGHTING);
+	glEnable(GL_LIGHT0);
+	float pos[] = {.1,.1,1,0};
+	glLightfv(GL_LIGHT0, GL_POSITION, pos);
+	glEnable(GL_LIGHT1);
+	float pos2[] = {.2,-.3,.8,0};
+	glLightfv(GL_LIGHT1, GL_POSITION, pos2);
+}
+
 double spin = 0;
 void draw(){
+	setLights();
     glClear(GL_COLOR_BUFFER_BIT|GL_DEPTH_BUFFER_BIT);
     glLoadIdentity();
-    glTranslatef(0,0,-22);
-    //glRotatef(-45+ay*40,1,0,0);
+    glTranslatef(0,0,-20);
+//    glRotatef(-45+ay*40,1,0,0);
     draw_area();
     draw_player(0.5,0.5,playerdir);
     /*

@@ -2,6 +2,7 @@
 #include "Server.hpp"
 #include "msg.hpp"
 #include "DataReader.hpp"
+#include "DataWriter.hpp"
 #include <iostream>
 using namespace std;
 
@@ -25,7 +26,9 @@ void ClientInfo::handleMessages()
 
 void ClientInfo::sendInit()
 {
-	char init=SRV_INIT;
-	conn.write(&init, 1);
-	cout<<"sent init\n";
+	DataWriter out;
+	out.writeByte(SRV_INIT);
+	out.writeInt(server.nextID++);
+	conn.write(out.Buf, out.len());
+	cout<<"sent init "<<out.len()<<'\n';;
 }

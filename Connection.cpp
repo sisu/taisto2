@@ -8,16 +8,17 @@ bool Connection::read()
 	if (cur<4) {
 		int n = ::read(fd, buf+cur, 4-cur);
 		if (n<0) return 0;
-		cout<<"got data: "<<n<<'\n';
+//		cout<<"got data: "<<n<<'\n';
 		cur += n;
 		if (cur<4) return 0;
 		need = *(int*)buf;
+//		cout<<"need: "<<need<<'\n';
 	}
 	int n =::read(fd, buf+cur, need-(cur-4));
 	if (n<0) return 0;
-	cur += 4;
+//	cout<<"real data: "<<n<<'\n';
+	cur += n;
 	if (cur<4+need) return 0;
-	return 1;
 	cur=0;
 	return 1;
 }

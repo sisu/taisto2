@@ -4,6 +4,7 @@
 #include <vector>
 #include "Unit.hpp"
 #include "ClientInfo.hpp"
+#include "Area.hpp"
 
 const int SERVER_PORT = 56125;
 
@@ -14,6 +15,8 @@ struct Server {
 
 	void initSocket();
 	void pollConnections();
+	void sendState();
+	void sendToAll(const void* s, int n);
 
 	bool end;
 
@@ -21,6 +24,9 @@ struct Server {
 	std::vector<ClientInfo*> clients;
 
 	int sockfd;
+	int nextID;
+
+	Area area;
 };
 
 #endif
