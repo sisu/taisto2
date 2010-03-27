@@ -15,7 +15,7 @@ struct Game {
 
 	ClientSocket socket;
 
-	void updateState();
+	void updateState(double t);
 	void updateNetwork();
 	int id;
 	Unit* player;
