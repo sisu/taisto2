@@ -73,7 +73,7 @@ void Server::updatePhysics(double t)
 		}
 	}
 
-	if (units.size()>1) {Unit& u = units[1]; cout<<"updated physics; "<<u.movex<<' '<<u.movey<<" ; "<<u.loc<<" ; "<<u.shooting<<' '<<u.id<<' '<<clID[u.id]<<'\n';}
+//	if (units.size()>1) {Unit& u = units[1]; cout<<"updated physics; "<<u.movex<<' '<<u.movey<<" ; "<<u.loc<<" ; "<<u.shooting<<' '<<u.id<<' '<<clID[u.id]<<'\n';}
 }
 
 void Server::initSocket()
@@ -172,7 +172,7 @@ void Server::updateBullets(double t)
 //			Unit& u = units[j];
 		}
 
-		double l2 = length2(l-b.loc);
+		double l2 = length2(b.v*t);
 		Vec2 c = b.loc;
 		int dx=b.v.x>0?1:-1, dy=b.v.y>0?1:-1;
 		int ix=c.x, iy=c.y;
@@ -191,12 +191,13 @@ void Server::updateBullets(double t)
 				c.x = iix;
 				ix+=dx,iix+=dx;
 			} else {
-				c.x += dx * xx * rxy;
+				c.x += dx * yy * rxy;
 				c.y = iiy;
 				iy+=dy, iiy+=dy;
 			}
 		}
 		if (hit) {
+			cout<<"collision @ "<<c<<'\n';
 			DataWriter w;
 			w.writeByte(SRV_HIT);
 			w.writeInt(b.id);
