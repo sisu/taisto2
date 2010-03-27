@@ -1,5 +1,6 @@
 #include <SDL/SDL.h>
 #include"Unit.hpp"
+#include"texgen.hpp"
 #include"Area.hpp"
 #include"cube.hpp"
 #include<iostream>
@@ -69,10 +70,13 @@ void handleInput()
 }
 void draw_model(Model* m)
 {
-#if 0
+#if 1
     glEnableClientState(GL_VERTEX_ARRAY);
     glEnableClientState(GL_NORMAL_ARRAY);
     glColor3d(1,0,0);
+    glEnable(GL_TEXTURE_2D);
+//glBindTexture(GL_TEXTURE_2D,ammo.glid);
+
 
     glVertexPointer(3,GL_FLOAT,6*sizeof(float),m->data);
     glNormalPointer(GL_FLOAT,6*sizeof(float),m->data+3);
@@ -233,6 +237,7 @@ int main(int argc, char* argv[])
 		return 0;
 	}
     SDL_SetVideoMode(screenW,screenH,0,SDL_OPENGL);
+    initTextures();
 
     setPerspective();
     mainLoop();
