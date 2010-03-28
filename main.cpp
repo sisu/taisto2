@@ -1,4 +1,5 @@
 
+#include "salama.hpp"
 #include <SDL/SDL.h>
 #include"Unit.hpp"
 #include"texgen.hpp"
@@ -144,10 +145,10 @@ void draw_bullet(Bullet bu)
     glPushMatrix();
 //    glScalef(0.5,0.5,0.5);
     //glTranslatef(-player.loc.x,-player.loc.y,0.0);
-    
+    glDepthMask(0);
     glDisable(GL_COLOR);
     glDisable(GL_LIGHTING);
-    glDisable(GL_DEPTH_TEST);
+    //glDisable(GL_DEPTH_TEST);
     glEnable(GL_TEXTURE_2D);
     glEnable(GL_BLEND);
     glEnable (GL_BLEND); 
@@ -163,30 +164,31 @@ void draw_bullet(Bullet bu)
     //glColor4f(0.2,0.8,0.2,0.1);
     float a = atan2(bu.v.y,bu.v.x);
     glColor3f(1,1,1);
-    float v = length(bu.v)*8.5;
+    float v = length(bu.v)*4.5;
     float z = length(bu.loc-bu.origin)*2.0;
     //std::cout<<z<<"\n";
-    z = std::max(0.0f,z-0);
+    z = std::max(0.0f,z-2);
     v = std::min(z,v);
     glRotatef(a*180/M_PI+90,0,0,1);
-    glScalef(0.5,1,1);
+    glScalef(0.2,1,1);
     float part=1;
-    if(bu.hitt>=0)
+    if(bu.hitt-0.01>=0)
     {
-        part = ( z/2 ) / length(bu.origin-(bu.loc+bu.v*(timef()-bu.hitt)));
+        part = ( 0.2 ) / ((timef()-bu.hitt));
+        part*=part;
         part*=2;
+        if(part>1)part=1;
     }
-
     glBegin(GL_QUADS);
         
-        glColor4f(part,part,part,part);
+        glColor4f((part),part,part,(part));
         glNormal3f(1,0,0);
 		glTexCoord2f(0,0);
         glVertex3f(-1,-1,1);
 		glTexCoord2f(1,0);
         glVertex3f(-1,1,1);
-        float xz = part*(v-1)/v;
-        glColor4f(xz,xz,xz,xz);
+        //float xz = part*(v-1)/v;
+        //glColor4f(xz,xz,xz,xz);
         glVertex3f(1,-1,1);
 		glTexCoord2f(1,0.5);
         glVertex3f(1,1,1);
@@ -196,20 +198,21 @@ void draw_bullet(Bullet bu)
         glVertex3f(-1,1+-1,1);
 		glTexCoord2f(1,0.5);
         glVertex3f(1,1+-1,1);
-        glColor4f(0,0,0,0);
-
+        
 		glTexCoord2f(1,0.5);
-        glVertex3f(0.5,1+v,1);
+        glVertex3f(1,1+v,1);
 		glTexCoord2f(0,0.5);
-        glVertex3f(-0.5,1+v,1);
+        glVertex3f(-1,1+v,1);
+
 
     glEnd();
     glPopMatrix();
     glEnable(GL_COLOR);
     glDisable(GL_BLEND);
     glDisable(GL_TEXTURE_2D);
-    glEnable(GL_DEPTH_TEST);
+    //glEnable(GL_DEPTH_TEST);
     glEnable(GL_LIGHTING);
+    glDepthMask(1);
 }
 
 void translateTo(float x,float y)
@@ -230,7 +233,8 @@ void draw_player(float x,float y,float dir)
     glRotatef(180,0,1,0);
     glScalef(0.15,0.1,0.15);
     glTranslatef(0,3.5,0);
-	glColor3f(.2,.8,.2);
+    glEnable(GL_NORMALIZE);
+    glColor3f(0.1,0.4,0.3);
     draw_model(&ukko_model);
     glPopMatrix();
 }
@@ -255,10 +259,17 @@ void draw(){
     glLoadIdentity();
     glTranslatef(0,0,-30);
 	glTranslatef(-player.loc.x, -player.loc.y, 0);
-//    glRotatef(-45+ay*40,1,0,0);
-    draw_area();
+    glColor3f(0.2,0.2,0.2);
+    glBegin(GL_QUADS);
+		glNormal3f(0,0,1);
+        glVertex3f(-1009,-1000,0);
+        glVertex3f(1000,-1000,0);
+        glVertex3f(1000,1000,0);
+        glVertex3f(-1000,1000,0);
+    glEnd();
 //    draw_player(0.5,0.5,playerdir);
 //    draw_player(player.loc.x,player.loc.y,playerdir);
+    draw_area();
 	for(unsigned i=0; i<game.units.size(); ++i) {
 		Unit& u=game.units[i];
 		draw_player(u.loc.x,u.loc.y,u.d);
@@ -270,8 +281,23 @@ void draw(){
 	}
 	for(unsigned i=0; i<game.lastBullets.size(); ++i) {
         Bullet b = game.lastBullets[i];
-		if (b.type==0)
-			draw_bullet(b);
+		if (b.type!=0) continue;
+        //draw_bullet(b);
+
+        drawSalama( b.origin.x-player.loc.x,
+                    b.origin.y-player.loc.y,
+                    b.loc.x-player.loc.x,
+                    b.loc.y-player.loc.y);
+	}
+
+	for(unsigned i=0; i<game.lastBullets.size(); ++i) {
+        Bullet b = game.lastBullets[i];
+        if(b.hitt<timef()-5)
+        {
+            game.lastBullets[i]=game.lastBullets.back();
+            game.lastBullets.pop_back();
+            i--;
+        }
 	}
     /*
        glBegin(GL_TRIANGLES);
