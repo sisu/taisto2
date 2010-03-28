@@ -5,6 +5,7 @@
 #include "Area.hpp"
 #include "ClientSocket.hpp"
 #include "Bullet.hpp"
+#include "explosion.hpp"
 #include <vector>
 
 struct Game {
@@ -13,6 +14,7 @@ struct Game {
 	std::vector<Unit> units;
 	std::vector<Bullet> bullets;
 	std::vector<Bullet> lastBullets;
+	std::vector<ExplosionP> eparts;
 
 	ClientSocket socket;
 
