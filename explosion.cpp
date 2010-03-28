@@ -13,7 +13,7 @@ using namespace std;
 void drawExplosions(Game& g)
 {
 	if (g.eparts.empty()) return;
-	cout<<"drawing "<<g.eparts.size()<<" particles\n";
+//	cout<<"drawing "<<g.eparts.size()<<" particles\n";
 	glEnable(GL_TEXTURE_2D);
 	glBindTexture(GL_TEXTURE_2D, explosionTex);
 	glEnable(GL_BLEND);
