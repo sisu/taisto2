@@ -1,4 +1,5 @@
 
+#include "salama.hpp"
 #include <SDL/SDL.h>
 #include"Unit.hpp"
 #include"texgen.hpp"
@@ -168,8 +169,10 @@ void draw_bullet(Bullet bu)
     float part=1;
     if(bu.hitt-0.01>=0)
     {
-        part = ( 5 ) / length(bu.origin-(bu.loc+bu.v*(timef()-bu.hitt-0.01)));
+        part = ( 0.2 ) / ((timef()-bu.hitt));
+        part*=part;
         part*=2;
+        if(part>1)part=1;
     }
     glBegin(GL_QUADS);
         
@@ -265,11 +268,16 @@ void draw(){
 	}
 	for(unsigned i=0; i<game.bullets.size(); ++i) {
         Bullet b = game.bullets[i];
-        draw_bullet(b);
+        //draw_bullet(b);
 	}
 	for(unsigned i=0; i<game.lastBullets.size(); ++i) {
         Bullet b = game.lastBullets[i];
-        draw_bullet(b);
+        //draw_bullet(b);
+
+        drawSalama( b.origin.x-player.loc.x,
+                    b.origin.y-player.loc.y,
+                    b.loc.x-player.loc.x,
+                    b.loc.y-player.loc.y);
 	}
 
 	for(unsigned i=0; i<game.lastBullets.size(); ++i) {

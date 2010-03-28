@@ -8,6 +8,7 @@ struct Texture{
     unsigned glid;
 };
 extern Texture ammo;
+extern Texture salama;
 
 extern void initTextures();
 
