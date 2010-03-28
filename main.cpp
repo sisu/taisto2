@@ -274,10 +274,14 @@ void draw(){
         Bullet b = game.lastBullets[i];
         //draw_bullet(b);
 
+        Vec2 target= b.loc-player.loc;
+        drawSalama(game,b.origin-player.loc,&target,1);
+        /*
         drawSalama( b.origin.x-player.loc.x,
                     b.origin.y-player.loc.y,
                     b.loc.x-player.loc.x,
                     b.loc.y-player.loc.y);
+                    */
 	}
 
 	for(unsigned i=0; i<game.lastBullets.size(); ++i) {
