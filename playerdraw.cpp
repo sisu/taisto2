@@ -12,7 +12,7 @@ void drawPlayer(const Unit& u)
     glTranslatef(u.loc.x,u.loc.y,1);
     double a = u.d*180/M_PI;
     glPushMatrix();
-    glRotatef(a+90+45,0,0,1);
+    glRotatef(a+90-45,0,0,1);
     glRotatef(90,1,0,0);
     glScalef(0.5,0.5,0.5);
     draw_model(&vartalo_model);
