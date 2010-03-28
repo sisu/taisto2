@@ -36,9 +36,23 @@ void Server::loop()
 			if (u.type!=0) continue;
 			clients[clID[u.id]]->u = &u;
 		}
+		for(unsigned i=0; i<clients.size(); ++i) {
+			ClientInfo& c=*clients[i];
+			if (c.u) continue;
+			c.spawnTime -= nt-t;
+			if (c.spawnTime<0) {
+				units.push_back(Unit(area.getSpawn(curSpawn), 0, c.id));
+				c.u = &units.back();
+			}
+		}
 		readInputs();
 		updatePhysics(nt-t);
 		updateBases();
+		for(unsigned i=0; i<units.size(); ++i) {
+			Unit& u = units[i];
+			if (u.type!=0) continue;
+			clients[clID[u.id]]->u = &u;
+		}
 		sendState();
 		t=nt;
 		SDL_Delay(15);
@@ -105,20 +119,6 @@ void Server::pollConnections()
 		int newsockfd = accept(sockfd, (struct sockaddr *) &cli_addr, (socklen_t *) &clilen);
 		if (newsockfd < 0) break;
 		cout<<"Newsockfd: "<<newsockfd<<endl;
-
-#if 0
-		const int BSIZE = 255;
-		char buffer[BSIZE];
-
-		// check if interested
-		int n = read(newsockfd,buffer,BSIZE); 
-
-		if(n < 0) {
-			cout<<"CONTINUING"<<endl;
-			continue;		
-		}
-#endif
-
 		cout<<"Adding socket"<<endl;
 
 		ClientInfo* cl = new ClientInfo(*this, newsockfd);
@@ -218,7 +218,7 @@ void Server::updateBullets(double t)
 				Unit& u =units[bj];
 				u.health -= damages[b.type]/shields[u.type];
 				if (u.health<0) {
-					if (u.type==0) clients[clID[u.id]]->u=0;
+					if (u.type==0) clients[clID[u.id]]->u=0, clients[clID[u.id]]->spawnTime=3;
 					units[bj] = units.back();
 					units.pop_back();
 				}

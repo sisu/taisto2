@@ -11,6 +11,6 @@ Bullet genBullet(int type, Vec2 l, double d, int id)
 {
 	d += ((double)rand()/RAND_MAX-.5)*offsets[type];
 	Vec2 v(cos(d),sin(d));
-	Bullet b(l+.1*v, v * speeds[type], type, id);
+	Bullet b(l+.3*v, v * speeds[type], type, id);
 	return b;
 }
