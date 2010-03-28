@@ -2,7 +2,7 @@
 #define SALAMA_HPP
 #include<cstdlib>
 #include"Game.hpp"
-static float randf()
+static inline float randf()
 {
     return rand()/float(RAND_MAX);
 }

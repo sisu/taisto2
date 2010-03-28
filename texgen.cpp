@@ -50,14 +50,14 @@ static Texture getSalama()
             float z = (ret.w/2+0.5-x);
             z = abs(z);
             if(z!=0)
-                z = 420.0/(z);
+                z = 200.0/(z);
             else z = 1000;
             z+=z*(0.1*(rand()%10));
             //int iz = std::min(int(z),700);
             int iz = z;
             iz=(iz+70)/2;
             if(iz<10)iz=0;
-            ret.pix[y*ret.w+x]=(std::max(0,std::min(255,iz-40)))|std::min(255,iz/2)<<24|std::min(255,iz/2)<<16|std::min(255,int(sqrt(1000*iz)))<<8;
+            ret.pix[y*ret.w+x]=(std::max(0,std::min(255,iz*2-80)))|std::min(255,iz/2)<<24|std::min(255,iz/2)<<16|std::min(255,int(sqrt(10000*iz)))<<8;
         }
     }
     unsigned tex;
@@ -69,6 +69,8 @@ static Texture getSalama()
     glTexParameterf( GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR );
     std::cout<<"mipmaps = "<<gluBuild2DMipmaps( GL_TEXTURE_2D, 4,ret.w,ret.h,
             GL_RGBA, GL_UNSIGNED_INT_8_8_8_8, ret.pix );
+    glTexParameterf( GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT );
+    glTexParameterf( GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT );
     ret.glid = tex;
     glBindTexture(GL_TEXTURE_2D,0);
     return ret;

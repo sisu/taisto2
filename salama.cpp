@@ -13,10 +13,10 @@
 
 static void rec(float* xs,float* ys,int& p,float x,float y,float tx,float ty,int d)
 {
-    srand(y*d+tx*p);
+    //srand(y*d+tx*p);
     if(d==0)return;
     float len = sqrt((x-tx)*(x-tx)+(y-ty)*(y-ty));
-    if(len<5)return;
+    if(len<2)return;
     float mx = (x+tx)/2.0;
     float my = (y+ty)/2.0;
     mx+=(randf()-0.5)*len*0.1;
@@ -30,7 +30,7 @@ static void rec(float* xs,float* ys,int& p,float x,float y,float tx,float ty,int
 static float randff(int z)
 {
     unsigned  x = z*321253+z*z*32423+z*z*z*5123;
-     x = x*222253+x*z*52423+z*x*z*8123;
+    x = x*222253+x*z*52423+z*x*z*8123;
     x = (x<<8) + (x>>8) + z*z*28983;
     return x/(double((unsigned)-1));
 }
@@ -50,7 +50,6 @@ static Vec2 randpoint(int x,int y)
 void drawSalamaStrip(Vec2* v,int p)
 {
     glPushMatrix();
-    glScalef(0.5,0.5,0.5);
 
     glDisable(GL_LIGHTING);
     glColor3f(1,1,1);
@@ -197,7 +196,7 @@ void drawSalama(Game& game,Vec2 orig,Vec2* targets,int n)
 void drawSalama(float x,float y,float tx,float ty)
 {
     glPushMatrix();
-    glScalef(0.5,0.5,0.5);
+//    glScalef(0.5,0.5,0.5);
     float xs[128]={};
     float ys[128]={};
     int p;
@@ -236,6 +235,10 @@ void drawSalama(float x,float y,float tx,float ty)
     for(int i=0;i<p-1;i++)
     {
 
+        float xx = xs[i+1]-xs[i];
+        float yy = ys[i+1]-ys[i];
+        float len = sqrt(xx*xx+yy*yy);
+
         float nx1 = nx[i]+(i?nx[i-1]:0);
         float ny1 = ny[i]+(i?ny[i-1]:0);
 
@@ -251,9 +254,9 @@ void drawSalama(float x,float y,float tx,float ty)
         glVertex3f(xs[i]+nx1,ys[i]+ny1,1);
         glTexCoord2f(1,0);
         glVertex3f(xs[i]-nx1,ys[i]-ny1,1);
-        glTexCoord2f(1,1);
+        glTexCoord2f(1,len);
         glVertex3f(xs[i+1]-nx2,ys[i+1]-ny2,1);
-        glTexCoord2f(0,1);
+        glTexCoord2f(0,len);
         glVertex3f(xs[i+1]+nx2,ys[i+1]+ny2,1);
     }
 
