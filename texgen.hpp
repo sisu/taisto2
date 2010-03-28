@@ -10,6 +10,8 @@ struct Texture{
 extern Texture ammo;
 extern Texture salama;
 extern unsigned explosionTex;
+extern unsigned groundTex;
+extern unsigned buildingTex;
 
 extern void initTextures();
 

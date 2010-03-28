@@ -20,6 +20,12 @@ void genNoise()
 		for(int j=0; j<NSIZE; ++j)
 			noise[i][j] = rndf();
 }
+double interp(double x,double y,double a)
+{
+    double d = sin(a*M_PI/2);
+    return d*x+(1-d)*y;
+}
+
 double smooth(double x, double y)
 {
 	int ix = int(x), iy = int(y);
@@ -33,6 +39,9 @@ double smooth(double x, double y)
 	double n2 = noise[iy][ix2];
 	double n3 = noise[iy2][ix];
 	double n4 = noise[iy2][ix2];
+    double xr1 =  interp(n4,n3,fx);
+    double xr2 =  interp(n2,n1,fx);
+    return interp(xr1,xr2,fy);
 
 	return fx*fy*n4 + (1.0-fx)*fy*n3 + fx*(1.0-fy)*n2 + (1.0-fx)*(1.0-fy)*n1;
 }
@@ -154,15 +163,94 @@ GLuint genExplosionTex()
     glBindTexture(GL_TEXTURE_2D,0);
     return t;
 }
+GLuint genGroundTex()
+{
+	const int TS=256;
+    static float texture[TS][TS][4];
+	genNoise();
+
+	for(int i=0; i<TS; ++i) {
+		for(int j=0; j<TS; ++j) {
+			double x=double(j)/TS, y=double(i)/TS;
+            //if(x>0.5)x = 1-x;
+            //if(y>0.5)y = 1-y;
+            double s = turbulence(128*x,128*y,32);
+            double s2 = turbulence(128*x+200,128*y+200,16);
+            texture[i][j][0] = s*0.2;
+            texture[i][j][1] = s*0.2;
+            texture[i][j][2] = s*0.2;
+            texture[i][j][0]+= s2*0.1;
+            texture[i][j][1]+= s2*0.05;
+            texture[i][j][2]+= s2*0.0;
+			texture[i][j][3] =1;
+		}
+	}
+	GLuint t;
+	glGenTextures(1, &t);
+	glBindTexture(GL_TEXTURE_2D, t);
+	glTexParameterf( GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER,
+			GL_LINEAR_MIPMAP_NEAREST );
+    // when texture area is large, bilinear filter the original
+    glTexParameterf( GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR );
+
+    glTexParameterf( GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT );
+    glTexParameterf( GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT );
+
+    std::cout<<"mipmaps = "<<gluBuild2DMipmaps( GL_TEXTURE_2D, 4,TS,TS,
+            GL_RGBA, GL_FLOAT, texture );
+    glBindTexture(GL_TEXTURE_2D,0);
+    return t;
+}
+GLuint genBuildingTex()
+{
+	const int TS=256;
+    static float texture[TS][TS][4];
+	genNoise();
+
+	for(int i=0; i<TS; ++i) {
+		for(int j=0; j<TS; ++j) {
+			double x=double(j)/TS, y=double(i)/TS;
+            if(x>0.5)x = 1-x;
+            if(y>0.5)y = 1-y;
+            double s = turbulence(128*x,128*y,32);
+            double s2 = turbulence(128*x+200,128*y+200,16);
+            texture[i][j][0] = s*0.2;
+            texture[i][j][1] = s*0.2;
+            texture[i][j][2] = s*0.2;
+			texture[i][j][3] =1;
+		}
+	}
+	GLuint t;
+	glGenTextures(1, &t);
+	glBindTexture(GL_TEXTURE_2D, t);
+	glTexParameterf( GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER,
+			GL_LINEAR_MIPMAP_NEAREST );
+    // when texture area is large, bilinear filter the original
+    glTexParameterf( GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR );
+
+    glTexParameterf( GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT );
+    glTexParameterf( GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT );
+
+    std::cout<<"mipmaps = "<<gluBuild2DMipmaps( GL_TEXTURE_2D, 4,TS,TS,
+            GL_RGBA, GL_FLOAT, texture );
+    glBindTexture(GL_TEXTURE_2D,0);
+    return t;
+}
+
 
 
 Texture ammo;
 Texture salama;
+
 unsigned explosionTex;
+unsigned groundTex;
+unsigned buildingTex;
 
 void initTextures()
 {
     ammo = getAmmo();
     salama = getSalama();
 	explosionTex = genExplosionTex();
+    groundTex = genGroundTex();
+    buildingTex = genBuildingTex();
 }

@@ -266,14 +266,23 @@ void draw(){
     glLoadIdentity();
     glTranslatef(0,0,-20);
 	glTranslatef(-player.loc.x, -player.loc.y, 0);
-    glColor3f(0.2,0.2,0.2);
+    glColor3f(1,1,1);
+    
+    glEnable(GL_TEXTURE_2D);
+    glBindTexture(GL_TEXTURE_2D,groundTex);
     glBegin(GL_QUADS);
 		glNormal3f(0,0,1);
+        glTexCoord2f(0,0);
         glVertex3f(-1009,-1000,0);
+        glTexCoord2f(60,0);
         glVertex3f(1000,-1000,0);
+        glTexCoord2f(60,60);
         glVertex3f(1000,1000,0);
+        glTexCoord2f(0,60);
         glVertex3f(-1000,1000,0);
     glEnd();
+    glDisable(GL_TEXTURE_2D);
+
     draw_area();
 	for(unsigned i=0; i<game.units.size(); ++i) {
 		Unit& u=game.units[i];
