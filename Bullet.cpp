@@ -4,7 +4,7 @@
 using namespace std;
 double loadTimes[] = {.05,.3};
 double damages[] = {1,0};
-static double speeds[] = {1000,10};
+static double speeds[] = {1000,30};
 static double offsets[] = {.1,.15};
 
 Bullet genBullet(int type, Vec2 l, double d, int id)

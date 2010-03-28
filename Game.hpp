@@ -20,6 +20,7 @@ struct Game {
 
 	void updateState(double t);
 	void updateNetwork();
+	void destroyBullet(int id, double x, double y);
 	int id;
 	Unit* player;
 	int weapon;
