@@ -82,7 +82,7 @@ void draw_interp_model(Model* m1,Model* m2,float x)
 {
     assert(m1->vn==m2->vn);
     assert(m1->in==m2->in);
-    float* data2 = new float[m1->vn*6];
+	static float data2[1<<16];
     for(int i=0;i<m1->vn*6;i++)
     {
         data2[i]=(1-x)*m1->data[i]+x*m2->data[i];
@@ -299,7 +299,7 @@ void draw(){
     glClear(GL_COLOR_BUFFER_BIT|GL_DEPTH_BUFFER_BIT);
 	glEnable(GL_NORMALIZE);
     glLoadIdentity();
-    glTranslatef(0,0,-15);
+    glTranslatef(0,0,-25);
 	//glRotatef(-45,1,0,0);
 	glTranslatef(-player.loc.x, -player.loc.y, 0);
     glColor3f(1,1,1);
