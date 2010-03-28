@@ -8,5 +8,6 @@ struct Model
     int vn;
     int in;
 };
+extern void draw_model(Model* m);
 
 #endif

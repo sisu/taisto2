@@ -9,12 +9,12 @@ find_package(OpenGL REQUIRED)
 link_libraries(${OPENGL_LIBRARY} "SDL")
 include_directories(${SDL_INCLUDE_DIR})
 
-add_definitions("-Wall -g")
+add_definitions("-Wall -O3")
 #add_definitions("-Wall -Os -fomit-frame-pointer -ffast-math")
 
 set(sources main.cpp physics.cpp Server.cpp Game.cpp ClientSocket.cpp
         ClientInfo.cpp Connection.cpp DataWriter.cpp Bullet.cpp texgen.cpp
-		Bot.cpp salama.cpp explosion.cpp LCD.cpp Menu.cpp)
+		Bot.cpp salama.cpp explosion.cpp LCD.cpp Menu.cpp Model.cpp)
 
 #MESSAGE( STATUS "flags : ${OPENGL_LIBRARY}" )
 
