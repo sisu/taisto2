@@ -22,7 +22,7 @@ void drawExplosions(Game& g)
 	glDepthMask(0);
 	glDisable(GL_LIGHTING);
 //	glDisable(GL_DEPTH_TEST);
-	const double S=.1;
+	const double S=.35;
 	glBegin(GL_QUADS);
 	for(unsigned i=0; i<g.eparts.size(); ++i) {
 		ExplosionP& p=g.eparts[i];
