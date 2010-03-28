@@ -3,6 +3,7 @@
 #include<stdlib.h>
 #include<string>
 #include<fstream>
+#include <vector>
 #include "Vector.hpp"
 
 struct Area {
@@ -13,6 +14,7 @@ struct Area {
 
 	int w,h;
 	int* a;
+	std::vector<int> bases;
     Area()
     {
         w=0;
@@ -131,8 +133,13 @@ struct Area {
         if(x<0 || y<0)return 1;//+((abs(x)^abs(y))&7);
 		return a[w*y+x];
 	}
-	Vec2 getSpawn() {
-		return Vec2(1.5,2.5);
+	Vec2 getSpawn(int base) {
+		int y0 = bases[base];
+		int x,y;
+		do {
+			x = rand()%w, y=y0 + rand()%6-3;
+		} while(blocked(x,y));
+		return Vec2(x+.5,y+.5);
 	}
 };
 

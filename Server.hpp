@@ -22,6 +22,7 @@ struct Server {
 	void sendToAll(const void* s, int n);
 	void sendToAll(DataWriter w);
 	void updateBullets(double t);
+	void updateBases();
 
 	bool end;
 
@@ -35,6 +36,8 @@ struct Server {
 	Area area;
 	int* clID;
 	double spawnTime;
+
+	int curSpawn;
 };
 
 #endif

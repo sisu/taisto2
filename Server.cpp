@@ -17,8 +17,10 @@ using namespace std;
 
 Server::Server(): end(0), nextID(1), area("field.in.1")
 {
+	for(int i=2; i<area.h; i+=30) area.bases.push_back(i);
 	clID = new int[1<<16];
 	spawnTime = 0;
+	curSpawn=0;
 	initSocket();
 }
 
@@ -36,6 +38,7 @@ void Server::loop()
 		}
 		readInputs();
 		updatePhysics(nt-t);
+		updateBases();
 		sendState();
 		t=nt;
 		SDL_Delay(15);
@@ -46,7 +49,7 @@ void Server::updatePhysics(double t)
 {
 	spawnTime -= t;
 	if (spawnTime <= 0) {
-		Unit b(Vec2(7,5), 1, -1);
+		Unit b(area.getSpawn(curSpawn+1), 1, -1);
 		units.push_back(b);
 		spawnTime = 5;
 	}
@@ -120,7 +123,7 @@ void Server::pollConnections()
 		ClientInfo* cl = new ClientInfo(*this, newsockfd);
 		clients.push_back(cl);
 		cl->sendInit();
-		units.push_back(Unit(area.getSpawn(), 0, cl->id));
+		units.push_back(Unit(area.getSpawn(curSpawn), 0, cl->id));
 		clID[cl->id] = clients.size()-1;
 //		sockets[sockets_used] = newsockfd;
 //		++sockets_used;
@@ -143,7 +146,7 @@ void Server::sendState()
     w.writeInt(bullets.size());
 	w.write(&bullets[0], bullets.size() * sizeof(Bullet));
 #endif
-	sendToAll(w.Buf, w.len());
+	sendToAll(w);
 }
 void Server::sendToAll(const void* s, int n)
 {
@@ -231,5 +234,25 @@ void Server::updateBullets(double t)
 			bullets.pop_back();
 			--i;
 		} else b.loc = l;
+	}
+}
+void Server::updateBases()
+{
+	int y1=area.bases[curSpawn], y2=area.bases[curSpawn+1];
+	int c1=0,c2=0;
+	for(unsigned i=0; i<units.size(); ++i) {
+		Unit& u = units[i];
+//		cout<<"u "<<u.type<<'\n';
+		int a=u.type==0?1:-1;
+		if (abs(u.loc.y-y1)<3) c1+=a;
+		if (abs(u.loc.y-y2)<3) c2+=a;
+	}
+//	cout<<"zxc "<<curSpawn<<' '<<c1<<' '<<c2<<'\n';
+	if (curSpawn && c1<0) {
+		--curSpawn;
+		cout<<"lost base\n";
+	} else if (c2>0) {
+		++curSpawn;
+		cout<<"updating base "<<curSpawn<<'\n';
 	}
 }
