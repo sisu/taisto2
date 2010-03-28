@@ -53,7 +53,7 @@ void Server::updatePhysics(double t)
 		units.push_back(b);
 		spawnTime = 5;
 	}
-	for(unsigned i=0; i<units.size(); ++i) if (units[i].type!=0) moveBot(units[i]);
+	for(unsigned i=0; i<units.size(); ++i) if (units[i].type!=0) moveBot(units[i],area,units);
 	moveUnits(&units[0], units.size(), area, t);
 //	moveBullets(&bullets[0], bullets.size(), &units[0], units.size(), area, t);
 	updateBullets(t);
