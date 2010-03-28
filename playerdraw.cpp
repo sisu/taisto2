@@ -35,7 +35,7 @@ void drawPlayer(const Unit& u)
         float dm = std::min(fmod(360+a-d,360),fmod(360+d-a,360));
         d+=90;
         if(u.type==0)
-        std::cout<<dm<<"\n";
+//        std::cout<<dm<<"\n";
         if(dm<90)
         {
             d-=180;

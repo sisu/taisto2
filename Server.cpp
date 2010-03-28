@@ -23,6 +23,13 @@ Server::Server(): end(0), nextID(1),area(40,300)// area("field.in.1")
 	curSpawn=0;
 	initSocket();
 }
+Server::~Server()
+{
+	cout<<"destructing server\n";
+	for(unsigned i=0; i<clients.size(); ++i) delete clients[i];
+	shutdown(sockfd, SHUT_RDWR);
+	close(sockfd);
+}
 
 void Server::loop()
 {
@@ -103,6 +110,11 @@ void Server::initSocket()
 	serv_addr.sin_family = AF_INET;
 	serv_addr.sin_addr.s_addr = INADDR_ANY;
 	serv_addr.sin_port = htons(SERVER_PORT);
+	int yes=1;
+	if (setsockopt(sockfd, SOL_SOCKET, SO_REUSEADDR, &yes, sizeof(yes)) < 0) {
+		perror("setsockopt fail");
+		exit(2);
+	}
 	if (bind(sockfd, (struct sockaddr *) &serv_addr, sizeof(serv_addr)) < 0) {
 		perror("ERROR on binding");
 		exit(1);
@@ -162,8 +174,22 @@ void Server::sendToAll(DataWriter w)
 
 void Server::readInputs()
 {
-	for(unsigned i=0; i<clients.size(); ++i)
-		clients[i]->handleMessages();
+	for(unsigned i=0; i<clients.size(); ) {
+		if (clients[i]->handleMessages()) ++i;
+		else {
+			Unit* u = clients[i]->u;
+			if (u) {
+				int x = u-&units[0];
+				units[x] = units.back();
+				units.pop_back();
+			}
+
+			delete clients[i];
+			clients[i]=clients.back();
+			clients.pop_back();
+			clID[clients[i]->id] = i;
+		}
+	}
 }
 
 static const double shields[]={10,2.8};

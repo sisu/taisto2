@@ -245,9 +245,20 @@ void setLights()
 	float pos2[] = {.2,-.3,.8,0};
 	glLightfv(GL_LIGHT1, GL_POSITION, pos2);
 }
+void setPerspective()
+{
+    glEnable(GL_DEPTH_TEST);
+    glDepthFunc(GL_LESS);
+    glShadeModel(GL_SMOOTH);
+    glMatrixMode(GL_PROJECTION);
+	glLoadIdentity();
+    gluPerspective(45,4.0/3.0,0.01,1000);
+    glMatrixMode(GL_MODELVIEW);
+}
 
 double spin = 0;
 void draw(){
+    setPerspective();
 	setLights();
     glClear(GL_COLOR_BUFFER_BIT|GL_DEPTH_BUFFER_BIT);
 	glEnable(GL_NORMALIZE);
@@ -331,6 +342,7 @@ void mainLoop()
     double lasttime = 0;
 	bool res = game.socket.connect("127.0.0.1");
 	cout<<"connect res "<<res<<'\n';
+    glClear(GL_ACCUM_BUFFER_BIT);
     while(1) {
         double t = timef();
         double dt=t-lasttime;
@@ -342,7 +354,8 @@ void mainLoop()
 //            std::cout<<"dir = "<<dt<<"\n";
 			//std::cout<<"pl "<<player.loc<<'\n';
         }
-        if (!readInput()) break;
+        readInput();
+		if (keyboard[27]) break;
         handleInput();
 		game.weapon = weapon;
 		game.player = &player;
@@ -360,26 +373,26 @@ void mainLoop()
 			area.w=a.w, area.h=a.h, area.a=a.a;
 		}
     }
-
+	cout<<"returning from main loop\n";
 }
-void setPerspective()
+
+Server* server;
+int startServer(void*)
 {
-    glEnable(GL_DEPTH_TEST);
-    glDepthFunc(GL_LESS);
-    glShadeModel(GL_SMOOTH);
-    glMatrixMode(GL_PROJECTION);
-    gluPerspective(45,4.0/3.0,0.01,1000);
-    glMatrixMode(GL_MODELVIEW);
-
-    glClear(GL_ACCUM_BUFFER_BIT);
+	server = new Server;
+	server->loop();
+	delete server;
+	server=0;
+	return 0;
 }
-
 void hostGame()
 {
-}
-void joinGame()
-{
+	SDL_CreateThread(startServer, 0);
+	SDL_Delay(50);
 	mainLoop();
+	cout<<"setting server end\n";
+	server->end=1;
+	SDL_Delay(10);
 }
 Menu createMainMenu()
 {
@@ -388,7 +401,7 @@ Menu createMainMenu()
 	host.func = hostGame;
 	m.items.push_back(host);
 	MenuItem join={"join game",0};
-	join.func = joinGame;
+	join.func = mainLoop;
 	m.items.push_back(join);
 	m.items.push_back((MenuItem){"quit", 1});
 	return m;
@@ -408,8 +421,7 @@ int main(int argc, char* argv[])
     initTextures();
 	initLCD();
 
-    setPerspective();
-#if 1
+#if 0
     mainLoop();
 #else
 	Menu m = createMainMenu();

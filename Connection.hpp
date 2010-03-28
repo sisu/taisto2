@@ -4,7 +4,6 @@
 struct DataWriter;
 struct Connection {
 	Connection(): buf(new char[1<<22]), cur(0), need(0) {}
-	~Connection() {delete[] buf;}
 	char* buf;
 	int cur;
 	int need;

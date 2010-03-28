@@ -14,10 +14,17 @@ bool press(int c)
 	return !prevkb[c] && keyboard[c];
 }
 
-void Menu::handleInput()
+bool Menu::handleInput()
 {
+	if (press(27)) return 0;
 	if (press('w')) cur=(cur+items.size()-1)%items.size();
 	if (press('s')) cur=(cur+1)%items.size();
+	if (press('\r')) {
+		MenuItem& m = items[cur];
+		if (m.type==1) return 0;
+		if (m.type==0) m.func();
+	}
+	return 1;
 }
 
 #if 0
@@ -55,8 +62,8 @@ void Menu::exec()
 {
 	while(1) {
 		memcpy(prevkb,keyboard,256);
-		if (!readInput()) break;
-		handleInput();
+		readInput();
+		if (!handleInput()) break;
 		draw();
 
 		SDL_GL_SwapBuffers();

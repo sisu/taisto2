@@ -12,7 +12,7 @@ struct MenuItem {
 struct Menu {
 	Menu(): cur(0) {}
 	void exec();
-	void handleInput();
+	bool handleInput();
 	void draw();
 
 	std::vector<MenuItem> items;
