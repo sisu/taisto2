@@ -121,5 +121,5 @@ void ClientSocket::sendState()
 	w.writeDouble(p->d);
 	w.writeByte(p->shooting);
 	w.writeInt(g.weapon);
-	conn.write(w.Buf,w.len());
+	conn.write(w);
 }

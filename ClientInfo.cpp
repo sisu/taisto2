@@ -38,14 +38,16 @@ void ClientInfo::sendInit()
 	w.writeInt(a.w);
 	w.writeInt(a.h);
 	w.write(a.a, 4*a.w*a.h);
-	conn.write(w.Buf, w.len());
+	conn.write(w);
 	cout<<"sent init "<<w.len()<<'\n';;
 }
 void ClientInfo::readState(DataReader r)
 {
-	u->movex = r.readInt();
-	u->movey = r.readInt();
-	u->d = r.readDouble();
-	u->shooting = r.readByte();
+	if (u) {
+		u->movex = r.readInt();
+		u->movey = r.readInt();
+		u->d = r.readDouble();
+		u->shooting = r.readByte();
+	} else r.cur+=4+4+8+1;
 	weapon = r.readInt();
 }
