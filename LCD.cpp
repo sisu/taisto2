@@ -50,7 +50,6 @@ void drawString(const char* str, double x, double y, double s)
 	glDisable(GL_LIGHTING);
 	glDisable(GL_TEXTURE_2D);
 	glDisable(GL_BLEND);
-	glColor3f(1,0,0);
 
 	glBegin(GL_LINES);
 	for(int i=0; str[i]; ++i) printChar(contains[(unsigned char)str[i]], x+i*.6*s, y, .25*s, .5*s);

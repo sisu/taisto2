@@ -83,7 +83,7 @@ static Texture getAmmo()
     // when texture area is large, bilinear filter the original
     glTexParameterf( GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR );
     std::cout<<"mipmaps = "<<gluBuild2DMipmaps( GL_TEXTURE_2D, 4,ret.w,ret.h,
-            GL_RGBA, GL_UNSIGNED_INT_8_8_8_8, ret.pix );
+            GL_RGBA, GL_UNSIGNED_INT_8_8_8_8, ret.pix )<<'\n';
     ret.glid = tex;
     glBindTexture(GL_TEXTURE_2D,0);
     return ret;
@@ -119,7 +119,7 @@ static Texture getSalama()
     // when texture area is large, bilinear filter the original
     glTexParameterf( GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR );
     std::cout<<"mipmaps = "<<gluBuild2DMipmaps( GL_TEXTURE_2D, 4,ret.w,ret.h,
-            GL_RGBA, GL_UNSIGNED_INT_8_8_8_8, ret.pix );
+            GL_RGBA, GL_UNSIGNED_INT_8_8_8_8, ret.pix )<<'\n';
     glTexParameterf( GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT );
     glTexParameterf( GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT );
     ret.glid = tex;
@@ -159,7 +159,7 @@ GLuint genExplosionTex()
     // when texture area is large, bilinear filter the original
     glTexParameterf( GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR );
     std::cout<<"mipmaps = "<<gluBuild2DMipmaps( GL_TEXTURE_2D, 4,TS,TS,
-            GL_RGBA, GL_FLOAT, texture );
+            GL_RGBA, GL_FLOAT, texture )<<'\n';
     glBindTexture(GL_TEXTURE_2D,0);
     return t;
 }
@@ -212,7 +212,7 @@ GLuint genGroundTex()
     glTexParameterf( GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT );
 
     std::cout<<"mipmaps = "<<gluBuild2DMipmaps( GL_TEXTURE_2D, 4,TS,TS,
-            GL_RGBA, GL_FLOAT, texture );
+            GL_RGBA, GL_FLOAT, texture )<<'\n';
     glBindTexture(GL_TEXTURE_2D,0);
     return t;
 }
@@ -247,7 +247,7 @@ GLuint genBuildingTex()
     glTexParameterf( GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT );
 
     std::cout<<"mipmaps = "<<gluBuild2DMipmaps( GL_TEXTURE_2D, 4,TS,TS,
-            GL_RGBA, GL_FLOAT, texture );
+            GL_RGBA, GL_FLOAT, texture )<<'\n';
     glBindTexture(GL_TEXTURE_2D,0);
     return t;
 }

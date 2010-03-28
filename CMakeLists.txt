@@ -14,7 +14,7 @@ add_definitions("-Wall -O3")
 
 set(sources main.cpp physics.cpp Server.cpp Game.cpp ClientSocket.cpp
         ClientInfo.cpp Connection.cpp DataWriter.cpp Bullet.cpp texgen.cpp
-		Bot.cpp salama.cpp explosion.cpp LCD.cpp Menu.cpp Model.cpp)
+		Bot.cpp salama.cpp explosion.cpp LCD.cpp Menu.cpp input.cpp Model.cpp)
 
 #MESSAGE( STATUS "flags : ${OPENGL_LIBRARY}" )
 

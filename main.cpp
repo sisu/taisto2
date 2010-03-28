@@ -21,43 +21,23 @@
 #include"timef.h"
 #include "explosion.hpp"
 #include "LCD.hpp"
+#include "input.hpp"
+#include "Menu.hpp"
 #include "playerdraw.cpp"
 using namespace std;
 
-
 Game game;
 
-bool keyboard[256];
-int mouseX, mouseY;
-bool mouse[4];
 int screenW=1024, screenH=768;
 
 //double ay=0;
-int gameEnd = false;
 
-Area area(100,10000);//("field.in.1");
+//Area area(100,10000);//("field.in.1");
+Area& area=game.area;
 Unit player;
 float playerdir;
 int mouseState;
 int weapon=0;
-void readInput()
-{
-    SDL_Event e;
-    while(SDL_PollEvent(&e)) {
-        if (e.type==SDL_QUIT) exit(0);
-    }
-
-    SDL_PumpEvents();
-    Uint8* keys = SDL_GetKeyState(0);
-    for(int i=0; i<256; ++i) 
-        keyboard[i]=keys[i];
-
-
-
-    if(keys[SDLK_ESCAPE])gameEnd=true;
-    int mstate = SDL_GetMouseState(&mouseX, &mouseY);
-    for(int i=0; i<3; ++i) mouse[i] = mstate & SDL_BUTTON(1+i);
-}
 void handleInput()
 {
     static float lasttime = 0;
@@ -267,9 +247,20 @@ void setLights()
 	float pos2[] = {.2,-.3,.8,0};
 	glLightfv(GL_LIGHT1, GL_POSITION, pos2);
 }
+void setPerspective()
+{
+    glEnable(GL_DEPTH_TEST);
+    glDepthFunc(GL_LESS);
+    glShadeModel(GL_SMOOTH);
+    glMatrixMode(GL_PROJECTION);
+	glLoadIdentity();
+    gluPerspective(45,4.0/3.0,0.01,1000);
+    glMatrixMode(GL_MODELVIEW);
+}
 
 double spin = 0;
 void draw(){
+    setPerspective();
 	setLights();
     glClear(GL_COLOR_BUFFER_BIT|GL_DEPTH_BUFFER_BIT);
 	glEnable(GL_NORMALIZE);
@@ -356,7 +347,8 @@ void mainLoop()
     double lasttime = 0;
 	bool res = game.socket.connect("127.0.0.1");
 	cout<<"connect res "<<res<<'\n';
-    while(!gameEnd) {
+    glClear(GL_ACCUM_BUFFER_BIT);
+    while(1) {
         double t = timef();
         double dt=t-lasttime;
         lasttime=t;
@@ -368,6 +360,7 @@ void mainLoop()
 			//std::cout<<"pl "<<player.loc<<'\n';
         }
         readInput();
+		if (keyboard[27]) break;
         handleInput();
 		game.weapon = weapon;
 		game.player = &player;
@@ -380,23 +373,45 @@ void mainLoop()
         SDL_GL_SwapBuffers();
         SDL_Delay(10);
 
+#if 0
 		if (game.area.w && game.area.w!=area.w) {
 			Area& a=game.area;
 			area.w=a.w, area.h=a.h, area.a=a.a;
 		}
+#endif
     }
-
+	cout<<"returning from main loop\n";
 }
-void setPerspective()
-{
-    glEnable(GL_DEPTH_TEST);
-    glDepthFunc(GL_LESS);
-    glShadeModel(GL_SMOOTH);
-    glMatrixMode(GL_PROJECTION);
-    gluPerspective(45,4.0/3.0,0.01,1000);
-    glMatrixMode(GL_MODELVIEW);
 
-    glClear(GL_ACCUM_BUFFER_BIT);
+Server* server;
+int startServer(void*)
+{
+	server = new Server;
+	server->loop();
+	delete server;
+	server=0;
+	return 0;
+}
+void hostGame()
+{
+	SDL_CreateThread(startServer, 0);
+	SDL_Delay(50);
+	mainLoop();
+	cout<<"setting server end\n";
+	server->end=1;
+	SDL_Delay(10);
+}
+Menu createMainMenu()
+{
+	Menu m;
+	MenuItem host={"host game",0};
+	host.func = hostGame;
+	m.items.push_back(host);
+	MenuItem join={"join game",0};
+	join.func = mainLoop;
+	m.items.push_back(join);
+	m.items.push_back((MenuItem){"quit", 1});
+	return m;
 }
 
 int main(int argc, char* argv[])
@@ -413,6 +428,10 @@ int main(int argc, char* argv[])
     initTextures();
 	initLCD();
 
-    setPerspective();
+#if 0
     mainLoop();
+#else
+	Menu m = createMainMenu();
+	m.exec();
+#endif
 }

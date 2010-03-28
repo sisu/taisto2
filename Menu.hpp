@@ -4,14 +4,19 @@
 #include <vector>
 
 struct MenuItem {
+	const char* title;
 	int type;
 	void(*func)();
 };
 
 struct Menu {
-	std::vector<MenuItem> items;
-
+	Menu(): cur(0) {}
 	void exec();
+	bool handleInput();
+	void draw();
+
+	std::vector<MenuItem> items;
+	int cur;
 };
 
 #endif
