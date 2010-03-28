@@ -15,6 +15,7 @@
 #include "Server.hpp"
 #include "Game.hpp"
 #include"timef.h"
+#include "explosion.hpp"
 using namespace std;
 
 
@@ -298,6 +299,7 @@ void draw(){
                     b.loc.x,
                     b.loc.y);
                     */
+//        drawSalama( b.origin.x, b.origin.y, b.loc.x, b.loc.y);
 	}
 
 	for(unsigned i=0; i<game.lastBullets.size(); ++i) {
@@ -309,6 +311,8 @@ void draw(){
             i--;
         }
 	}
+	drawExplosions(game);
+
     /*
        glBegin(GL_TRIANGLES);
        glVertex3d(0,0,0);

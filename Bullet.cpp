@@ -9,7 +9,6 @@ static double offsets[] = {.1,.15};
 
 Bullet genBullet(int type, Vec2 l, double d, int id)
 {
-	cout<<"genBullet "<<type<<'\n';
 	d += ((double)rand()/RAND_MAX-.5)*offsets[type];
 	Vec2 v(cos(d),sin(d));
 	Bullet b(l+.1*v, v * speeds[type], type, id);

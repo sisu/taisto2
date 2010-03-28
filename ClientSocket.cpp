@@ -108,6 +108,15 @@ void ClientSocket::readHit(DataReader r)
     bx.hitt = timef();
     g.lastBullets.push_back(bx);
 
+	if (bx.type==1) {
+		// generate explosion particles
+		for(int i=0; i<512; ++i) {
+			double d=2*M_PI*rand()/RAND_MAX;
+			double v=5.*rand()/RAND_MAX;
+			g.eparts.push_back(ExplosionP(c, v*Vec2(cos(d),sin(d))));
+		}
+	}
+
 //	cout<<"asd "<<bx.origin<<' '<<g.player->loc<<' '<<bx.loc<<' '<<bx.v<<'\n';
 }
 
