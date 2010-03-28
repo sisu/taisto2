@@ -28,7 +28,7 @@ static void rec(float* xs,float* ys,int& p,float x,float y,float tx,float ty,int
 void drawSalama(float x,float y,float tx,float ty)
 {
     glPushMatrix();
-    glScalef(0.5,0.5,0.5);
+//    glScalef(0.5,0.5,0.5);
     float xs[128]={};
     float ys[128]={};
     int p;

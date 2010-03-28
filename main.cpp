@@ -215,19 +215,11 @@ void draw_bullet(Bullet bu)
     glDepthMask(1);
 }
 
-void translateTo(float x,float y)
-{
-//    glTranslatef(x*2-1,y*2-1,0);
-//    glTranslatef(.5*x,.5*y,0);
-    glTranslatef(x,y,0);
-//    glTranslatef(y*2-1,x*2-1,0);
-}
-
 void draw_player(float x,float y,float dir)
 {
 //	x-=player.loc.x, y-=player.loc.y;
     glPushMatrix();
-    translateTo(x,y);
+	glTranslatef(x,y,0);
     glRotatef(dir*180/M_PI-90,0,0,1);
     glRotatef(90,1,0,0);
     glRotatef(180,0,1,0);
@@ -267,8 +259,6 @@ void draw(){
         glVertex3f(1000,1000,0);
         glVertex3f(-1000,1000,0);
     glEnd();
-//    draw_player(0.5,0.5,playerdir);
-//    draw_player(player.loc.x,player.loc.y,playerdir);
     draw_area();
 	for(unsigned i=0; i<game.units.size(); ++i) {
 		Unit& u=game.units[i];
@@ -284,10 +274,7 @@ void draw(){
 		if (b.type!=0) continue;
         //draw_bullet(b);
 
-        drawSalama( b.origin.x-player.loc.x,
-                    b.origin.y-player.loc.y,
-                    b.loc.x-player.loc.x,
-                    b.loc.y-player.loc.y);
+        drawSalama( b.origin.x, b.origin.y, b.loc.x, b.loc.y);
 	}
 
 	for(unsigned i=0; i<game.lastBullets.size(); ++i) {
@@ -309,8 +296,6 @@ void draw(){
 
 void mainLoop()
 {
-//    player.loc.x = 5;
-//    player.loc.y = 3;
 	player.loc = Vec2(.5,.5);
     std::cout<<player.loc.x<<" "<<player.loc.y<<"\n";
 
@@ -339,12 +324,6 @@ void mainLoop()
             if (game.units[i].type==0 && game.units[i].id==game.id)
                 player=game.units[i];
         draw();
-#if 0
-        double d = player.d;
-        player.d=-M_PI/2;
-        moveUnits(&player,1,area,dt);
-        player.d = d;
-#endif
         SDL_GL_SwapBuffers();
         SDL_Delay(10);
 
