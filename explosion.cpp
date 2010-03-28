@@ -20,17 +20,17 @@ void drawExplosions(Game& g)
 	glDepthMask(0);
 	glDisable(GL_LIGHTING);
 	glBindTexture(GL_TEXTURE_2D, explosionTex);
-	glDisable(GL_DEPTH_TEST);
+//	glDisable(GL_DEPTH_TEST);
 	const double S=.1;
 	glBegin(GL_QUADS);
 	for(unsigned i=0; i<g.eparts.size(); ++i) {
 		ExplosionP& p=g.eparts[i];
 		Vec2 v=p.loc;
 //		cout<<v<<'\n';
-		glTexCoord2f(0,0), glVertex2f(v.x-S, v.y-S);
-		glTexCoord2f(1,0), glVertex2f(v.x+S, v.y-S);
-		glTexCoord2f(1,1), glVertex2f(v.x+S, v.y+S);
-		glTexCoord2f(0,1), glVertex2f(v.x-S, v.y+S);
+		glTexCoord2f(0,0), glVertex3f(v.x-S, v.y-S, 1);
+		glTexCoord2f(1,0), glVertex3f(v.x+S, v.y-S, 1);
+		glTexCoord2f(1,1), glVertex3f(v.x+S, v.y+S, 1);
+		glTexCoord2f(0,1), glVertex3f(v.x-S, v.y+S, 1);
 	}
 	glEnd();
 	glDisable(GL_TEXTURE_2D);
