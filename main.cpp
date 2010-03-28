@@ -10,6 +10,7 @@
 #include<GL/glu.h>
 #include<GL/glext.h>
 #include"ukko.c"
+#include"ase.c"
 #include"physics.hpp"
 #include "Server.hpp"
 #include "Game.hpp"
@@ -153,7 +154,7 @@ void draw_bullet(Bullet bu)
     glEnable(GL_TEXTURE_2D);
     glEnable(GL_BLEND);
     glEnable (GL_BLEND); 
-    glBlendFunc (GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);  
+    glBlendFunc (GL_SRC_ALPHA, GL_ONE);
     glBindTexture(GL_TEXTURE_2D,ammo.glid);
     
 //    glTranslatef(-player.loc.x+0.5,-player.loc.y+0.5,0);
@@ -171,11 +172,11 @@ void draw_bullet(Bullet bu)
     z = std::max(0.0f,z-2);
     v = std::min(z,v);
     glRotatef(a*180/M_PI+90,0,0,1);
-    glScalef(0.2,1,1);
+    glScalef(0.1,1,1);
     float part=1;
     if(bu.hitt-0.01>=0)
     {
-        part = ( 0.2 ) / ((timef()-bu.hitt));
+        part = ( 0.05 ) / ((timef()-bu.hitt));
         part*=part;
         part*=2;
         if(part>1)part=1;
@@ -189,7 +190,6 @@ void draw_bullet(Bullet bu)
 		glTexCoord2f(1,0);
         glVertex3f(-1,1,1);
         //float xz = part*(v-1)/v;
-        //glColor4f(xz,xz,xz,xz);
         glVertex3f(1,-1,1);
 		glTexCoord2f(1,0.5);
         glVertex3f(1,1,1);
@@ -200,6 +200,18 @@ void draw_bullet(Bullet bu)
 		glTexCoord2f(1,0.5);
         glVertex3f(1,1+-1,1);
         
+		glTexCoord2f(1,0.5);
+        glVertex3f(1,1+v-1,1);
+		glTexCoord2f(0,0.5);
+        glVertex3f(-1,1+v-1,1);
+
+
+
+		glTexCoord2f(0,0.5);
+        glVertex3f(-1,1+v-1,1);
+		glTexCoord2f(1,0.5);
+        glVertex3f(1,1+v-1,1);
+        glColor4f(0,0,0,0);
 		glTexCoord2f(1,0.5);
         glVertex3f(1,1+v,1);
 		glTexCoord2f(0,0.5);
@@ -229,6 +241,8 @@ void draw_player(float x,float y,float dir)
     glEnable(GL_NORMALIZE);
     glColor3f(0.1,0.4,0.3);
     draw_model(&ukko_model);
+    glTranslatef(-0.8,2,0.8);
+    draw_model(&ase_model);
     glPopMatrix();
 }
 
@@ -250,7 +264,7 @@ void draw(){
     glClear(GL_COLOR_BUFFER_BIT|GL_DEPTH_BUFFER_BIT);
 	glEnable(GL_NORMALIZE);
     glLoadIdentity();
-    glTranslatef(0,0,-30);
+    glTranslatef(0,0,-20);
 	glTranslatef(-player.loc.x, -player.loc.y, 0);
     glColor3f(0.2,0.2,0.2);
     glBegin(GL_QUADS);
@@ -268,13 +282,23 @@ void draw(){
 	for(unsigned i=0; i<game.bullets.size(); ++i) {
         Bullet b = game.bullets[i];
 		if (b.type==1) draw_bullet(b);
-        //draw_bullet(b);
+        draw_bullet(b);
 	}
 	for(unsigned i=0; i<game.lastBullets.size(); ++i) {
         Bullet b = game.lastBullets[i];
 		if (b.type!=0) continue;
         draw_bullet(b);
 
+        /*
+        Vec2 target= b.loc;
+        drawSalama(game,b.origin,&target,1);
+        */
+        /*
+        drawSalama( b.origin.x,
+                    b.origin.y,
+                    b.loc.x,
+                    b.loc.y);
+                    */
 //        drawSalama( b.origin.x, b.origin.y, b.loc.x, b.loc.y);
 	}
 
