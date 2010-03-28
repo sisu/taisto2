@@ -125,7 +125,7 @@ void draw_area()
                 glTranslatef(i,j,0);
                 glScalef(0.51,0.51,2+2*area.height(i,j));
             
-                drawcube();
+                drawcube(4+4*area.height(i,j));
                 glPopMatrix();
             }
         }
@@ -143,8 +143,9 @@ void draw_rocket(Bullet bu){
     glRotatef(a*180/M_PI+90,0,0,1);
     glRotatef(90,1,0,0);
 
-    glColor3f(1,0,0);
+    glColor3f(0.3,0.3,0.3);
     glScalef(0.1,0.1,0.1);
+    glRotatef(timef()*200,0,0,1);
     draw_model(&raketti_model);
     
     glPopMatrix();
@@ -278,19 +279,22 @@ void draw(){
 	glTranslatef(-player.loc.x, -player.loc.y, 0);
     glColor3f(1,1,1);
     
+    //ground
     glEnable(GL_TEXTURE_2D);
     glBindTexture(GL_TEXTURE_2D,groundTex);
+    glRotatef(45,0,0,1);
     glBegin(GL_QUADS);
 		glNormal3f(0,0,1);
         glTexCoord2f(0,0);
         glVertex3f(-1009,-1000,0);
-        glTexCoord2f(60,0);
+        glTexCoord2f(200,0);
         glVertex3f(1000,-1000,0);
-        glTexCoord2f(60,60);
+        glTexCoord2f(200,200);
         glVertex3f(1000,1000,0);
-        glTexCoord2f(0,60);
+        glTexCoord2f(0,200);
         glVertex3f(-1000,1000,0);
     glEnd();
+    glRotatef(-45,0,0,1);
     glDisable(GL_TEXTURE_2D);
 
     draw_area();
