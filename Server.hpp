@@ -23,6 +23,7 @@ struct Server {
 	void sendToAll(DataWriter w);
 	void updateBullets(double t);
 	void updateBases();
+	void damageUnit(int i, double d);
 
 	bool end;
 

@@ -43,8 +43,8 @@ void Game::destroyBullet(int id, double xx, double yy)
 	if (bx.type==1) {
 		// generate explosion particles
 		for(int i=0; i<512; ++i) {
-			double d=3*M_PI*rand()/RAND_MAX;
-			double v=5.*rand()/RAND_MAX;
+			double d=2*M_PI*rand()/RAND_MAX;
+			double v=3*EXPLOSION_SIZE*rand()/RAND_MAX;
 			eparts.push_back(ExplosionP(c, v*Vec2(cos(d),sin(d))));
 		}
 	}
