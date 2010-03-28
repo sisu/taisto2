@@ -161,6 +161,5 @@ void moveBot(Unit& u, const Area& area, const std::vector<Unit>& units)
 	u.movey = -1;
 	u.movex = (rand()%3)-1;
 	u.shooting = 1;
-	u.d = M_PI + M_PI*rand()/RAND_MAX;
 	*/
 }

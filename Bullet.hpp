@@ -15,5 +15,9 @@ struct Bullet {
 };
 
 extern double loadTimes[];
+extern double damages[];
+Bullet genBullet(int type, Vec2 l, double d, int id);
+
+#define EXPLOSION_SIZE (3.0)
 
 #endif

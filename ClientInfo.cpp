@@ -9,6 +9,8 @@ using namespace std;
 ClientInfo::ClientInfo(Server& s, int fd): server(s), weapon(0)
 {
 	conn.fd=fd;
+	u=0;
+	spawnTime=0;
 }
 
 void ClientInfo::handleMessages()

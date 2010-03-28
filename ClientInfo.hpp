@@ -18,6 +18,7 @@ struct ClientInfo {
 	Connection conn;
 	int id;
 	int weapon;
+	double spawnTime;
 };
 
 #endif
