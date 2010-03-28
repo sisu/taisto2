@@ -163,14 +163,16 @@ void draw_rocket(Bullet bu){
     
     glPushMatrix();
     
-    glTranslatef(loc.x,loc.y,0);
+    glTranslatef(loc.x,loc.y,1);
 
     float a = atan2(bu.v.y,bu.v.x);
     glRotatef(a*180/M_PI+90,0,0,1);
+    glRotatef(timef()*100,0,1,0);
     glRotatef(90,1,0,0);
 
-    glColor3f(1,0,0);
-    glScalef(0.1,0.1,0.1);
+    glColor3f(0.5,0.5,0);
+    glScalef(0.05,0.05,0.05);
+
     draw_model(&raketti_model);
     
     glPopMatrix();
@@ -299,7 +301,7 @@ void draw(){
     glClear(GL_COLOR_BUFFER_BIT|GL_DEPTH_BUFFER_BIT);
 	glEnable(GL_NORMALIZE);
     glLoadIdentity();
-    glTranslatef(0,0,-15);
+    glTranslatef(0,0,-20);
 	//glRotatef(-45,1,0,0);
 	glTranslatef(-player.loc.x, -player.loc.y, 0);
     glColor3f(1,1,1);
