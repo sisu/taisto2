@@ -32,7 +32,8 @@ int screenW=1024, screenH=768;
 
 //double ay=0;
 
-Area area(100,10000);//("field.in.1");
+//Area area(100,10000);//("field.in.1");
+Area& area=game.area;
 Unit player;
 float playerdir;
 int mouseState;
@@ -368,10 +369,12 @@ void mainLoop()
         SDL_GL_SwapBuffers();
         SDL_Delay(10);
 
+#if 0
 		if (game.area.w && game.area.w!=area.w) {
 			Area& a=game.area;
 			area.w=a.w, area.h=a.h, area.a=a.a;
 		}
+#endif
     }
 	cout<<"returning from main loop\n";
 }
