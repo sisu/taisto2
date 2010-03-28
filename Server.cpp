@@ -64,9 +64,10 @@ void Server::updatePhysics(double t)
 		if (u.shooting && u.shootTime<=0) {
 			int t = u.type>0 ? u.type-1 : clients[clID[u.id]]->weapon;
 			u.shootTime = loadTimes[t];
-			Vec2 v(cos(u.d),sin(u.d));
 
-            Bullet b(u.loc+.1*v, 1000*v, t, bulletid++);
+			Bullet b = genBullet(t, u.loc, u.d, bulletid++);
+//			Vec2 v(cos(u.d),sin(u.d));
+  //          Bullet b(u.loc+.1*v, 1000*v, t, bulletid++);
             bullets.push_back(b);
 
 			DataWriter w;
@@ -165,7 +166,6 @@ void Server::readInputs()
 		clients[i]->handleMessages();
 }
 
-static const double damages[]={1};
 static const double shields[]={10,2.8};
 void Server::updateBullets(double t)
 {
