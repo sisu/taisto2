@@ -36,9 +36,23 @@ void Server::loop()
 			if (u.type!=0) continue;
 			clients[clID[u.id]]->u = &u;
 		}
+		for(unsigned i=0; i<clients.size(); ++i) {
+			ClientInfo& c=*clients[i];
+			if (c.u) continue;
+			c.spawnTime -= nt-t;
+			if (c.spawnTime<0) {
+				units.push_back(Unit(area.getSpawn(curSpawn), 0, c.id));
+				c.u = &units.back();
+			}
+		}
 		readInputs();
 		updatePhysics(nt-t);
 		updateBases();
+		for(unsigned i=0; i<units.size(); ++i) {
+			Unit& u = units[i];
+			if (u.type!=0) continue;
+			clients[clID[u.id]]->u = &u;
+		}
 		sendState();
 		t=nt;
 		SDL_Delay(15);
@@ -105,20 +119,6 @@ void Server::pollConnections()
 		int newsockfd = accept(sockfd, (struct sockaddr *) &cli_addr, (socklen_t *) &clilen);
 		if (newsockfd < 0) break;
 		cout<<"Newsockfd: "<<newsockfd<<endl;
-
-#if 0
-		const int BSIZE = 255;
-		char buffer[BSIZE];
-
-		// check if interested
-		int n = read(newsockfd,buffer,BSIZE); 
-
-		if(n < 0) {
-			cout<<"CONTINUING"<<endl;
-			continue;		
-		}
-#endif
-
 		cout<<"Adding socket"<<endl;
 
 		ClientInfo* cl = new ClientInfo(*this, newsockfd);
@@ -171,55 +171,14 @@ void Server::updateBullets(double t)
 {
 	for(unsigned i=0; i<bullets.size(); ++i) {
 		Bullet& b = bullets[i];
-		Vec2 l = b.loc + b.v*t;
-		// FIXME: optimize
-		Vec2 nv = normalize(b.v);
-		double bdd2=1e50, bj=-1;
-		for(unsigned j=0; j<units.size(); ++j) {
-			Unit& u = units[j];
-			Vec2 w = u.loc-b.loc;
-			if (dot(w,nv)<0) continue;
-			double d = fabs(cross(w, nv));
-			if (d>.4) continue;
-			double dd2 = length2(w) - d*d;
-			if (dd2 < bdd2) bdd2=dd2, bj=j;
-		}
-//		if (bj>=0) cout<<"asd "<<bj<<' '<<bdd2<<' '<<sqrt(bdd2)<<'\n';
-
-		double l2 = length2(b.v*t);
-		if (bdd2<l2) l2=bdd2;
-		else bj=-1;
-		Vec2 c = b.loc;
-		int dx=b.v.x>0?1:-1, dy=b.v.y>0?1:-1;
-		int ix=c.x, iy=c.y;
-		int iix=dx>0?ix+1:ix, iiy=dy>0?iy+1:iy;
-		double ryx = fabs(b.v.y/b.v.x), rxy = fabs(b.v.x/b.v.y);
-		bool hit=0;
-		while(length2(c-b.loc) < l2) {
-			if (area.blocked(ix,iy)) {
-				hit=1;
-				break;
-			}
-			double xx = fabs(iix-c.x);
-			double yy = fabs(iiy-c.y);
-			if (fabs(b.v.x)*yy > fabs(b.v.y)*xx) {
-				c.y += dy * xx * ryx;
-				c.x = iix;
-				ix+=dx,iix+=dx;
-			} else {
-				c.x += dx * yy * rxy;
-				c.y = iiy;
-				iy+=dy, iiy+=dy;
-			}
-		}
-		if (bj>=0 || hit) {
-			if (!hit) {
-				c=b.loc + normalize(b.v)*sqrt(l2);
-				Unit& u =units[bj];
+		int h;
+		if (!moveBullet(b, &units[0], units.size(), area, t, &h)) {
+			if (h>=0) {
+				Unit& u =units[h];
 				u.health -= damages[b.type]/shields[u.type];
 				if (u.health<0) {
-					if (u.type==0) clients[clID[u.id]]->u=0;
-					units[bj] = units.back();
+					if (u.type==0) clients[clID[u.id]]->u=0, clients[clID[u.id]]->spawnTime=3;
+					units[h] = units.back();
 					units.pop_back();
 				}
 			}
@@ -227,13 +186,13 @@ void Server::updateBullets(double t)
 			DataWriter w;
 			w.writeByte(SRV_HIT);
 			w.writeInt(b.id);
-			w.writeFloat(c.x);
-			w.writeFloat(c.y);
+			w.writeFloat(b.loc.x);
+			w.writeFloat(b.loc.y);
 			sendToAll(w);
 			bullets[i] = bullets.back();
 			bullets.pop_back();
 			--i;
-		} else b.loc = l;
+		}
 	}
 }
 void Server::updateBases()
