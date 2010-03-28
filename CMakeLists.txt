@@ -10,6 +10,7 @@ link_libraries(${OPENGL_LIBRARY} "SDL")
 include_directories(${SDL_INCLUDE_DIR})
 
 add_definitions("-Wall -g")
+#add_definitions("-Wall -Os -fomit-frame-pointer -ffast-math")
 
 set(sources main.cpp physics.cpp Server.cpp Game.cpp ClientSocket.cpp
         ClientInfo.cpp Connection.cpp DataWriter.cpp Bullet.cpp texgen.cpp

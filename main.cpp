@@ -43,7 +43,7 @@ void readInput()
 {
     SDL_Event e;
     while(SDL_PollEvent(&e)) {
-        if (e.type==SDL_QUIT) gameEnd=1;
+        if (e.type==SDL_QUIT) exit(0);
     }
 
     SDL_PumpEvents();
@@ -424,6 +424,7 @@ int main(int argc, char* argv[])
 {
     srand(time(0));
     SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO | SDL_INIT_TIMER);
+	atexit(SDL_Quit);
 	if (argc>1) {
 		Server s;
 		s.loop();
@@ -435,6 +436,4 @@ int main(int argc, char* argv[])
 
     setPerspective();
     mainLoop();
-
-    SDL_Quit();
 }

@@ -173,15 +173,18 @@ void Server::updateBullets(double t)
 		Bullet& b = bullets[i];
 		int h;
 		if (!moveBullet(b, &units[0], units.size(), area, t, &h)) {
+			if (h>=0) damageUnit(h, damages[b.type]);
 			if (b.type==1) {
 				double r2 = EXPLOSION_SIZE*EXPLOSION_SIZE;
 				for(unsigned j=0; j<units.size(); ++j) {
 					Unit& u = units[j];
-					if (length2(u.loc-b.loc) > r2) continue;
-					damageUnit(j, damages[b.type]*(length(u.loc-b.loc)/EXPLOSION_SIZE));
+					Vec2 d = u.loc-b.loc;
+					if (length2(d) > r2) continue;
+					unsigned s=units.size();
+					damageUnit(j, damages[b.type]*(1 - length(d)/EXPLOSION_SIZE));
+					if (units.size()<s) --j;
 				}
 			}
-			if (h>=0) damageUnit(h, damages[b.type]);
 //			cout<<"collision @ "<<c<<' '<<b.loc<<' '<<length(c-b.loc)<<'\n';
 			DataWriter w;
 			w.writeByte(SRV_HIT);
