@@ -1,4 +1,5 @@
 
+#include<cassert>
 #include "salama.hpp"
 #include <SDL/SDL.h>
 #include"Unit.hpp"
@@ -10,7 +11,10 @@
 #include<GL/glu.h>
 #include<GL/glext.h>
 #include"ukko.c"
+#include"ukko_walk1.c"
+#include"ukko_walk2.c"
 #include"ase.c"
+#include"rocket.c"
 #include"physics.hpp"
 #include "Server.hpp"
 #include "Game.hpp"
@@ -73,12 +77,32 @@ void handleInput()
 	
 	player.shooting = mouse[0];
 }
-void draw_model(Model* m)
+void draw_interp_model(Model* m1,Model* m2,float x)
 {
-#if 0
+    assert(m1->vn==m2->vn);
+    assert(m1->in==m2->in);
+    float* data2 = new float[m1->vn*6];
+    for(int i=0;i<m1->vn*6;i++)
+    {
+        data2[i]=(1-x)*m1->data[i]+x*m2->data[i];
+    }
     glEnableClientState(GL_VERTEX_ARRAY);
     glEnableClientState(GL_NORMAL_ARRAY);
-    glColor3d(1,0,0);
+    //glEnable(GL_TEXTURE_2D);
+//glBindTexture(GL_TEXTURE_2D,ammo.glid);
+
+
+    glVertexPointer(3,GL_FLOAT,6*sizeof(float),data2);
+    glNormalPointer(GL_FLOAT,6*sizeof(float),data2+3);
+    glDrawElements(GL_TRIANGLES,m1->in,GL_UNSIGNED_SHORT,(GLvoid*)m1->index);
+    glDisableClientState(GL_VERTEX_ARRAY);
+    glDisableClientState(GL_NORMAL_ARRAY);
+}
+void draw_model(Model* m)
+{
+#if 1
+    glEnableClientState(GL_VERTEX_ARRAY);
+    glEnableClientState(GL_NORMAL_ARRAY);
     //glEnable(GL_TEXTURE_2D);
 //glBindTexture(GL_TEXTURE_2D,ammo.glid);
 
@@ -131,16 +155,26 @@ void draw_area()
             }
         }
     }
-    glColor3f(0.2,0.2,0.2);
-    glBegin(GL_QUADS);
-		glNormal3f(0,0,1);
-        glVertex3f(-1009,-1000,0);
-        glVertex3f(1000,-1000,0);
-        glVertex3f(1000,1000,0);
-        glVertex3f(-1000,1000,0);
-    glEnd();
     glPopMatrix();
 }
+void draw_rocket(Bullet bu){
+    Vec2 loc = bu.loc;
+    
+    glPushMatrix();
+    
+    glTranslatef(loc.x,loc.y,0);
+
+    float a = atan2(bu.v.y,bu.v.x);
+    glRotatef(a*180/M_PI+90,0,0,1);
+    glRotatef(90,1,0,0);
+
+    glColor3f(1,0,0);
+    glScalef(0.1,0.1,0.1);
+    draw_model(&raketti_model);
+    
+    glPopMatrix();
+}
+
 void draw_bullet(Bullet bu)
 {
     Vec2 loc = bu.loc;
@@ -228,7 +262,7 @@ void draw_bullet(Bullet bu)
     glDepthMask(1);
 }
 
-void draw_player(float x,float y,float dir)
+void draw_player(float x,float y,float dir,float movey = 0)
 {
 //	x-=player.loc.x, y-=player.loc.y;
     glPushMatrix();
@@ -237,11 +271,11 @@ void draw_player(float x,float y,float dir)
     glRotatef(90,1,0,0);
     glRotatef(180,0,1,0);
     glScalef(0.15,0.1,0.15);
-    glTranslatef(0,3.5,0);
+    glTranslatef(0,4.5,0);
     glEnable(GL_NORMALIZE);
     glColor3f(0.1,0.4,0.3);
-    draw_model(&ukko_model);
-    glTranslatef(-0.8,2,0.8);
+    draw_interp_model(&ukko_walk1_model,&ukko_walk2_model,movey*sin(10*timef())*0.5+0.5);
+    glTranslatef(-0.8,0.5,0.4);
     draw_model(&ase_model);
     glPopMatrix();
 }
@@ -264,7 +298,8 @@ void draw(){
     glClear(GL_COLOR_BUFFER_BIT|GL_DEPTH_BUFFER_BIT);
 	glEnable(GL_NORMALIZE);
     glLoadIdentity();
-    glTranslatef(0,0,-20);
+    glTranslatef(0,0,-15);
+	//glRotatef(-45,1,0,0);
 	glTranslatef(-player.loc.x, -player.loc.y, 0);
     glColor3f(1,1,1);
     
@@ -286,12 +321,12 @@ void draw(){
     draw_area();
 	for(unsigned i=0; i<game.units.size(); ++i) {
 		Unit& u=game.units[i];
-		draw_player(u.loc.x,u.loc.y,u.d);
+		draw_player(u.loc.x,u.loc.y,u.d,sin(u.d)*u.movey+cos(u.d)*u.movex);
 	}
 	for(unsigned i=0; i<game.bullets.size(); ++i) {
         Bullet b = game.bullets[i];
-//		if (b.type==1) draw_bullet(b);
-        draw_bullet(b);
+		if (b.type==0) draw_bullet(b);
+        else if(b.type==1) draw_rocket(b);
 	}
 	for(unsigned i=0; i<game.lastBullets.size(); ++i) {
         Bullet b = game.lastBullets[i];
