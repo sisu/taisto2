@@ -21,7 +21,7 @@ void drawExplosions(Game& g)
 	glBlendFunc(GL_SRC_ALPHA,GL_ONE);
 	glDepthMask(0);
 	glDisable(GL_LIGHTING);
-	glDisable(GL_DEPTH_TEST);
+//	glDisable(GL_DEPTH_TEST);
 	const double S=.1;
 	glBegin(GL_QUADS);
 	for(unsigned i=0; i<g.eparts.size(); ++i) {
