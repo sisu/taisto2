@@ -281,7 +281,7 @@ void draw(){
 	}
 	for(unsigned i=0; i<game.bullets.size(); ++i) {
         Bullet b = game.bullets[i];
-		if (b.type==1) draw_bullet(b);
+//		if (b.type==1) draw_bullet(b);
         draw_bullet(b);
 	}
 	for(unsigned i=0; i<game.lastBullets.size(); ++i) {
