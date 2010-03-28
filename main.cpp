@@ -21,42 +21,22 @@
 #include"timef.h"
 #include "explosion.hpp"
 #include "LCD.hpp"
+#include "input.hpp"
+#include "Menu.hpp"
 using namespace std;
 
 
 Game game;
 
-bool keyboard[256];
-int mouseX, mouseY;
-bool mouse[4];
 int screenW=1024, screenH=768;
 
 //double ay=0;
-int gameEnd = false;
 
 Area area(100,10000);//("field.in.1");
 Unit player;
 float playerdir;
 int mouseState;
 int weapon=0;
-void readInput()
-{
-    SDL_Event e;
-    while(SDL_PollEvent(&e)) {
-        if (e.type==SDL_QUIT) exit(0);
-    }
-
-    SDL_PumpEvents();
-    Uint8* keys = SDL_GetKeyState(0);
-    for(int i=0; i<256; ++i) 
-        keyboard[i]=keys[i];
-
-
-
-    if(keys[SDLK_ESCAPE])gameEnd=true;
-    int mstate = SDL_GetMouseState(&mouseX, &mouseY);
-    for(int i=0; i<3; ++i) mouse[i] = mstate & SDL_BUTTON(1+i);
-}
 void handleInput()
 {
     static float lasttime = 0;
@@ -377,7 +357,7 @@ void mainLoop()
     double lasttime = 0;
 	bool res = game.socket.connect("127.0.0.1");
 	cout<<"connect res "<<res<<'\n';
-    while(!gameEnd) {
+    while(1) {
         double t = timef();
         double dt=t-lasttime;
         lasttime=t;
@@ -388,7 +368,7 @@ void mainLoop()
 //            std::cout<<"dir = "<<dt<<"\n";
 			//std::cout<<"pl "<<player.loc<<'\n';
         }
-        readInput();
+        if (!readInput()) break;
         handleInput();
 		game.weapon = weapon;
 		game.player = &player;
@@ -420,6 +400,26 @@ void setPerspective()
     glClear(GL_ACCUM_BUFFER_BIT);
 }
 
+void hostGame()
+{
+}
+void joinGame()
+{
+	mainLoop();
+}
+Menu createMainMenu()
+{
+	Menu m;
+	MenuItem host={"host game",0};
+	host.func = hostGame;
+	m.items.push_back(host);
+	MenuItem join={"join game",0};
+	join.func = joinGame;
+	m.items.push_back(join);
+	m.items.push_back((MenuItem){"quit", 1});
+	return m;
+}
+
 int main(int argc, char* argv[])
 {
     srand(time(0));
@@ -435,5 +435,10 @@ int main(int argc, char* argv[])
 	initLCD();
 
     setPerspective();
+#if 1
     mainLoop();
+#else
+	Menu m = createMainMenu();
+	m.exec();
+#endif
 }
