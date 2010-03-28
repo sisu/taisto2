@@ -173,15 +173,15 @@ void Server::updateBullets(double t)
 		Bullet& b = bullets[i];
 		int h;
 		if (!moveBullet(b, &units[0], units.size(), area, t, &h)) {
-			if (h>=0) {
-				Unit& u =units[h];
-				u.health -= damages[b.type]/shields[u.type];
-				if (u.health<0) {
-					if (u.type==0) clients[clID[u.id]]->u=0, clients[clID[u.id]]->spawnTime=3;
-					units[h] = units.back();
-					units.pop_back();
+			if (b.type==1) {
+				double r2 = EXPLOSION_SIZE*EXPLOSION_SIZE;
+				for(unsigned j=0; j<units.size(); ++j) {
+					Unit& u = units[j];
+					if (length2(u.loc-b.loc) > r2) continue;
+					damageUnit(j, damages[b.type]*(length(u.loc-b.loc)/EXPLOSION_SIZE));
 				}
 			}
+			if (h>=0) damageUnit(h, damages[b.type]);
 //			cout<<"collision @ "<<c<<' '<<b.loc<<' '<<length(c-b.loc)<<'\n';
 			DataWriter w;
 			w.writeByte(SRV_HIT);
@@ -213,5 +213,15 @@ void Server::updateBases()
 	} else if (c2>0) {
 		++curSpawn;
 		cout<<"updating base "<<curSpawn<<'\n';
+	}
+}
+void Server::damageUnit(int i, double d)
+{
+	Unit& u =units[i];
+	u.health -= d/shields[u.type];
+	if (u.health<0) {
+		if (u.type==0) clients[clID[u.id]]->u=0, clients[clID[u.id]]->spawnTime=3;
+		units[i] = units.back();
+		units.pop_back();
 	}
 }

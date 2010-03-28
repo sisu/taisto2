@@ -20,6 +20,7 @@
 #include "Game.hpp"
 #include"timef.h"
 #include "explosion.hpp"
+#include "LCD.hpp"
 using namespace std;
 
 
@@ -363,6 +364,8 @@ void draw(){
        glVertex3d(1,0,0);
        glVertex3d(1,1,0);
        glEnd();*/
+
+//	drawString("abcdefg", 0, 0, .2);
 }
 
 void mainLoop()
@@ -428,6 +431,7 @@ int main(int argc, char* argv[])
 	}
     SDL_SetVideoMode(screenW,screenH,0,SDL_OPENGL);
     initTextures();
+	initLCD();
 
     setPerspective();
     mainLoop();
