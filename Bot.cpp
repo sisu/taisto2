@@ -1,5 +1,6 @@
 #include "Unit.hpp"
 #include "Area.hpp"
+#include "physics.hpp"
 #include <cstdlib>
 #include <cmath>
 #include <algorithm>
@@ -163,7 +164,22 @@ void moveBot(Unit& u, const Area& area, const std::vector<Unit>& units)
 		//std::cout<<"MOVEY: "<<u.movey<<std::endl;
 		//std::cout<<"MOVEX: "<<u.movex<<std::endl;
 
-		u.shooting = 1;
+		Vec2 curLoc, myLoc;
+		curLoc.x = u.loc.x;
+		curLoc.y = u.loc.y;
+		myLoc.x = myunits[0].loc.x;
+		myLoc.y = myunits[0].loc.y;
+
+		bool ok = false;
+		wallHitPoint(curLoc, myLoc, area, &ok);
+
+		if(!ok) {
+			u.shooting = 1;	
+			u.d = atan2(myLoc.y - curLoc.y, myLoc.x - curLoc.x);
+		} else {
+			u.shooting = 0;
+		}	
+
 	}
 
 
