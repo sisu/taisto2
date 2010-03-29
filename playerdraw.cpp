@@ -71,7 +71,7 @@ void drawPlayer(const Unit& u){
     else if(u.type==1)
         glColor3f(0.8,0.3,0.0);
     else {
-        std::cout<<"rakettimies\n";
+        //std::cout<<"rakettimies\n";
         glColor3f(0.5,0.5,0.5);
     }
 

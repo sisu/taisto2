@@ -3,6 +3,7 @@
 #include "salama.hpp"
 #include <SDL/SDL.h>
 #include"Unit.hpp"
+#include "HUD.hpp"
 #include"texgen.hpp"
 #include"Area.hpp"
 #include"cube.hpp"
@@ -333,6 +334,7 @@ void draw(){
     glClear(GL_COLOR_BUFFER_BIT|GL_DEPTH_BUFFER_BIT);
 	glEnable(GL_NORMALIZE);
     glLoadIdentity();
+    drawHud(game);
     glTranslatef(0,0,-30);
     //glTranslatef(0,0,-35);
 	//glRotatef(-45,1,0,0);
