@@ -3,11 +3,16 @@
 #include "Unit.hpp"
 #include "physics.hpp"
 #include "Bullet.hpp"
+#include "timef.h"
 
 static void fix(Vec2& v, double px, double py, double d)
 {
 	Vec2 p(px,py);
 	Vec2 dv = v-p;
+	if (length2(dv)<1e-3) {
+		v += .5*Vec2(2*randf()-1,2*randf()-1);
+		return;
+	}
 	if (length2(dv) < d*d) v = p+d*normalize(dv);
 }
 static void handleWalls(Unit& u, const Area& a)
@@ -41,6 +46,10 @@ void moveUnits(Unit* us, int n, const Area& a,double dt)
 		u.loc.y += u.movey * s;
 		u.loc.x += u.movex * s;
 #endif
+		for(int j=0; j<n; ++j) {
+			if (j==i) continue;
+			fix(us[i].loc, us[j].loc.x, us[j].loc.y, .8);
+		}
 
 		handleWalls(u, a);
 	}

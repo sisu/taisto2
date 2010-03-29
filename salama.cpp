@@ -125,7 +125,6 @@ void drawSalamaStrip(Vec2* v,int p)
     glEnd();
     glEnable(GL_LIGHTING);
     glPopMatrix();
-    glEnable(GL_COLOR);
     glDisable(GL_BLEND);
     glDisable(GL_TEXTURE_2D);
     //glEnable(GL_DEPTH_TEST);
@@ -433,7 +432,6 @@ void drawSalama(float x,float y,float tx,float ty)
     glEnd();
     glEnable(GL_LIGHTING);
     glPopMatrix();
-    glEnable(GL_COLOR);
     glDisable(GL_BLEND);
     glDisable(GL_TEXTURE_2D);
     //glEnable(GL_DEPTH_TEST);

@@ -47,6 +47,6 @@ void Connection::write(DataWriter& w)
     *(int*)buf = w.len();
     ::write(fd,buf,4);
 	int sent = ::write(fd, w.data(),w.len());
-    assert(sent==w.len());
+//    assert(sent==w.len());
 //	fcntl(fd, F_SETFL, O_NONBLOCK);
 }

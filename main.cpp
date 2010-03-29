@@ -82,6 +82,18 @@ void draw_interp_model(Model* m1,Model* m2,float x)
     glDisableClientState(GL_VERTEX_ARRAY);
     glDisableClientState(GL_NORMAL_ARRAY);
 }
+void drawWall(double x0, double x1, double y0, double y1, float z0, float z1)
+{
+	glTexCoord2f(0,z0), glVertex3f(x0,y0,z0);
+	glTexCoord2f(1,z0), glVertex3f(x1,y1,z0);
+	glTexCoord2f(1,z1), glVertex3f(x1,y1,z1);
+	glTexCoord2f(0,z1), glVertex3f(x0,y0,z1);
+}
+int fixH(int h)
+{
+	if (h<=0) return 0;
+	return 2+2*h;
+}
 void draw_area()
 {
     glPushMatrix();
@@ -90,7 +102,6 @@ void draw_area()
 
     
 //    glTranslatef(-player.loc.x+0.5,-player.loc.y+0.5,0);
-    glTranslatef(0.5,0.5,0);
     //glTranslatef(-area.w/2,-area.h/2,0);
 
     int w = 50;
@@ -101,12 +112,13 @@ void draw_area()
 
     glEnable(GL_TEXTURE_2D);
     glBindTexture(GL_TEXTURE_2D,buildingTex);
-    
+#if 0
+    glTranslatef(0.5,0.5,0);
+>>>>>>> 1be66e84bad984a84a0352060ca8a20dba25394e:main.cpp
     for(int i=sx;i<sx+w;i++)
     {
         for(int j=sy;j<sy+h;j++)
         {
-
             if(area.blocked(i,j)){
                 glPushMatrix();
                 glTranslatef(i,j,0);
@@ -117,6 +129,25 @@ void draw_area()
             }
         }
     }
+#else
+	glBegin(GL_QUADS);
+	for(int i=sx; i<sx+w; ++i) {
+		for(int j=sy; j<sy+h; ++j) {
+			int h=area.height(i,j);
+			if (area.blocked(i,j)) {
+				int hh=fixH(h);
+				glTexCoord2f(0,0), glVertex3f(i,j,hh);
+				glTexCoord2f(1,0), glVertex3f(i+1,j,hh);
+				glTexCoord2f(1,1), glVertex3f(i+1,j+1,hh);
+				glTexCoord2f(0,1), glVertex3f(i,j+1,hh);
+			}
+			if (h!=area.height(i-1,j)) drawWall(i,i,j,j+1,fixH(h),fixH(area.height(i-1,j)));
+			if (h!=area.height(i,j-1)) drawWall(i,i+1,j,j,fixH(h),fixH(area.height(i,j-1)));
+		}
+	}
+	glEnd();
+    glTranslatef(0.5,0.5,0);
+#endif
 
     
 
@@ -290,7 +321,6 @@ void draw_bullet(Bullet bu,float scale=1)
 
     glEnd();
     glPopMatrix();
-    glEnable(GL_COLOR);
     glDisable(GL_BLEND);
     glDisable(GL_TEXTURE_2D);
     //glEnable(GL_DEPTH_TEST);
@@ -457,7 +487,7 @@ void mainLoop()
         lasttime=t;
         r++;
         if(r%104==0){
-            //std::cout<<player.loc.x<<" "<<player.loc.y<<"\n";
+			cout<<player.loc<<'\n';
 //            std::cout<<"dir = "<<player.d<<"\n";
 //            std::cout<<"dir = "<<dt<<"\n";
 			//std::cout<<"pl "<<player.loc<<'\n';
@@ -473,8 +503,12 @@ void mainLoop()
             if (game.units[i].type==0 && game.units[i].id==game.id)
                 player=game.units[i];
         draw();
+		int err = glGetError();
+		if (err) {
+			cout<<"GL ERROR: "<<gluErrorString(err)<<'\n';
+		}
         SDL_GL_SwapBuffers();
-        SDL_Delay(10);
+        SDL_Delay(15);
 
 #if 0
 		if (game.area.w && game.area.w!=area.w) {

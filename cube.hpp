@@ -60,8 +60,6 @@ void drawcube(float h=1)
     glTexCoordPointer(2,GL_FLOAT,0,colors);
     glDrawElements(GL_QUADS, 24, GL_UNSIGNED_BYTE,(GLvoid*) indices);
 
-    
-
 
     glDisableClientState(GL_VERTEX_ARRAY);  // disable vertex arrays
     //glDisableClientState(GL_COLOR_ARRAY);

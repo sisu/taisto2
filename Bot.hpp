@@ -3,6 +3,7 @@
 
 struct Unit;
 struct Area;
-void moveBot(Unit& u, const Area& area, const std::vector<Unit>& units);
+struct BotInformation;
+void moveBot(Unit& u, const Area& area, const std::vector<Unit>& units, BotInformation* yourInfo);
 
 #endif

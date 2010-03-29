@@ -8,6 +8,7 @@
 #include "IDMap.hpp"
 #include "Area.hpp"
 #include "Bullet.hpp"
+#include "BotInformation.hpp"
 
 const int SERVER_PORT = 56125;
 
@@ -27,6 +28,8 @@ struct Server {
 	void updateBullets(double t);
 	void updateBases();
 	void damageUnit(int i, double d);
+	void spawnUnits(double t);
+	void genSpawnCounts();
 
 	volatile bool end;
 
@@ -34,6 +37,7 @@ struct Server {
 	std::vector<ClientInfo*> clients;
 	std::vector<Bullet> bullets;
     IDMap<Item> items_map;
+	std::vector<BotInformation*> botinfos;
 
 	int sockfd;
 	int nextID;
@@ -44,6 +48,8 @@ struct Server {
 
 	int curSpawn;
 	int botID;
+
+	int spawnCounts[32][64]; // [type][base]
 };
 
 #endif
