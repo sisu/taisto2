@@ -79,6 +79,14 @@ inline double length(const Vec3& v)
 {
 	return sqrt(length2(v));
 }
+inline Vec3 cross(const Vec3& a, const Vec3& b)
+{
+	return Vec3(
+		a.y*b.z - a.z*b.y,
+		a.z*b.x - a.x*b.z,
+		a.x*b.y - a.y*b.x
+	);
+}
 
 #include <ostream>
 inline std::ostream& operator<<(std::ostream& o, const Vec2& v)
