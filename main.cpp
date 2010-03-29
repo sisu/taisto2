@@ -82,7 +82,7 @@ void draw_interp_model(Model* m1,Model* m2,float x)
 {
     assert(m1->vn==m2->vn);
     assert(m1->in==m2->in);
-    float* data2 = new float[m1->vn*6];
+	static float data2[1<<16];
     for(int i=0;i<m1->vn*6;i++)
     {
         data2[i]=(1-x)*m1->data[i]+x*m2->data[i];
@@ -336,10 +336,8 @@ void draw(){
 		if (b.type!=0) continue;
         draw_bullet(b);
 
-        /*
         Vec2 target= b.loc;
         drawSalama(game,b.origin,&target,1);
-        */
         /*
         drawSalama( b.origin.x,
                     b.origin.y,

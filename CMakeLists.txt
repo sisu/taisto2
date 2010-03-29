@@ -9,7 +9,8 @@ find_package(OpenGL REQUIRED)
 link_libraries(${OPENGL_LIBRARY} "SDL")
 include_directories(${SDL_INCLUDE_DIR})
 
-add_definitions("-Wall -g")
+#add_definitions("-Wall -g")
+add_definitions("-Wall -O2")
 
 set(sources main.cpp physics.cpp Server.cpp Game.cpp ClientSocket.cpp
         ClientInfo.cpp Connection.cpp DataWriter.cpp Bullet.cpp texgen.cpp
