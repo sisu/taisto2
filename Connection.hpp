@@ -3,8 +3,7 @@
 
 struct DataWriter;
 struct Connection {
-	Connection(): buf(new char[1<<22]), cur(0), need(0) {}
-	~Connection() {delete[] buf;}
+	Connection(): buf(new char[1<<20]), cur(0), need(0) {}
 	char* buf;
 	int cur;
 	int need;
@@ -12,7 +11,7 @@ struct Connection {
 
 	bool read();
 	void write(const void* s, int n);
-	void write(DataWriter w);
+	void write(DataWriter& w);
 
 private:
 	Connection(const Connection&);

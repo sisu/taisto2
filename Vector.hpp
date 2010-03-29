@@ -33,6 +33,11 @@ inline Vec2 operator-(Vec2 a, const Vec2& b)
 {
 	return a-=b;
 }
+inline Vec2 operator-(Vec2 a)
+{
+    Vec2 z(0,0);
+	return z-a;
+}
 inline Vec2 operator*(double x, Vec2 v)
 {
 	return v*=x;

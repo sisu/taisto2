@@ -8,8 +8,9 @@ struct DataReader;
 
 struct ClientInfo {
 	ClientInfo(Server& serv, int fd);
+	~ClientInfo();
 
-	void handleMessages();
+	bool handleMessages();
 	void sendInit();
 	void readState(DataReader r);
 

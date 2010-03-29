@@ -3,7 +3,7 @@
 #include <iostream>
 using namespace std;
 double loadTimes[] = {.05,.3};
-double damages[] = {1,20};
+double damages[] = {1,15};
 static double speeds[] = {1000,30};
 static double offsets[] = {.1,.15};
 

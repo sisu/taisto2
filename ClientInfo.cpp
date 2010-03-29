@@ -4,6 +4,10 @@
 #include "DataReader.hpp"
 #include "DataWriter.hpp"
 #include <iostream>
+#include <errno.h>
+#include <unistd.h>
+#include <sys/socket.h>
+#include <cassert>
 using namespace std;
 
 ClientInfo::ClientInfo(Server& s, int fd): server(s), weapon(0)
@@ -12,8 +16,14 @@ ClientInfo::ClientInfo(Server& s, int fd): server(s), weapon(0)
 	u=0;
 	spawnTime=0;
 }
+ClientInfo::~ClientInfo()
+{
+	delete[] conn.buf;
+	shutdown(conn.fd, SHUT_RDWR);
+	close(conn.fd);
+}
 
-void ClientInfo::handleMessages()
+bool ClientInfo::handleMessages()
 {
 	while(conn.read()) {
 		DataReader r(conn.buf+4);
@@ -25,9 +35,12 @@ void ClientInfo::handleMessages()
 				break;
 			default:
 				cout<<"Warning: unknown message type "<<type<<'\n';
+                assert(false);
 				break;
 		}
 	}
+	if (errno!=EAGAIN) return 0;
+	return 1;
 }
 
 void ClientInfo::sendInit()
