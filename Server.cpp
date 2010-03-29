@@ -18,7 +18,7 @@ static const double shields[]={10,2.8};
 
 Server::Server(): end(0), nextID(1),area(30,300)// area("field.in.1")
 {
-	for(int i=2; i<area.h; i+=30) area.bases.push_back(i);
+	//for(int i=2; i<area.h; i+=30) area.bases.push_back(i);
 	clID = new int[1<<16];
 	spawnTime = 0;
 	curSpawn=0;
@@ -72,11 +72,12 @@ void Server::updatePhysics(double t)
 {
 	spawnTime -= t;
 	if (spawnTime <= 0) {
-		Unit b(area.getSpawn(curSpawn+1), 1, botID++);
+		Unit b(area.getSpawn(curSpawn+1), 1+rand()%2, botID++);
 		units.push_back(b);
 		spawnTime = 1;
 	}
-	for(unsigned i=0; i<units.size(); ++i) if (units[i].type!=0) moveBot(units[i],area,units);
+	for(unsigned i=0; i<units.size(); ++i) 
+        if (units[i].type!=0) moveBot(units[i],area,units);
 	moveUnits(&units[0], units.size(), area, t);
 //	moveBullets(&bullets[0], bullets.size(), &units[0], units.size(), area, t);
 	updateBullets(t);
@@ -110,7 +111,18 @@ void Server::updatePhysics(double t)
 				}
 				*(int*)&w.datavec[1] = cnt;
 				sendToAll(w);
-			} else {
+			} else if (t==SHOTGUN)
+            {
+                for(int j=0;j<10;j++){
+                    Bullet b = genBullet(t, u.loc, u.d, bulletid++);
+                    bullets.push_back(b);
+
+                    DataWriter w;
+                    w.writeByte(SRV_SHOOT);
+                    w.write(&b, sizeof(b));
+                    sendToAll(w);
+                }
+            }else{
 				Bullet b = genBullet(t, u.loc, u.d, bulletid++);
 				bullets.push_back(b);
 

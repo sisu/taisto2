@@ -1,5 +1,6 @@
 #ifndef AREA_HPP
 #define AREA_HPP
+#include<iostream>
 #include<stdlib.h>
 #include<string>
 #include<fstream>
@@ -39,6 +40,11 @@ struct Area {
         
         a = new int[w*h];
         addRect(0,0,w,h,0);
+        for(int i=0;i<h;i+=50)
+        {
+            bases.push_back(i);
+        }
+        std::cout<<"konstruktori!\n";
         for(int i=0;i<w;i++)
         {
             set(i,0,1);
@@ -57,6 +63,10 @@ struct Area {
             int ww = rand()%10+5;
             int hh = rand()%10+5;
             addRect(x,y,ww,hh,rand()%5+1);
+        }
+        for(int i=0;i<bases.size();i++)
+        {
+            addRect(0,bases[i]-5,w,10,0);
         }
         for(int x=0;x<w;x++)
         {
@@ -134,7 +144,7 @@ struct Area {
 		return a[w*y+x];
 	}
 	Vec2 getSpawn(int base) {
-		int y0 = bases[base];
+		int y0 = bases.at(base);
 		int x,y;
 		do {
 			x = rand()%w, y=y0 + rand()%6-3;
