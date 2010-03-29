@@ -29,6 +29,8 @@ struct Game {
 
 	int* bulletIndex;
     std::vector<int> unitIndex;
+
+	int curBase;
 };
 
 #endif

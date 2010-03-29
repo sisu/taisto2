@@ -56,6 +56,9 @@ void ClientSocket::handleMessages()
 			case SRV_LIGHTNING:
 				readLightning(r);
 				break;
+			case SRV_BASE:
+				g.curBase = r.readInt();
+				break;
 			default:
 				cout<<"Unknown message "<<type<<'\n';
 				break;
