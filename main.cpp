@@ -30,6 +30,7 @@ using namespace std;
 Game game;
 
 int screenW=1024, screenH=768;
+string curHost("127.0.0.1");
 
 //double ay=0;
 
@@ -133,13 +134,13 @@ void draw_area()
     //glRotatef(-45,0,0,1);
     glTranslatef(0,0.5,0.1);
     glDisable(GL_TEXTURE_2D);
-    for(int i=0;i<game.area.bases.size();i++){
+    for(unsigned i=0;i<game.area.bases.size();i++){
         //glEnable(GL_TEXTURE_2D);
 
         glEnable(GL_BLEND);
         glBlendFunc(GL_SRC_ALPHA,GL_ONE);
 
-        if(game.curBase >= i)
+        if(game.curBase >= (int)i)
             glColor4f(0.0,0.7,0.1,0.5);
         else{
             glColor4f(0.8,0.0,0.1,0.5);
@@ -422,8 +423,12 @@ void mainLoop()
 
     int r  = 0;
     double lasttime = 0;
-	bool res = game.socket.connect("127.0.0.1");
+//	bool res = game.socket.connect("127.0.0.1");
+	bool res = game.socket.connect(curHost.c_str());
 	cout<<"connect res "<<res<<'\n';
+	if (!res) {
+		return;
+	}
     glClear(GL_ACCUM_BUFFER_BIT);
     while(1) {
         double t = timef();
@@ -481,19 +486,24 @@ void hostGame()
 void joinGame()
 {
 	Menu m;
-	MenuItem conn={"connect",0};
+	MenuItem host={"hostname",STRING};
+	host.str = &curHost;
+	m.items.push_back(host);
+	MenuItem conn={"connect",PICK};
+	conn.func = mainLoop;
+	m.items.push_back(conn);
 	m.exec();
 }
 Menu createMainMenu()
 {
 	Menu m;
-	MenuItem host={"host game",0};
+	MenuItem host={"host game",PICK};
 	host.func = hostGame;
 	m.items.push_back(host);
-	MenuItem join={"join game",0};
+	MenuItem join={"join game",PICK};
 	join.func = joinGame;
 	m.items.push_back(join);
-	m.items.push_back((MenuItem){"quit", 1});
+	m.items.push_back((MenuItem){"quit", EXIT});
 	return m;
 }
 
