@@ -7,6 +7,7 @@ const unsigned char
 	SRV_INIT=1,
 	SRV_STATE=2,
 	SRV_SHOOT=3,
-	SRV_HIT=4;
+	SRV_HIT=4,
+	SRV_LIGHTNING=5;
 
 #endif

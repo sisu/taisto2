@@ -86,16 +86,40 @@ void Server::updatePhysics(double t)
 			int t = u.type>0 ? u.type-1 : clients[clID[u.id]]->weapon;
 			u.shootTime = loadTimes[t];
 
-			Bullet b = genBullet(t, u.loc, u.d, bulletid++);
-//			Vec2 v(cos(u.d),sin(u.d));
-  //          Bullet b(u.loc+.1*v, 1000*v, t, bulletid++);
-            bullets.push_back(b);
+			if (t==2) { // lightning
+				DataWriter w;
+				w.writeByte(SRV_LIGHTNING);
+				w.writeInt(0);
+				Vec2 v(cos(u.d),sin(u.d));
+				int cnt=0;
+				for(unsigned j=0; j<units.size(); ++j) {
+					if (j==i) continue;
+					Unit& p =units[j];
+					Vec2 v2 = p.loc-u.loc;
+					double l = length(v2);
+					if (l > LIGHTNING_RAD) continue;
+					double a = acos(dot(v,v2)/l);
+					if (a > LIGHTNING_ANGLE) continue;
 
-			DataWriter w;
-			w.writeByte(SRV_SHOOT);
-			w.write(&b, sizeof(b));
-			sendToAll(w);
+					w.writeInt(p.id);
+					++cnt;
+				}
+				*(int*)&w.datavec[1] = cnt;
+				sendToAll(w);
+			} else {
+				Bullet b = genBullet(t, u.loc, u.d, bulletid++);
+				bullets.push_back(b);
+
+				DataWriter w;
+				w.writeByte(SRV_SHOOT);
+				w.write(&b, sizeof(b));
+				sendToAll(w);
+			}
 		}
+	}
+
+	// delayed lightning damage
+	for(unsigned i=0; i<units.size(); ++i) {
 	}
 
 //	if (units.size()>1) {Unit& u = units[1]; cout<<"updated physics; "<<u.movex<<' '<<u.movey<<" ; "<<u.loc<<" ; "<<u.shooting<<' '<<u.id<<' '<<clID[u.id]<<'\n';}
