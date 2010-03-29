@@ -48,6 +48,12 @@ double anglify(double rad) {
 	return rad;
 }
 
+int sign(double a) {
+	if(a == 0) return 0;
+	if(a < 0) return -1;
+	return 1;
+}
+
 void moveBot(Unit& u, const Area& area, const std::vector<Unit>& units)
 {
 	if(units.size() == 0) return;
@@ -85,19 +91,20 @@ void moveBot(Unit& u, const Area& area, const std::vector<Unit>& units)
 	Q.push_back(bn);
 
 	int index = 0;
-	bool fail = false;
+	bool fail = true;
 
 	std::set<bfsnode> used;
+	used.insert(bn);
 
 	while(index < int(Q.size())) {
-		bfsnode& cur = Q[index];
+		bfsnode cur = Q[index];
 
 		if(cur.x == int(myunits[0].loc.x) && cur.y == int(myunits[0].loc.y)) {
+			fail = false;
 			break;
 		}
 
 		if(cur.len > LIMIT) {
-			fail = true;
 			break;
 		}
 
@@ -119,36 +126,39 @@ void moveBot(Unit& u, const Area& area, const std::vector<Unit>& units)
 		// found a target, start following
 		// list route
 		std::vector<square> SQ;
-		bfsnode& cur = Q.back();
+		bfsnode& cur = Q[index];
 
+		std::cout<<"asdasd "<<u.loc<<'\n';
 		while(true) {
+			std::cout<<"lol "<<cur.x<<' '<<cur.y<<'\n';
 			SQ.push_back((square){cur.x, cur.y});
 			if(cur.prev == -1) break;
 			cur = Q[cur.prev];
 		}
 
 		std::reverse(SQ.begin(),SQ.end());
-
-		for(unsigned i = 0; i < SQ.size(); ++i) {
+#if 0
+		for(unsigned i = 0; i < std::min(5U,unsigned(SQ.size())); ++i) {
 			std::cout<<"("<<SQ[i].x<<","<<SQ[i].y<<")"<<", ";
 		}
 		std::cout<<std::endl;
+#endif
 
 		if(SQ.size() < 2) return;
 
 		double x = int(u.loc.x) + 0.5, y = int(u.loc.y) + 0.5;
 		double nx = SQ[1].x + 0.5, ny = SQ[1].y + 0.5; 
 
-		std::cout<<x<<" "<<nx<<" "<<y<<" "<<ny<<std::endl;
+		//std::cout<<x<<" "<<nx<<" "<<y<<" "<<ny<<std::endl;
 
-		double angle = anglify(atan2(ny - y, nx - x));
+		double angle = atan2(ny - y, nx - x);
 
-		printf("Current (%f,%f), target (%f,%f)\n",x,y,nx,ny);
-		std::cout<<"Angle: \t"<<angle<<std::endl;
+		//printf("Current (%f,%f), target (%f,%f)\n",x,y,nx,ny);
+		//std::cout<<"Angle: \t"<<angle<<std::endl;
 
 		u.d = angle;
-		u.movey = sin(angle);
-		u.movex = -cos(angle);
+		u.movey = sign(ny - y);
+		u.movex = sign(nx - x);
 
 		//std::cout<<"MOVEY: "<<u.movey<<std::endl;
 		//std::cout<<"MOVEX: "<<u.movex<<std::endl;
