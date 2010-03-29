@@ -73,7 +73,7 @@ void Server::updatePhysics(double t)
 {
 	spawnUnits(t);
 	for(unsigned i=0; i<units.size(); ++i) 
-        if (units[i].type!=0) moveBot(units[i],area,units);
+        if (units[i].type!=0) moveBot(units[i],area,units,botinfos[units[i].id]);
 	moveUnits(&units[0], units.size(), area, t);
 //	moveBullets(&bullets[0], bullets.size(), &units[0], units.size(), area, t);
 	updateBullets(t);
@@ -303,6 +303,9 @@ void Server::spawnUnits(double t)
 			for(int j=0; j<spawnCounts[i][kk]; ++j) {
 				Unit b(area.getSpawn(kk), i, botID++);
 				units.push_back(b);
+				BotInformation* bi = new BotInformation;
+				botinfos.resize(botID);
+				botinfos[botID-1] = bi;
 				cout<<"spawning "<<i<<' '<<kk<<'\n';
 			}
 		}

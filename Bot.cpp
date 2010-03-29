@@ -8,6 +8,7 @@
 #include <set>
 #include <iostream>
 #include <cstdio>
+#include "BotInformation.hpp"
 
 double distance(const Unit& u, const Unit& another) {
 	double xd = u.loc.x - another.loc.x;
@@ -55,7 +56,7 @@ int sign(double a) {
 	return 1;
 }
 
-void moveBot(Unit& u, const Area& area, const std::vector<Unit>& units)
+void moveBot(Unit& u, const Area& area, const std::vector<Unit>& units, BotInformation* yourInfo)
 {
 	if(units.size() == 0) return;
 
@@ -71,114 +72,160 @@ void moveBot(Unit& u, const Area& area, const std::vector<Unit>& units)
 			//std::cout<<"Player loc: "<<units[i].loc.x<<" "<<units[i].loc.y<<std::endl;
 		}
 	}
-	
+
 	if(myunits.size() == 0) return;
 
 	std::sort(myunits.begin(),myunits.end(),cmp);
 
-	// check if we can see someone, move towards, should be possible
+	Vec2 curLoc, myLoc;
+	curLoc.x = u.loc.x;
+	curLoc.y = u.loc.y;
+	myLoc.x = myunits[0].loc.x;
+	myLoc.y = myunits[0].loc.y;
 
-	// write bfs here
+	bool ok = false;
+	wallHitPoint(curLoc, myLoc, area, &ok);
 
-	int dx[] = {1,0,0,-1};
-	int dy[] = {0,1,-1,0};
 
-	const int LIMIT = 25;
+	if(yourInfo->planTime == 0 || !ok) {
 
-	std::vector<bfsnode> Q;
+		// check if we can see someone, move towards, should be possible
 
-	bfsnode bn = {int(u.loc.x), int(u.loc.y), -1, 0};
+		// write bfs here
 
-	Q.push_back(bn);
+		int dx[] = {1,0,0,-1};
+		int dy[] = {0,1,-1,0};
 
-	int index = 0;
-	bool fail = true;
+		const int LIMIT = 21;
 
-	std::set<bfsnode> used;
-	used.insert(bn);
+		std::vector<bfsnode> Q;
 
-	while(index < int(Q.size())) {
-		bfsnode cur = Q[index];
+		bfsnode bn = {int(u.loc.x), int(u.loc.y), -1, 0};
 
-		if(cur.x == int(myunits[0].loc.x) && cur.y == int(myunits[0].loc.y)) {
-			fail = false;
-			break;
-		}
+		Q.push_back(bn);
 
-		if(cur.len > LIMIT) {
-			break;
-		}
+		int index = 0;
+		bool fail = true;
 
-		for(int i = 0; i < 4; ++i) {
-			if(!area.blocked(cur.x + dx[i], cur.y + dy[i])) {
-				bfsnode nbn = (bfsnode){cur.x + dx[i], cur.y + dy[i], index, cur.len + 1};
-				if(!used.count(nbn)) {
-					Q.push_back(nbn);
-					used.insert(nbn);
+		std::set<bfsnode> used;
+		used.insert(bn);
+
+		while(index < int(Q.size())) {
+			bfsnode cur = Q[index];
+
+			if(cur.x == int(myunits[0].loc.x) && cur.y == int(myunits[0].loc.y)) {
+				fail = false;
+				break;
+			}
+
+			if(cur.len > LIMIT) {
+				break;
+			}
+
+			for(int i = 0; i < 4; ++i) {
+				if(!area.blocked(cur.x + dx[i], cur.y + dy[i])) {
+					bfsnode nbn = (bfsnode){cur.x + dx[i], cur.y + dy[i], index, cur.len + 1};
+					if(!used.count(nbn)) {
+						Q.push_back(nbn);
+						used.insert(nbn);
+					}
 				}
 			}
-		}
-		++index;
-	}
-
-	if(fail) {
-		// did not find a target, do something useful
-	} else {
-		// found a target, start following
-		// list route
-		std::vector<square> SQ;
-		bfsnode& cur = Q[index];
-
-		//std::cout<<"asdasd "<<u.loc<<'\n';
-		while(true) {
-			//std::cout<<"lol "<<cur.x<<' '<<cur.y<<'\n';
-			SQ.push_back((square){cur.x, cur.y});
-			if(cur.prev == -1) break;
-			cur = Q[cur.prev];
+			++index;
 		}
 
-		std::reverse(SQ.begin(),SQ.end());
+		if(false/*fail*/) {
+			// did not find a target, do something useful
+			
+			// LETS DO SOMETHING ANYWAY
+		} else {
+			// found a target, start following
+			// list route
+			std::vector<square> SQ;
+			bfsnode& cur = Q[index];
+			if(fail) {
+				cur = Q[rand() % Q.size()];
+			}
+
+			//std::cout<<"asdasd "<<u.loc<<'\n';
+			while(true) {
+				//std::cout<<"lol "<<cur.x<<' '<<cur.y<<'\n';
+				SQ.push_back((square){cur.x, cur.y});
+				if(cur.prev == -1) break;
+				cur = Q[cur.prev];
+			}
+
+			yourInfo->planTime = 30*(3+rand()%4);
+			yourInfo->plan.resize(0);
+			for(int i = 0; i < SQ.size(); ++i) {
+				Vec2 vc;
+				vc.x = SQ[i].x;
+				vc.y = SQ[i].y;
+				yourInfo->plan.push_back(vc);
+			}
+
+			std::reverse(SQ.begin(),SQ.end());
 #if 0
-		for(unsigned i = 0; i < std::min(5U,unsigned(SQ.size())); ++i) {
-			std::cout<<"("<<SQ[i].x<<","<<SQ[i].y<<")"<<", ";
-		}
-		std::cout<<std::endl;
+			for(unsigned i = 0; i < std::min(5U,unsigned(SQ.size())); ++i) {
+				std::cout<<"("<<SQ[i].x<<","<<SQ[i].y<<")"<<", ";
+			}
+			std::cout<<std::endl;
 #endif
 
-		if(SQ.size() < 2) return;
+			if(SQ.size() < 2) return;
 
-		double x = int(u.loc.x) + 0.5, y = int(u.loc.y) + 0.5;
-		double nx = SQ[1].x + 0.5, ny = SQ[1].y + 0.5; 
+			double x = int(u.loc.x) + 0.5, y = int(u.loc.y) + 0.5;
+			double nx = SQ[1].x + 0.5, ny = SQ[1].y + 0.5; 
 
-		//std::cout<<x<<" "<<nx<<" "<<y<<" "<<ny<<std::endl;
+			//std::cout<<x<<" "<<nx<<" "<<y<<" "<<ny<<std::endl;
 
-		double angle = atan2(ny - y, nx - x);
+			double angle = atan2(ny - y, nx - x);
 
-		//printf("Current (%f,%f), target (%f,%f)\n",x,y,nx,ny);
-		//std::cout<<"Angle: \t"<<angle<<std::endl;
+			//printf("Current (%f,%f), target (%f,%f)\n",x,y,nx,ny);
+			//std::cout<<"Angle: \t"<<angle<<std::endl;
 
-		u.d = angle;
-		u.movey = sign(ny - y);
-		u.movex = sign(nx - x);
+			u.d = angle;
+			u.movey = sign(ny - y);
+			u.movex = sign(nx - x);
 
-		//std::cout<<"MOVEY: "<<u.movey<<std::endl;
-		//std::cout<<"MOVEX: "<<u.movex<<std::endl;
+			//std::cout<<"MOVEY: "<<u.movey<<std::endl;
+			//std::cout<<"MOVEX: "<<u.movex<<std::endl;
 
-		Vec2 curLoc, myLoc;
-		curLoc.x = u.loc.x;
-		curLoc.y = u.loc.y;
-		myLoc.x = myunits[0].loc.x;
-		myLoc.y = myunits[0].loc.y;
+			if(!ok && !fail) {
+				u.shooting = 1;	
+				u.d = atan2(myLoc.y - curLoc.y, myLoc.x - curLoc.x);
+			} else {
+				u.shooting = 0;
+			}	
 
-		bool ok = false;
-		wallHitPoint(curLoc, myLoc, area, &ok);
+		}
+	} else {
+		/*
+		yourInfo->planTime = 30*(3+rand()%4);
 
-		if(!ok) {
-			u.shooting = 1;	
-			u.d = atan2(myLoc.y - curLoc.y, myLoc.x - curLoc.x);
-		} else {
-			u.shooting = 0;
-		}	
+		int r = rand() % 10 + 1;
+
+		if(r <= 3) {
+			yourInfo->stayStill = true;
+		} else if() {
+
+		}
+		*/
+
+		--yourInfo->planTime;
+
+		if(yourInfo->plan.size() == 0) {
+			yourInfo->planTime = 0;
+			return;
+		}
+
+		int x = u.loc.x, y = u.loc.y;
+
+		if(x != int(yourInfo->plan.back().x) || y != int(yourInfo->plan.back().y)) {
+			u.d = atan2(yourInfo->plan.back().x - u.loc.x, yourInfo->plan.back().y - u.loc.y);
+			u.movey = sign(sin(u.d));
+			u.movex = sign(cos(u.d));
+		}
 
 	}
 
