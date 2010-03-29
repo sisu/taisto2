@@ -1,6 +1,7 @@
 #include "Game.hpp"
 #include "physics.hpp"
 #include "timef.h"
+#include "Bullet.hpp"
 
 Game::Game(): socket(*this)
 {
@@ -11,6 +12,12 @@ void Game::updateNetwork()
 {
 	socket.sendState();
 	socket.handleMessages();
+    for(int i=0;i<units.size();i++)
+    {
+        if(units[i].id>=unitIndex.size())
+            unitIndex.resize(units[i].id+20);
+        unitIndex[units[i].id]=i;
+    }
 }
 void Game::updateState(double t)
 {
@@ -24,6 +31,11 @@ void Game::updateState(double t)
 	for(unsigned i=0; i<eparts.size(); ) {
 		if (eparts[i].update(t)) ++i;
 		else eparts[i]=eparts.back(), eparts.pop_back();
+	}
+	for(unsigned i=0; i<lightnings.size(); ) {
+		lightnings[i].first += t;
+		if (lightnings[i].first < 1.5*LIGHTNING_TIME) ++i;
+		else lightnings[i]=lightnings.back(), lightnings.pop_back();
 	}
 }
 void Game::destroyBullet(int id, double xx, double yy)

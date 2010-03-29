@@ -316,13 +316,20 @@ void draw(){
 		if (b.type==0) draw_bullet(b);
         else if(b.type==1) draw_rocket(b);
 	}
-    std::vector<Vec2> enemies;
-    for(int i=0;i<game.units.size();i++)
+
+    for(int l=0;l<game.lightnings.size();l++)
     {
-        enemies.push_back(game.units[i].loc);
+        std::vector<Vec2> enemies;
+        for(int i=1;i<game.lightnings[l].second.size();i++)
+        {
+            int j = game.lightnings[l].second[i];
+
+            enemies.push_back(game.units[game.unitIndex[j]].loc);
+        }
+        drawSalama(game,player.loc,&enemies[0],
+                enemies.size());
     }
-    drawSalama(game,player.loc,&enemies[0],
-            enemies.size());
+
 	for(unsigned i=0; i<game.lastBullets.size(); ++i) {
         Bullet b = game.lastBullets[i];
 		if (b.type!=0) continue;

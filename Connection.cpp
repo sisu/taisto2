@@ -42,11 +42,11 @@ void Connection::write(const void* s, int n)
 }
 void Connection::write(DataWriter& w)
 {
-	fcntl(fd, F_SETFL, 0);
+//	fcntl(fd, F_SETFL, 0);
     char buf[4];
     *(int*)buf = w.len();
     ::write(fd,buf,4);
 	int sent = ::write(fd, w.data(),w.len());
     assert(sent==w.len());
-	fcntl(fd, F_SETFL, O_NONBLOCK);
+//	fcntl(fd, F_SETFL, O_NONBLOCK);
 }

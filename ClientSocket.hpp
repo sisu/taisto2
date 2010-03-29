@@ -14,6 +14,7 @@ struct ClientSocket {
 	void readState(DataReader r);
 	void readBullet(DataReader r);
 	void readHit(DataReader r);
+	void readLightning(DataReader r);
 	void sendState();
 
 	Connection conn;

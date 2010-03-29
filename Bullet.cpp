@@ -2,15 +2,14 @@
 #include <cstdlib>
 #include <iostream>
 using namespace std;
-double loadTimes[] = {.10,.3};
-double damages[] = {1,10};
-static double speeds[] = {800,15};
-
-static double offsets[] = {.1,.15};
+double loadTimes[] = {.05,.3,LIGHTNING_TIME};
+double damages[] = {1,15,.5};
+static double speeds[] = {1000,30,0};
+static double spreads[] = {.1,.15,0};
 
 Bullet genBullet(int type, Vec2 l, double d, int id)
 {
-	d += ((double)rand()/RAND_MAX-.5)*offsets[type];
+	d += ((double)rand()/RAND_MAX-.5)*spreads[type];
 	Vec2 v(cos(d),sin(d));
 	Bullet b(l+.3*v, v * speeds[type], type, id);
 	return b;
