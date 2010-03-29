@@ -471,6 +471,8 @@ void joinGame()
 {
 	Menu m;
 	MenuItem conn={"connect",0};
+	conn.func = mainLoop;
+	m.items.push_back(conn);
 	m.exec();
 }
 Menu createMainMenu()
