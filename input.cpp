@@ -1,5 +1,5 @@
 #include "SDL.h"
-bool keyboard[256];
+bool keyboard[512];
 int mouseX, mouseY;
 bool mouse[4];
 
@@ -12,10 +12,8 @@ void readInput()
 
     SDL_PumpEvents();
     Uint8* keys = SDL_GetKeyState(0);
-    for(int i=0; i<256; ++i) 
+    for(int i=0; i<300; ++i) 
         keyboard[i]=keys[i];
-
-
 
     int mstate = SDL_GetMouseState(&mouseX, &mouseY);
     for(int i=0; i<3; ++i) mouse[i] = mstate & SDL_BUTTON(1+i);

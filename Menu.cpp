@@ -7,7 +7,7 @@
 #include <iostream>
 using namespace std;
 
-bool prevkb[256];
+bool prevkb[512];
 
 bool press(int c)
 {
@@ -17,12 +17,19 @@ bool press(int c)
 bool Menu::handleInput()
 {
 	if (press(27)) return 0;
-	if (press('w')) cur=(cur+items.size()-1)%items.size();
-	if (press('s')) cur=(cur+1)%items.size();
+	if (press(SDLK_UP)) cur=(cur+items.size()-1)%items.size();
+	if (press(SDLK_DOWN)) cur=(cur+1)%items.size();
 	if (press('\r')) {
 		MenuItem& m = items[cur];
-		if (m.type==1) return 0;
-		if (m.type==0) m.func();
+		if (m.type==EXIT) return 0;
+		if (m.type==PICK) m.func();
+	}
+	if (items[cur].type==STRING) {
+		string& str = *items[cur].str;
+		if (press('\b') && !str.empty()) str.erase(str.end()-1);
+		for(int i=32; i<123; ++i) {
+			if (press(i)) str.push_back(i);
+		}
 	}
 	return 1;
 }
@@ -55,13 +62,15 @@ void Menu::draw()
 		}
 		glColor3f(1,.3,1);
 		drawString(items[i].title, x, y, .1);
+
+		if (items[i].type==STRING) drawString(items[i].str->c_str(), x+.5, y, .1);
 	}
 }
 
 void Menu::exec()
 {
 	while(1) {
-		memcpy(prevkb,keyboard,256);
+		memcpy(prevkb,keyboard,512);
 		readInput();
 		if (!handleInput()) break;
 		draw();

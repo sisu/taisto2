@@ -2,11 +2,17 @@
 #define MENU_HPP
 
 #include <vector>
+#include <string>
+
+enum ItemType {
+	PICK,EXIT,STRING
+};
 
 struct MenuItem {
 	const char* title;
-	int type;
+	ItemType type;
 	void(*func)();
+	std::string* str;
 };
 
 struct Menu {
