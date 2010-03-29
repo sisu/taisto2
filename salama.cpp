@@ -94,8 +94,11 @@ void drawSalamaStrip(Vec2* v,int p)
         float nx1 = nx[i]+(i?nx[i-1]:0);
         float ny1 = ny[i]+(i?ny[i-1]:0);
         float l1 = sqrt(nx1*nx1+ny1*ny1);
+        //float a = atan2(length(Vec2(nx1,ny1)-Vec2(nx[i],ny[i])),length(Vec2(nx1,ny1)));
+        //float t = (nx1-nx[i])/(ny1-ny[i]);
         nx1/=l1;
         ny1/=l1;
+        
         float nx2 = nx[i]+(i!=p-2?nx[ni]:0);
         float ny2 = ny[i]+(i!=p-2?ny[ni]:0);
         float l2 = sqrt(nx2*nx2+ny2*ny2);
@@ -150,24 +153,26 @@ void drawSalama(Game& game,Vec2 orig,Vec2* targets,int n){
     std::vector<Vec2> tar;
     tar.push_back(orig);
     memset(last,-1,sizeof(last));
+    for(int i=0;i<n;i++)
+        tar.push_back(targets[i]);
+    int tz = tar.size();
     for(int i=0;i<50;i++)
     {
         Vec2 v(0,0);
         float tot = 0;
-        for(int j=0;j<n;j++)
+        for(int j=0;j<n+1;j++)
         {
             float r = fuaa(curtime*2+23*j+53*i);//fuaa(curtime*1000+23*j);//fuaa(curtime*100+23);//randf();//fuaa(curtime*10+23);
             assert(r>=0);
             assert(r<=1);
-            v+=r*(targets[j])+2*Vec2(fuaa(curtime*5+542*i+54*j)-0.5,fuaa(curtime*5+23*i+323*j)-0.5);
+            //if(j==0)r*=10;
+            v+=r*(tar[j])+r*4.5*Vec2(fuaa(curtime*1+542*i+54*j)-0.5,fuaa(curtime*1+23*i+323*j)-0.5);
             tot+=r;
         }
         v/=tot;
         tar.push_back(v);
     }
     //tar.insert(tar.end(),targets,targets+n);
-    for(int i=0;i<n;i++)
-        tar.push_back(targets[i]);
     for(int i=0;i<tar.size();i++)
     {
         for(int j=i+1;j<tar.size();j++)
