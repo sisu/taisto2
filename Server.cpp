@@ -91,7 +91,8 @@ void Server::updatePhysics(double t)
 				w.writeByte(SRV_LIGHTNING);
 				w.writeInt(0);
 				Vec2 v(cos(u.d),sin(u.d));
-				int cnt=0;
+				int cnt=1;
+				w.writeInt(u.id);
 				for(unsigned j=0; j<units.size(); ++j) {
 					if (j==i) continue;
 					Unit& p =units[j];
