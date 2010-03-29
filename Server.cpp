@@ -16,11 +16,7 @@
 using namespace std;
 static const double shields[]={10,2.8};
 
-<<<<<<< HEAD:Server.cpp
-Server::Server(): end(0), nextID(1),/*area(40,300)//*/ area("field.in.1")
-=======
 Server::Server(): end(0), nextID(1),area(20,300)// area("field.in.1")
->>>>>>> 34cb4320fb19c7f8fea120fe946e362e7cdc808c:Server.cpp
 {
 	for(int i=2; i<area.h; i+=30) area.bases.push_back(i);
 	clID = new int[1<<16];
@@ -78,7 +74,7 @@ void Server::updatePhysics(double t)
 	if (spawnTime <= 0) {
 		Unit b(area.getSpawn(curSpawn+1), 1, botID++);
 		units.push_back(b);
-		spawnTime = 5;
+		spawnTime = 1;
 	}
 	for(unsigned i=0; i<units.size(); ++i) if (units[i].type!=0) moveBot(units[i],area,units);
 	moveUnits(&units[0], units.size(), area, t);

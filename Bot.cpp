@@ -128,9 +128,9 @@ void moveBot(Unit& u, const Area& area, const std::vector<Unit>& units)
 		std::vector<square> SQ;
 		bfsnode& cur = Q[index];
 
-		std::cout<<"asdasd "<<u.loc<<'\n';
+		//std::cout<<"asdasd "<<u.loc<<'\n';
 		while(true) {
-			std::cout<<"lol "<<cur.x<<' '<<cur.y<<'\n';
+			//std::cout<<"lol "<<cur.x<<' '<<cur.y<<'\n';
 			SQ.push_back((square){cur.x, cur.y});
 			if(cur.prev == -1) break;
 			cur = Q[cur.prev];
