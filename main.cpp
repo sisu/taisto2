@@ -11,8 +11,8 @@
 #include<GL/glu.h>
 #include<GL/glext.h>
 //#include"ukko.c"
-#include"ukko_walk1.c"
-#include"ukko_walk2.c"
+//#include"ukko_walk1.c"
+//#include"ukko_walk2.c"
 //#include"ase.c"
 #include"rocket.c"
 #include"physics.hpp"
@@ -110,7 +110,46 @@ void draw_area()
             }
         }
     }
+
+    glTranslatef(0,0,0.1);
+    for(int i=0;i<game.area.bases.size();i++){
+        //glEnable(GL_TEXTURE_2D);
+        glColor3f(1,1,1);
+        glBindTexture(GL_TEXTURE_2D,groundTex);
+        glBegin(GL_QUADS);{
+            glNormal3f(0,0,1);
+            glTexCoord2f(0,0);
+            glVertex3f(-1009,game.area.bases[i]-10,0);
+            glTexCoord2f(200,0);
+            glVertex3f(1000,game.area.bases[i]-10,0);
+            glTexCoord2f(200,200);
+            glVertex3f(1000,game.area.bases[i]+10,0);
+            glTexCoord2f(0,200);
+            glVertex3f(-1000,game.area.bases[i]+10,0);
+        }
+        glEnd();
+        glRotatef(-45,0,0,1);
+        glDisable(GL_TEXTURE_2D);
+    }
     glPopMatrix();
+
+    //ground
+    glEnable(GL_TEXTURE_2D);
+    glBindTexture(GL_TEXTURE_2D,groundTex);
+    glRotatef(45,0,0,1);
+    glBegin(GL_QUADS);
+		glNormal3f(0,0,1);
+        glTexCoord2f(0,0);
+        glVertex3f(-1009,-1000,0);
+        glTexCoord2f(200,0);
+        glVertex3f(1000,-1000,0);
+        glTexCoord2f(200,200);
+        glVertex3f(1000,1000,0);
+        glTexCoord2f(0,200);
+        glVertex3f(-1000,1000,0);
+    glEnd();
+    glRotatef(-45,0,0,1);
+    glDisable(GL_TEXTURE_2D);
 }
 void draw_rocket(Bullet bu){
     Vec2 loc = bu.loc;
@@ -288,23 +327,6 @@ void draw(){
 	glTranslatef(-player.loc.x, -player.loc.y, 0);
     glColor3f(1,1,1);
     
-    //ground
-    glEnable(GL_TEXTURE_2D);
-    glBindTexture(GL_TEXTURE_2D,groundTex);
-    glRotatef(45,0,0,1);
-    glBegin(GL_QUADS);
-		glNormal3f(0,0,1);
-        glTexCoord2f(0,0);
-        glVertex3f(-1009,-1000,0);
-        glTexCoord2f(200,0);
-        glVertex3f(1000,-1000,0);
-        glTexCoord2f(200,200);
-        glVertex3f(1000,1000,0);
-        glTexCoord2f(0,200);
-        glVertex3f(-1000,1000,0);
-    glEnd();
-    glRotatef(-45,0,0,1);
-    glDisable(GL_TEXTURE_2D);
 
     draw_area();
 	for(unsigned i=0; i<game.units.size(); ++i) {

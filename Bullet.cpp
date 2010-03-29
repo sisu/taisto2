@@ -2,10 +2,11 @@
 #include <cstdlib>
 #include <iostream>
 using namespace std;
-double loadTimes[] = {.05,.3,LIGHTNING_TIME};
+
+double loadTimes[] = {.05,.3,LIGHTNING_TIME,1};
 double damages[] = {1,15,.5};
 static double speeds[] = {1000,30,0};
-static double spreads[] = {.1,.15,0};
+static double spreads[] = {.1,.15,0,0.2};
 
 Bullet genBullet(int type, Vec2 l, double d, int id)
 {

@@ -1,4 +1,5 @@
 #include<iostream>
+#include<algorithm>
 #include<cassert>
 #include<cstdlib>
 #include "timef.h"
@@ -160,13 +161,19 @@ void drawSalama(Game& game,Vec2 orig,Vec2* targets,int n){
     {
         Vec2 v(0,0);
         float tot = 0;
+        if(n!=0)
+            std::random_shuffle(tar.begin()+1,tar.begin()+1+n);
         for(int j=0;j<n+1;j++)
         {
-            float r = fuaa(curtime*2+23*j+53*i);//fuaa(curtime*1000+23*j);//fuaa(curtime*100+23);//randf();//fuaa(curtime*10+23);
+            float r = fmod(1*fuaa(curtime*1+23*j+53*i),1);//fuaa(curtime*1000+23*j);//fuaa(curtime*100+23);//randf();//fuaa(curtime*10+23);
             assert(r>=0);
             assert(r<=1);
+            if(j!=0)
+                r*=(float(j)/(n));
+            else 
+                r*=r;
             //if(j==0)r*=10;
-            v+=r*(tar[j])+r*4.5*Vec2(fuaa(curtime*1+542*i+54*j)-0.5,fuaa(curtime*1+23*i+323*j)-0.5);
+            v+=r*(tar[j])+r*4.5*Vec2(fuaa(orig.x*0.1+curtime*0.1+542*i+54*j)-0.5,fuaa(orig.y*0.1+curtime*0.1+23*i+323*j)-0.5);
             tot+=r;
         }
         v/=tot;
