@@ -36,6 +36,7 @@ void initLCD()
 {
 	for(int i=0; i<='z'-'a'; ++i) contains['a'+i]=acontains[i];
 	for(int i=0; i<10; ++i) contains['0'+i]=acontains['z'-'a'+1+i];
+	contains['-'] = 16+32;
 }
 
 void drawString(const char* str, double x, double y, double s)
