@@ -74,7 +74,7 @@ struct Area {
                 }
             }
         }
-        for(int i=0;i<1;i++)
+        for(int i=0;i<2;i++)
         {
             int y=1;
             int x=w/2;
