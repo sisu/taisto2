@@ -71,7 +71,10 @@ void ClientSocket::readInit(DataReader r)
 	Area& a=g.area;
 	a.w=w,a.h=h;
 	a.a = new int[w*h];
-	memcpy(a.a, r.cur, 4*w*h);
+	r.read(a.a, 4*w*h);
+	int b = r.readInt();
+	a.bases.resize(b);
+	r.read(&a.bases[0], 4*b);
 	cout<<"got map "<<a.w<<' '<<a.h<<'\n';
 }
 void ClientSocket::readState(DataReader r)

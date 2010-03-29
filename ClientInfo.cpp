@@ -53,6 +53,8 @@ void ClientInfo::sendInit()
 	w.writeInt(a.w);
 	w.writeInt(a.h);
 	w.write(a.a, 4*a.w*a.h);
+	w.writeInt(a.bases.size());
+	w.write(&a.bases[0], 4*a.bases.size());
 	conn.write(w);
 	cout<<"sent init "<<w.len()<<'\n';;
 }
