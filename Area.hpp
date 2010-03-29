@@ -88,7 +88,7 @@ struct Area {
         {
             int y=1;
             int x=w/2;
-            while(y<w-2)
+            while(y<h-2)
             {
                 int ox = x;
                 switch(rand()%3){
