@@ -1,4 +1,5 @@
 #include<iostream>
+#include<cassert>
 #include<cstdlib>
 #include "timef.h"
 #include "Game.hpp"
@@ -44,7 +45,7 @@ static float fuaa(float f)
 static float curtime;
 static Vec2 randpoint(int x,int y)
 {
-    return Vec2(x+fuaa(curtime+x*5),y+fuaa(curtime+123+y*3));
+    return Vec2(x+fuaa(curtime*10+x*5+2*y),y+fuaa(curtime*10+12*x+y*3));
 }
 
 void drawSalamaStrip(Vec2* v,int p)
@@ -60,12 +61,21 @@ void drawSalamaStrip(Vec2* v,int p)
     glEnable (GL_BLEND); 
     glBlendFunc (GL_SRC_ALPHA, GL_ONE);  
     glBindTexture(GL_TEXTURE_2D,salama.glid);
-    float nx[128]={};
-    float ny[128]={};
+    static float nx[52008]={};
+    static float ny[52008]={};
+    static int inc[21230]={};
     for(int i=0;i<p-1;i++)
     {
         float xx = v[i+1].x-v[i].x;
         float yy = v[i+1].y-v[i].y;
+        /*
+        if(len1<1){
+            //skip
+            inc[i]=2;
+        }else*/
+        {
+            inc[i]=1;
+        }
         float nyy = -xx;
         float nxx = yy;
         float len = sqrt(nxx*nxx+nyy*nyy);
@@ -74,29 +84,40 @@ void drawSalamaStrip(Vec2* v,int p)
         nx[i]=nxx;
         ny[i]=nyy;
     }
+    glEnable(GL_BLEND);
     glBegin(GL_QUADS);
-    for(int i=0;i<p-1;i++)
+    int li = 0;
+    for(int i=0;i<p-1;i+=inc[i])
     {
 
+        int ni = i+inc[i];
         float nx1 = nx[i]+(i?nx[i-1]:0);
         float ny1 = ny[i]+(i?ny[i-1]:0);
+        float l1 = sqrt(nx1*nx1+ny1*ny1);
+        //float a = atan2(length(Vec2(nx1,ny1)-Vec2(nx[i],ny[i])),length(Vec2(nx1,ny1)));
+        //float t = (nx1-nx[i])/(ny1-ny[i]);
+        nx1/=l1;
+        ny1/=l1;
+        
+        float nx2 = nx[i]+(i!=p-2?nx[ni]:0);
+        float ny2 = ny[i]+(i!=p-2?ny[ni]:0);
+        float l2 = sqrt(nx2*nx2+ny2*ny2);
+        nx2/=l2;
+        ny2/=l2;
 
-        float nx2 = nx[i]+(i!=p-2?nx[i+1]:0);
-        float ny2 = ny[i]+(i!=p-2?ny[i+1]:0);
 
-        /*
         nx1*=0.5;
         ny1*=0.5;
         nx2*=0.5;
-        ny2*=0.5;*/
+        ny2*=0.5;
         glTexCoord2f(0,0);
         glVertex3f(v[i].x+nx1,v[i].y+ny1,1);
         glTexCoord2f(1,0);
         glVertex3f(v[i].x-nx1,v[i].y-ny1,1);
         glTexCoord2f(1,1);
-        glVertex3f(v[i+1].x-nx2,v[i+1].y-ny2,1);
+        glVertex3f(v[ni].x-nx2,v[ni].y-ny2,1);
         glTexCoord2f(0,1);
-        glVertex3f(v[i+1].x+nx2,v[i+1].y+ny2,1);
+        glVertex3f(v[ni].x+nx2,v[ni].y+ny2,1);
     }
 
     glEnd();
@@ -123,13 +144,84 @@ struct pqnode{
     }
 };
 
+float edges[128][128];
+int last[128];
 void drawSalama(Game& game,Vec2 orig,Vec2* targets,int n){
     curtime = timef();
+    //curtime=0;
     std::priority_queue<pqnode> pq;
     std::vector<Vec2> tar;
-    tar.insert(tar.end(),targets,targets+n);
+    tar.push_back(orig);
+    memset(last,-1,sizeof(last));
+    for(int i=0;i<n;i++)
+        tar.push_back(targets[i]);
+    int tz = tar.size();
     for(int i=0;i<50;i++)
     {
+        Vec2 v(0,0);
+        float tot = 0;
+        for(int j=0;j<n+1;j++)
+        {
+            float r = fuaa(curtime*2+23*j+53*i);//fuaa(curtime*1000+23*j);//fuaa(curtime*100+23);//randf();//fuaa(curtime*10+23);
+            assert(r>=0);
+            assert(r<=1);
+            //if(j==0)r*=10;
+            v+=r*(tar[j])+r*4.5*Vec2(fuaa(curtime*1+542*i+54*j)-0.5,fuaa(curtime*1+23*i+323*j)-0.5);
+            tot+=r;
+        }
+        v/=tot;
+        tar.push_back(v);
+    }
+    //tar.insert(tar.end(),targets,targets+n);
+    for(int i=0;i<tar.size();i++)
+    {
+        for(int j=i+1;j<tar.size();j++)
+        {
+            Vec2 v=tar[i];
+            Vec2 u=tar[j];
+            float len = length2(v-u);
+            edges[i][j]=len;
+            edges[j][i]=len;
+        }
+    }
+    last[0]=-2;
+    for(int i=1;i<tar.size();i++)
+    {
+        pqnode n;
+        n.x=0;
+        n.y=i;
+        n.len = edges[0][i];
+        pq.push(n);
+    }
+    while(pq.size())
+    {
+        pqnode p = pq.top();
+        pq.pop();
+        if(last[p.y]!=-1)continue;
+        last[p.y]=p.x;
+        for(int i=1;i<tar.size();i++)
+        {
+            if(last[i]==-1)
+            {
+                pqnode n;
+                n.x =p.y;
+                n.y = i;
+                n.len = edges[n.x][n.y];
+                pq.push(n);
+            }
+        }
+    }
+    for(int i=1;i<tar.size();i++)
+    {
+        std::vector<Vec2> strip;
+        int z = i;
+        while(z!=-2)
+        {
+            strip.push_back(tar[z]);
+            z = last[z];
+            assert(z!=-1);
+        }
+        drawSalamaStrip(&strip[0],strip.size());
     }
 }
 
@@ -138,6 +230,55 @@ short prevy[300][3000];
 #if 0 
 void drawSalama(Game& game,Vec2 orig,Vec2* targets,int n)
 {
+    curtime = timef();
+    int x,y;
+    x = orig.x;
+    y = orig.y;
+    Vec2 p = orig;
+    std::vector<Vec2> strip;
+    while(true)
+    {
+        int tx = targets[0].x;
+        int ty = targets[0].y;
+        if(x==tx && y==ty)
+            break;
+        static const int dx[]= {0,1,1,1,0,-1,-1,-1};
+        static const int dy[]= {1,1,0,-1,-1,-1,0,1};
+        float best = 1000000;
+        int bd = -1;
+        Vec2 vv ;
+        for(int i=0;i<8;i++)
+        {
+            int nx = x+dx[i];
+            int ny = y+dy[i];
+            if(game.area.blocked(nx,ny))continue;
+            Vec2 nv =  randpoint(nx,ny);
+            float len = length2( p-nv);
+            float progress = length2(p-targets[0])-length2(nv-targets[0]);
+            if(progress<=0)continue;
+            if(len/progress<best||bd==-1)
+            {
+                best = len/progress;
+                bd = i;
+                vv = nv;
+            }
+        }
+        if(bd==-1){
+            std::cout<<"wtf bd = -1\n";
+            break;
+        }
+        x+=dx[bd];
+        y+=dy[bd];
+        p = vv;
+        strip.push_back(vv);
+
+        if(strip.size()>20){
+            std::cout<<"simobreak\n";
+            break;
+        }
+    }
+    drawSalamaStrip(&strip[0],strip.size());
+#if 0 
     curtime = timef();
     memset(prevx,-1,sizeof(prevx));
     memset(prevy,-1,sizeof(prevy));
@@ -201,6 +342,7 @@ void drawSalama(Game& game,Vec2 orig,Vec2* targets,int n)
             pq.push(ne);
         }
     }
+#endif
 }
 #endif
 

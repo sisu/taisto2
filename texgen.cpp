@@ -194,8 +194,9 @@ GLuint genGroundTex()
             xx = 31-xx;
             FF;
             if((int(s*20)%2))is=1;
-            texture[i][j][0] = is*0.01;
-            texture[i][j][1] = z*0.5+is*0.1;
+
+            texture[i][j][0] = z*0.5+is*0.01;
+            texture[i][j][1] = z*0.2+is*0.1;
             texture[i][j][2] = z*0.3+is*0.1;
 			texture[i][j][3] =1;
 		}
@@ -228,7 +229,8 @@ GLuint genBuildingTex()
             //if(x>0.5)x = 1-x;
             //if(y>0.5)y = 1-y;
             //double s = abs(turbulence(28*x,28*y,16));
-            int s = (i/32+j/32)%2;
+            int s = i==0||j==0||i==TS-1||j==TS-1;// (i/32+j/32)%2;
+            s=!s;
             texture[i][j][0] = s*0.0+(!s)*0.1;
             texture[i][j][1] = s*0.0+(!s)*0.4;
             texture[i][j][2] = s*0.0+(!s)*0.9;

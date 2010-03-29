@@ -53,6 +53,9 @@ void ClientSocket::handleMessages()
 			case SRV_HIT:
 				readHit(r);
 				break;
+			case SRV_LIGHTNING:
+				readLightning(r);
+				break;
 			default:
 				cout<<"Unknown message "<<type<<'\n';
 				break;
@@ -98,6 +101,13 @@ void ClientSocket::readHit(DataReader r)
 	int id = r.readInt();
 	float x=r.readFloat(), y=r.readFloat();
 	g.destroyBullet(id,x,y);
+}
+void ClientSocket::readLightning(DataReader r)
+{
+	int cnt = r.readInt();
+	vector<int> ids((int*)r.cur, ((int*)r.cur)+cnt);
+	g.lightnings.push_back(make_pair(0.0, ids));
+//	cout<<"adding lightning "<<cnt<<'\n';
 }
 
 void ClientSocket::sendState()

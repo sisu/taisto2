@@ -14,13 +14,19 @@
 #include <iostream>
 #include "SDL.h"
 using namespace std;
+static const double shields[]={10,2.8};
 
+<<<<<<< HEAD:Server.cpp
 Server::Server(): end(0), nextID(1),/*area(40,300)//*/ area("field.in.1")
+=======
+Server::Server(): end(0), nextID(1),area(20,300)// area("field.in.1")
+>>>>>>> 34cb4320fb19c7f8fea120fe946e362e7cdc808c:Server.cpp
 {
 	for(int i=2; i<area.h; i+=30) area.bases.push_back(i);
 	clID = new int[1<<16];
 	spawnTime = 0;
 	curSpawn=0;
+	botID=256;
 	initSocket();
 }
 Server::~Server()
@@ -70,7 +76,7 @@ void Server::updatePhysics(double t)
 {
 	spawnTime -= t;
 	if (spawnTime <= 0) {
-		Unit b(area.getSpawn(curSpawn+1), 1, -1);
+		Unit b(area.getSpawn(curSpawn+1), 1, botID++);
 		units.push_back(b);
 		spawnTime = 5;
 	}
@@ -86,16 +92,43 @@ void Server::updatePhysics(double t)
 			int t = u.type>0 ? u.type-1 : clients[clID[u.id]]->weapon;
 			u.shootTime = loadTimes[t];
 
-			Bullet b = genBullet(t, u.loc, u.d, bulletid++);
-//			Vec2 v(cos(u.d),sin(u.d));
-  //          Bullet b(u.loc+.1*v, 1000*v, t, bulletid++);
-            bullets.push_back(b);
+			if (t==2) { // lightning
+				DataWriter w;
+				w.writeByte(SRV_LIGHTNING);
+				w.writeInt(0);
+				Vec2 v(cos(u.d),sin(u.d));
+				int cnt=1;
+				w.writeInt(u.id);
+				for(unsigned j=0; j<units.size(); ++j) {
+					if (j==i) continue;
+					Unit& p =units[j];
+					Vec2 v2 = p.loc-u.loc;
+					double l = length(v2);
+					if (l > LIGHTNING_RAD) continue;
+					double a = acos(dot(v,v2)/l);
+					if (a > LIGHTNING_ANGLE) continue;
 
-			DataWriter w;
-			w.writeByte(SRV_SHOOT);
-			w.write(&b, sizeof(b));
-			sendToAll(w);
+					p.health -= damages[t] / shields[p.type];
+					w.writeInt(p.id);
+					++cnt;
+				}
+				*(int*)&w.datavec[1] = cnt;
+				sendToAll(w);
+			} else {
+				Bullet b = genBullet(t, u.loc, u.d, bulletid++);
+				bullets.push_back(b);
+
+				DataWriter w;
+				w.writeByte(SRV_SHOOT);
+				w.write(&b, sizeof(b));
+				sendToAll(w);
+			}
 		}
+	}
+
+	// delayed lightning damage
+	for(unsigned i=0; i<units.size(); ++i) {
+		damageUnit(i, 0);
 	}
 
 //	if (units.size()>1) {Unit& u = units[1]; cout<<"updated physics; "<<u.movex<<' '<<u.movey<<" ; "<<u.loc<<" ; "<<u.shooting<<' '<<u.id<<' '<<clID[u.id]<<'\n';}
@@ -192,7 +225,6 @@ void Server::readInputs()
 	}
 }
 
-static const double shields[]={10,2.8};
 void Server::updateBullets(double t)
 {
 	for(unsigned i=0; i<bullets.size(); ++i) {

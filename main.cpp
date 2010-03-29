@@ -117,20 +117,27 @@ void draw_rocket(Bullet bu){
     
     glPushMatrix();
     
-    glTranslatef(loc.x,loc.y,0);
+    glTranslatef(loc.x,loc.y,1);
 
     float a = atan2(bu.v.y,bu.v.x);
     glRotatef(a*180/M_PI+90,0,0,1);
+    glRotatef(timef()*100,0,1,0);
     glRotatef(90,1,0,0);
 
+//<<<<<<< HEAD:main.cpp
+    glColor3f(0.5,0.5,0);
+
+//=======
     glColor3f(0.3,0.3,0.3);
     glScalef(0.1,0.1,0.1);
     glRotatef(timef()*200,0,0,1);
+//>>>>>>> 1c0bce074761328992930dcf72559e3f144de933:main.cpp
     draw_model(&raketti_model);
     
     double d=2*M_PI*rand()/RAND_MAX;
     double v=4;
-    game.eparts.push_back(ExplosionP(loc,-bu.v+0.2*Vec2(randf(),randf())));
+//	game.eparts.push_back(ExplosionP(loc,-bu.v+0.2*Vec2(randf(),randf())));
+    game.eparts.push_back(ExplosionP(Vec3(loc,1),Vec3(-bu.v,0)+0.2*Vec3(2*randf()-1,2*randf()-1,2*randf()-1)));
     
     glPopMatrix();
 }
@@ -275,7 +282,8 @@ void draw(){
     glClear(GL_COLOR_BUFFER_BIT|GL_DEPTH_BUFFER_BIT);
 	glEnable(GL_NORMALIZE);
     glLoadIdentity();
-    glTranslatef(0,0,-45);
+    glTranslatef(0,0,-30);
+    //glTranslatef(0,0,-35);
 	//glRotatef(-45,1,0,0);
 	glTranslatef(-player.loc.x, -player.loc.y, 0);
     glColor3f(1,1,1);
@@ -309,15 +317,27 @@ void draw(){
 		if (b.type==0) draw_bullet(b);
         else if(b.type==1) draw_rocket(b);
 	}
+
+    for(int l=0;l<game.lightnings.size();l++)
+    {
+        std::vector<Vec2> enemies;
+        for(int i=1;i<game.lightnings[l].second.size();i++)
+        {
+            int j = game.lightnings[l].second[i];
+
+            enemies.push_back(game.units[game.unitIndex[j]].loc);
+        }
+        drawSalama(game,player.loc,&enemies[0],
+                enemies.size());
+    }
+
 	for(unsigned i=0; i<game.lastBullets.size(); ++i) {
         Bullet b = game.lastBullets[i];
 		if (b.type!=0) continue;
         draw_bullet(b);
 
-        /*
         Vec2 target= b.loc;
-        drawSalama(game,b.origin,&target,1);
-        */
+        //std::vector<Vecc2
         /*
         drawSalama( b.origin.x,
                     b.origin.y,

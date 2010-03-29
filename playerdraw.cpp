@@ -71,8 +71,8 @@ void drawPlayer(const Unit& u){
     else 
         glColor3f(0.8,0.3,0.0);
 
-    drawPlayer_real(u);
-    return;
+    //drawPlayer_real(u);
+    //return;
     glColor3f(0,0,0);
 
 
@@ -91,6 +91,10 @@ void drawPlayer(const Unit& u){
 
     glPolygonMode(GL_FRONT_AND_BACK,GL_FILL);
 
+    if(u.type==0)
+        glColor3f(0.4,0.8,0.6);
+    else 
+        glColor3f(0.8,0.3,0.0);
 
     drawPlayer_real(u);
     glDepthFunc(GL_LESS);

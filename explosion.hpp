@@ -6,12 +6,12 @@
 #include <GL/gl.h>
 
 struct ExplosionP {
-	Vec2 loc, v;
+	Vec3 loc, v;
 	double time,dist;
 	double spd;
 
 	ExplosionP(){}
-	ExplosionP(Vec2 l, Vec2 v): loc(l), v(v), time(0), dist(0), spd(length(v)) {}
+	ExplosionP(Vec3 l, Vec3 v): loc(l), v(v), time(0), dist(0), spd(length(v)) {}
 
 	bool update(double t) {
 		loc += v*t;

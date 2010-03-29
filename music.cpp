@@ -81,6 +81,12 @@ void ifft(float* rdst, float* idst, const float* rsrc, const float* isrc, int n)
 		idst[i] *= r;
 	}
 }
+void normalize(float* a, int n)
+{
+	float b=0;
+	for(int i=0; i<n; ++i) b=max(b,fabs(a[i]));
+	for(int i=0; i<n; ++i) a[i]/=b;
+}
 
 const int WTS=1<<16;
 const int FREQ = 44100;
@@ -103,20 +109,18 @@ void genWT(float* out, const float* amps, const float* freqs, int n, float fundf
 	for(int i=0; i<WTS/2; ++i) {
 		float p = 2*M_PI*rndf();
 		float a = sintable[i];
-		sintable[i]=sintable[WTS-1-i] = a*sin(p);
-		costable[i]=costable[WTS-1-i] = a*cos(p);
+		sintable[WTS-1-i]=-(sintable[i] = a*sin(p));
+		costable[WTS-1-i]=-(costable[i] = a*cos(p));
 	}
 
 	ifft(out, nulltable, costable, sintable, WTS);
 
-	float b=0;
-	for(int i=0; i<WTS; ++i) b=max(b,fabs(out[i]));
-	for(int i=0; i<WTS; ++i) out[i]/=b;
+	normalize(out,WTS);
 }
 
 
 const int SAMPLES = 4096;
-const int NWT=2;
+const int NWT=3;
 float wtables[NWT][WTS];
 
 const int BPM = 140;
@@ -126,9 +130,11 @@ int curS=0;
 
 const int NLEN = 8;
 const short OFF=(1<<15)-1;
-short notes[NWT][NLEN] = {
+short notes[NWT+1][NLEN] = {
 	{1,OFF,0,OFF,2,3,OFF,OFF},
-	{OFF,1,2,3,OFF,OFF,0,5}
+	{OFF,1,2,3,OFF,OFF,0,5},
+	{0,OFF,0,OFF,0,OFF,0,OFF},
+	{OFF,0,OFF,0,0,0,OFF,0}
 };
 struct Envelope {
 	float a,d,s,r;
@@ -136,7 +142,8 @@ struct Envelope {
 };
 Envelope envelopes[NWT] = {
 	{.2,.2,.3,.1,.3},
-	{.05,.07,.4,.05,.5}
+	{.05,.07,.4,.1,.5},
+	{.05,.05,.1,.01,.003}
 };
 float volume(const Envelope& e, float t)
 {
@@ -161,19 +168,27 @@ void callback(void* udata, Uint8* stream, int l)
 	}
 #endif
 	float buf[SAMPLES]={};
-	int cur0 = curS/SPB;
-	int cur = cur0 % NLEN;
-	int start = cur0*SPB;
-	for(int i=0; i<2; ++i) {
-		int n = notes[i][cur];
-		if (n==OFF) continue;
-		float f = exp2(n/12.);
-		for(int j=0; j<l; ++j) {
-			int k = curS+j;
-			float t = (k - start)/(float)FREQ;
-			k *= f;
-			buf[j] += wtables[i][k%WTS] * volume(envelopes[i], t);
+	for(int i=0; i<NWT; ++i) {
+		for(int k=0; k<2; ++k) {
+			int cur0 = (curS-k*SPB)/SPB;
+			int cur = (cur0+NLEN) % NLEN;
+			int start= cur0*SPB;
+
+			int n = notes[i][cur];
+			if (n==OFF) continue;
+			float f = exp2(n/12.);
+			for(int j=0; j<l; ++j) {
+				int k = curS+j;
+				float t = (k - start)/(float)FREQ;
+				k *= f;
+				buf[j] += wtables[i][k%WTS] * volume(envelopes[i], t);
+			}
 		}
+	}
+	{
+		int cur0 = curS/SPB;
+		int cur=cur0%NLEN;
+		int start=cur0*SPB;
 	}
 	// TODO: normalize buf?
 	for(int i=0; i<l; ++i) s[i] = buf[i]*20000;
@@ -192,9 +207,28 @@ void initInstruments()
 {
 	for(int i=0; i<NHARM; ++i) hamps[0][i]=1./(1+i), hfreqs[0][i]=1+i;
 	for(int i=0; i<NHARM; ++i) hamps[1][i]=1./(1+i)*(i&1?2:1), hfreqs[1][i]=1+i*(1+.1*i);
-	for(int i=0; i<NWT; ++i) {
+	for(int i=0; i<2; ++i) {
 		genWT(wtables[i], hamps[i], hfreqs[i], NHARM, fundFreqs[i], fundBws[i], bwScales[i]);
 	}
+
+	// drums
+#if 0
+	for(int i=0; i<WTS/2; ++i) {
+#if 1
+		float d=2*M_PI*rndf();
+		float a = cos(i*.01);;
+		sintable[WTS-1-i]=sintable[i]=a*sin(d);
+		costable[WTS-1-i]=costable[i]=a*cos(d);
+#else
+		sintable[WTS-1-i]=costable[WTS-1-i]=0;
+		costable[WTS-1-i]=costable[i]=1;
+#endif
+	}
+	ifft(wtables[2], nulltable, costable, sintable, WTS);
+	normalize(wtables[2], WTS);
+#else
+	for(int i=0; i<WTS; ++i) wtables[2][i] = 2*rndf()-1;
+#endif
 }
 
 SDL_AudioSpec spec = {
