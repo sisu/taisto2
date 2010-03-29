@@ -4,6 +4,7 @@
 #define PHYSICS_FRAME (0.020)
 #define MOVE_SPEED ( 4.5)
 #define TURN_SPEED ( 1)
+#include"Vector.hpp"
 struct Area;
 struct Unit;
 struct Bullet;

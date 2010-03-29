@@ -223,7 +223,7 @@ void draw_bullet(Bullet bu)
     z = std::max(0.0f,z-2);
     v = std::min(z,v);
     glRotatef(a*180/M_PI+90,0,0,1);
-    glScalef(0.1,1,1);
+    glScalef(1.1,1,1);
     float part=1;
     if(bu.hitt-0.01>=0)
     {
@@ -234,17 +234,19 @@ void draw_bullet(Bullet bu)
     }
     glBegin(GL_QUADS);
         
-        glColor4f((part),part,part,(part));
+        //glColor4f((part),part,part,(part));
         glNormal3f(1,0,0);
 		glTexCoord2f(0,0);
         glVertex3f(-1,-1,1);
-		glTexCoord2f(1,0);
+		glTexCoord2f(0,1);
         glVertex3f(-1,1,1);
         //float xz = part*(v-1)/v;
-        glVertex3f(1,-1,1);
-		glTexCoord2f(1,0.5);
+
+		glTexCoord2f(1,1);
         glVertex3f(1,1,1);
-		glTexCoord2f(0,0.5);
+		glTexCoord2f(0,1);
+        glVertex3f(1,-1,1);
+#if 0
 
 		glTexCoord2f(0,0.5);
         glVertex3f(-1,1+-1,1);
@@ -268,6 +270,7 @@ void draw_bullet(Bullet bu)
 		glTexCoord2f(0,0.5);
         glVertex3f(-1,1+v,1);
 
+#endif
 
     glEnd();
     glPopMatrix();
