@@ -41,6 +41,10 @@ void moveUnits(Unit* us, int n, const Area& a,double dt)
 		u.loc.y += u.movey * s;
 		u.loc.x += u.movex * s;
 #endif
+		for(int j=0; j<n; ++j) {
+			if (j==i) continue;
+			fix(us[i].loc, us[j].loc.x, us[j].loc.y, .8);
+		}
 
 		handleWalls(u, a);
 	}
