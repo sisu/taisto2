@@ -28,6 +28,7 @@ struct Game {
 	int weapon;
 
 	int* bulletIndex;
+    std::vector<int> unitIndex;
 };
 
 #endif

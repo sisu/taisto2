@@ -16,7 +16,7 @@
 using namespace std;
 static const double shields[]={10,2.8};
 
-Server::Server(): end(0), nextID(1),area(40,300)// area("field.in.1")
+Server::Server(): end(0), nextID(1),area(20,300)// area("field.in.1")
 {
 	for(int i=2; i<area.h; i+=30) area.bases.push_back(i);
 	clID = new int[1<<16];
