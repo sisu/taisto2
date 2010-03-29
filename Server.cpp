@@ -73,11 +73,16 @@ void Server::updatePhysics(double t)
 	spawnTime -= t;
 	if (spawnTime <= 0) {
 		Unit b(area.getSpawn(curSpawn+1), 1+rand()%4, botID++);
-        if(b.type!=3) units.push_back(b);//ei salamia
+        if(b.type!=3) {
+			units.push_back(b);//ei salamia
+			BotInformation* bi = new BotInformation;
+			botinfos.resize(botID);
+			botinfos[botID-1] = bi;
+		}
 		spawnTime = 1;
 	}
 	for(unsigned i=0; i<units.size(); ++i) 
-        if (units[i].type!=0) moveBot(units[i],area,units);
+        if (units[i].type!=0) moveBot(units[i],area,units,botinfos[units[i].id]);
 	moveUnits(&units[0], units.size(), area, t);
 //	moveBullets(&bullets[0], bullets.size(), &units[0], units.size(), area, t);
 	updateBullets(t);
