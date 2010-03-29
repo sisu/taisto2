@@ -82,8 +82,15 @@ void draw_interp_model(Model* m1,Model* m2,float x)
     glDisableClientState(GL_VERTEX_ARRAY);
     glDisableClientState(GL_NORMAL_ARRAY);
 }
+static int sign(double x)
+{
+	return x<0?-1:x>0?1:0;
+}
 void drawWall(double x0, double x1, double y0, double y1, float z0, float z1)
 {
+	Vec3 c = cross(Vec3(x1-x0,y1-y0,0), Vec3(0,0,z1-z0));
+//	cout<<"asd "<<x0<<' '<<x1<<' '<<y0<<' '<<y1<<' '<<z0<<' '<<z1<<" ; "<<c.x<<' '<<c.y<<'\n';
+	glNormal3f(sign(c.x),sign(c.y),0);
 	glTexCoord2f(0,z0), glVertex3f(x0,y0,z0);
 	glTexCoord2f(1,z0), glVertex3f(x1,y1,z0);
 	glTexCoord2f(1,z1), glVertex3f(x1,y1,z1);
@@ -134,6 +141,7 @@ void draw_area()
 			int h=area.height(i,j);
 			if (area.blocked(i,j)) {
 				int hh=fixH(h);
+				glNormal3f(0,0,1);
 				glTexCoord2f(0,0), glVertex3f(i,j,hh);
 				glTexCoord2f(1,0), glVertex3f(i+1,j,hh);
 				glTexCoord2f(1,1), glVertex3f(i+1,j+1,hh);
