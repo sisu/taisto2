@@ -45,7 +45,7 @@ static float fuaa(float f)
 }
 
 static float curtime;
-static Vec2 randpoint(int x,int y)
+inline static Vec2 randpoint(int x,int y)
 {
     return Vec2(x+fuaa(curtime*10+x*5+2*y),y+fuaa(curtime*10+12*x+y*3));
 }
@@ -185,9 +185,9 @@ void drawSalama(Game& game,Vec2 orig,Vec2* targets,int n){
         tar.push_back(v);
     }
     //tar.insert(tar.end(),targets,targets+n);
-    for(int i=0;i<tar.size();i++)
+    for(unsigned i=0;i<tar.size();i++)
     {
-        for(int j=i+1;j<tar.size();j++)
+        for(unsigned j=i+1;j<tar.size();j++)
         {
             Vec2 v=tar[i];
             Vec2 u=tar[j];
@@ -201,7 +201,7 @@ void drawSalama(Game& game,Vec2 orig,Vec2* targets,int n){
         }
     }
     last[0]=-2;
-    for(int i=1;i<tar.size();i++)
+    for(unsigned i=1;i<tar.size();i++)
     {
         pqnode n;
         n.x=0;
@@ -215,7 +215,7 @@ void drawSalama(Game& game,Vec2 orig,Vec2* targets,int n){
         pq.pop();
         if(last[p.y]!=-1)continue;
         last[p.y]=p.x;
-        for(int i=1;i<tar.size();i++)
+        for(unsigned i=1;i<tar.size();i++)
         {
             if(last[i]==-1)
             {
@@ -227,7 +227,7 @@ void drawSalama(Game& game,Vec2 orig,Vec2* targets,int n){
             }
         }
     }
-    for(int i=1;i<tar.size();i++)
+    for(unsigned i=1;i<tar.size();i++)
     {
         std::vector<Vec2> strip;
         int z = i;

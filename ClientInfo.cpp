@@ -57,6 +57,14 @@ void ClientInfo::sendInit()
 	w.write(&a.bases[0], 4*a.bases.size());
 	conn.write(w);
 	cout<<"sent init "<<w.len()<<'\n';;
+    
+    for(int i=0;i<server.items_map.vec.size();i++)
+    {
+        DataWriter w;
+        w.writeByte(SRV_ADDITEM);
+        w.write((void*)&server.items_map.vec[i],sizeof(Item));
+        conn.write(w);
+    }
 }
 void ClientInfo::readState(DataReader r)
 {

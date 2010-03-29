@@ -98,6 +98,10 @@ void draw_area()
     int sx = player.loc.x-w/2;
     int sy = player.loc.y-h/2;
     glColor4f(1,1,1,1);
+
+    glEnable(GL_TEXTURE_2D);
+    glBindTexture(GL_TEXTURE_2D,buildingTex);
+    
     for(int i=sx;i<sx+w;i++)
     {
         for(int j=sy;j<sy+h;j++)
@@ -194,6 +198,19 @@ void draw_rocket(Bullet bu){
     glPopMatrix();
 }
 
+void draw_item(Item it)
+{
+    Vec2 loc = it.loc;
+    glPushMatrix();
+    glTranslatef(loc.x,loc.y,0);
+    glScalef(0.25,0.25,0.25);
+    glRotatef(it.a,0,0,1);
+    glColor3f(1,1,1);
+    //glBindTexture(GL_TEXTURE_2D,ammo.glid);
+    drawcube();
+    glPopMatrix();
+}
+
 void draw_bullet(Bullet bu,float scale=1)
 {
     Vec2 loc = bu.loc;
@@ -201,7 +218,6 @@ void draw_bullet(Bullet bu,float scale=1)
 //    glScalef(0.5,0.5,0.5);
     //glTranslatef(-player.loc.x,-player.loc.y,0.0);
     glDepthMask(0);
-    glDisable(GL_COLOR);
     glDisable(GL_LIGHTING);
     //glDisable(GL_DEPTH_TEST);
     glEnable(GL_TEXTURE_2D);
@@ -347,6 +363,11 @@ void draw(){
 	for(unsigned i=0; i<game.units.size(); ++i) {
 		Unit& u=game.units[i];
         drawPlayer(u);
+		//draw_player(u.loc.x,u.loc.y,u.d,sin(u.d)*u.movey+cos(u.d)*u.movex);
+	}
+	for(unsigned i=0; i<game.items.size(); ++i) {
+		Item& u=game.items[i];
+        draw_item(u);
 		//draw_player(u.loc.x,u.loc.y,u.d,sin(u.d)*u.movey+cos(u.d)*u.movex);
 	}
 	for(unsigned i=0; i<game.bullets.size(); ++i) {

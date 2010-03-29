@@ -2,6 +2,7 @@
 #define DATAWRITER_HPP
 #include<cassert>
 
+#include "Vector.hpp"
 #include <vector>
 #include <cstring>
 //#include <iostream>
@@ -24,6 +25,7 @@ struct DataWriter {
 	F(writeByte,char)
 	F(writeDouble,double)
 	F(writeFloat,float)
+    F(writeVec2,Vec2)
 #undef F
 	void write(const void* s, int n) {
 //		std::cout<<"writing "<<n<<' '<<len()<<'\n';

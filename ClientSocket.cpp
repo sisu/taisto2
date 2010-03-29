@@ -59,6 +59,12 @@ void ClientSocket::handleMessages()
 			case SRV_BASE:
 				g.curBase = r.readInt();
 				break;
+            case SRV_ADDITEM:
+                readAddItem(r);
+				break;
+            case SRV_DELITEM:
+                readDestroyItem(r);
+				break;
 			default:
 				cout<<"Unknown message "<<type<<'\n';
 				break;
@@ -98,8 +104,9 @@ void ClientSocket::readState(DataReader r)
 }
 void ClientSocket::readBullet(DataReader r)
 {
-	g.bullets.push_back(*(Bullet*)r.cur);
-	g.bulletIndex[g.bullets.back().id] = g.bullets.size()-1;
+    g.bullets_map.insert(*(Bullet*)r.cur);
+	//g.bullets.push_back(*(Bullet*)r.cur);
+	//g.bulletIndex[g.bullets.back().id] = g.bullets.size()-1;
 }
 #include "timef.h"
 void ClientSocket::readHit(DataReader r)
@@ -108,6 +115,20 @@ void ClientSocket::readHit(DataReader r)
 	float x=r.readFloat(), y=r.readFloat();
 	g.destroyBullet(id,x,y);
 }
+
+void ClientSocket::readAddItem(DataReader r)
+{
+    Item it = *(Item*)r.cur;
+    std::cout<<"received item "<<it.id<<"\n";
+    g.items_map.insert(it);
+}
+void ClientSocket::readDestroyItem(DataReader r)
+{
+	int id = r.readInt();
+    std::cout<<"readDestroyItem "<<id<<"\n";
+    g.items_map.remove(id);
+}
+
 void ClientSocket::readLightning(DataReader r)
 {
 	int cnt = r.readInt();

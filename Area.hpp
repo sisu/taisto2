@@ -64,7 +64,7 @@ struct Area {
             int hh = rand()%10+5;
             addRect(x,y,ww,hh,rand()%5+1);
         }
-        for(int i=0;i<bases.size();i++)
+        for(unsigned i=0;i<bases.size();i++)
         {
             addRect(0,bases[i]-5,w,10,0);
         }

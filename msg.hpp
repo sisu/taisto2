@@ -9,6 +9,8 @@ const unsigned char
 	SRV_SHOOT=3,
 	SRV_HIT=4,
 	SRV_LIGHTNING=5,
-	SRV_BASE=6;
+	SRV_BASE=6,
+    SRV_ADDITEM=7,
+    SRV_DELITEM=8;
 
 #endif
