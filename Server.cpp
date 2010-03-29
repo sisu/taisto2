@@ -16,7 +16,7 @@
 using namespace std;
 static const double shields[]={10,2.8};
 
-Server::Server(): end(0), nextID(1),area(20,300)// area("field.in.1")
+Server::Server(): end(0), nextID(1),area(30,300)// area("field.in.1")
 {
 	for(int i=2; i<area.h; i+=30) area.bases.push_back(i);
 	clID = new int[1<<16];
@@ -254,22 +254,22 @@ void Server::updateBullets(double t)
 }
 void Server::updateBases()
 {
-	int y1=area.bases[curSpawn], y2=area.bases[curSpawn+1];
-	int c1=0,c2=0;
+	int y2=area.bases[curSpawn+1];
+	int c2=0;
 	for(unsigned i=0; i<units.size(); ++i) {
 		Unit& u = units[i];
 //		cout<<"u "<<u.type<<'\n';
 		int a=u.type==0?1:-1;
-		if (abs(u.loc.y-y1)<3) c1+=a;
 		if (abs(u.loc.y-y2)<3) c2+=a;
 	}
 //	cout<<"zxc "<<curSpawn<<' '<<c1<<' '<<c2<<'\n';
-	if (curSpawn && c1<0) {
-		--curSpawn;
-		cout<<"lost base\n";
-	} else if (c2>0) {
+	if (c2>0) {
 		++curSpawn;
 		cout<<"updating base "<<curSpawn<<'\n';
+		DataWriter w;
+		w.writeByte(SRV_BASE);
+		w.writeInt(curSpawn);
+		sendToAll(w);
 	}
 }
 void Server::damageUnit(int i, double d)

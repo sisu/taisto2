@@ -117,11 +117,11 @@ void draw_area()
     //ground
     glEnable(GL_TEXTURE_2D);
     glBindTexture(GL_TEXTURE_2D,groundTex);
-    glRotatef(45,0,0,1);
+    //glRotatef(45,0,0,1);
     glBegin(GL_QUADS);
 		glNormal3f(0,0,1);
         glTexCoord2f(0,0);
-        glVertex3f(-1009,-1000,0);
+        glVertex3f(-1000,-1000,0);
         glTexCoord2f(200,0);
         glVertex3f(1000,-1000,0);
         glTexCoord2f(200,200);
@@ -129,31 +129,36 @@ void draw_area()
         glTexCoord2f(0,200);
         glVertex3f(-1000,1000,0);
     glEnd();
-    glRotatef(-45,0,0,1);
-    glTranslatef(0,0,0.1);
+    //glRotatef(-45,0,0,1);
+    glTranslatef(0,0.5,0.1);
+    glDisable(GL_TEXTURE_2D);
     for(int i=0;i<game.area.bases.size();i++){
         //glEnable(GL_TEXTURE_2D);
 
         glEnable(GL_BLEND);
-        //glBlendFunc(GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA);
+        glBlendFunc(GL_SRC_ALPHA,GL_ONE);
 
-        glColor4f(0.0,0.7,1.1,0.8);
-        glEnable(GL_TEXTURE_2D);
+        if(game.curBase >= i)
+            glColor4f(0.0,0.7,0.1,0.5);
+        else{
+            glColor4f(0.8,0.0,0.1,0.5);
+        }
+
+        //glEnable(GL_TEXTURE_2D);
         glBindTexture(GL_TEXTURE_2D,groundTex);
         glBegin(GL_QUADS);{
             glNormal3f(0,0,1);
             glTexCoord2f(0,0);
-            glVertex3f(-1009,game.area.bases[i]-3,0);
+            glVertex3f(-1000,game.area.bases[i]-5,0);
             glTexCoord2f(200,0);
-            glVertex3f(1000,game.area.bases[i]-3,0);
+            glVertex3f(1000,game.area.bases[i]-5,0);
             glTexCoord2f(200,200);
-            glVertex3f(1000,game.area.bases[i]+3,0);
+            glVertex3f(1000,game.area.bases[i]+5,0);
             glTexCoord2f(0,200);
-            glVertex3f(-1000,game.area.bases[i]+3,0);
+            glVertex3f(-1000,game.area.bases[i]+5,0);
         }
         glEnd();
         glDisable(GL_BLEND);
-        glDisable(GL_TEXTURE_2D);
     }glDisable(GL_TEXTURE_2D);
     glPopMatrix();
 }
