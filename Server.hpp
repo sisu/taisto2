@@ -40,6 +40,7 @@ struct Server {
 	double spawnTime;
 
 	int curSpawn;
+	int botID;
 };
 
 #endif
