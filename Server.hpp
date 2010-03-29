@@ -26,6 +26,8 @@ struct Server {
 	void updateBullets(double t);
 	void updateBases();
 	void damageUnit(int i, double d);
+	void spawnUnits(double t);
+	void genSpawnCounts();
 
 	volatile bool end;
 
@@ -43,6 +45,8 @@ struct Server {
 
 	int curSpawn;
 	int botID;
+
+	int spawnCounts[32][64]; // [type][base]
 };
 
 #endif

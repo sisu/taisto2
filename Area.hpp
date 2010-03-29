@@ -64,7 +64,7 @@ struct Area {
             int hh = rand()%10+5;
             addRect(x,y,ww,hh,rand()%5+1);
         }
-        for(int i=0;i<bases.size();i++)
+        for(int i=0;i<(int)bases.size();i++)
         {
             addRect(0,bases[i]-5,w,10,0);
         }
@@ -141,6 +141,7 @@ struct Area {
 	int height(int x, int y) const {
         if(x>=w || y>=h)return 1;//+(((abs(x)^abs(y)))&7);
         if(x<0 || y<0)return 1;//+((abs(x)^abs(y))&7);
+		if (a[w*y+x]<0) return 0;
 		return a[w*y+x];
 	}
 	Vec2 getSpawn(int base) {

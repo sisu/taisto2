@@ -58,12 +58,7 @@ void drawcube(float h=1)
     //glColorPointer(3, GL_FLOAT, 0, colors);
     glVertexPointer(3, GL_FLOAT, 0, vertices);
     glTexCoordPointer(2,GL_FLOAT,0,colors);
-    glEnable(GL_TEXTURE_2D);
-    glBindTexture(GL_TEXTURE_2D,buildingTex);
     glDrawElements(GL_QUADS, 24, GL_UNSIGNED_BYTE,(GLvoid*) indices);
-    glDisable(GL_TEXTURE_2D);
-
-    
 
 
     glDisableClientState(GL_VERTEX_ARRAY);  // disable vertex arrays

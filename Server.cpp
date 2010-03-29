@@ -24,6 +24,7 @@ Server::Server(): end(0), nextID(1),area(30,300)// area("field.in.1")
 	curSpawn=0;
 	botID=256;
 	initSocket();
+	genSpawnCounts();
 }
 Server::~Server()
 {
@@ -70,17 +71,7 @@ void Server::loop()
 static int bulletid = 0;
 void Server::updatePhysics(double t)
 {
-	spawnTime -= t;
-	if (spawnTime <= 0) {
-		Unit b(area.getSpawn(curSpawn+1), 1+rand()%4, botID++);
-        if(b.type!=3) {
-			units.push_back(b);//ei salamia
-			BotInformation* bi = new BotInformation;
-			botinfos.resize(botID);
-			botinfos[botID-1] = bi;
-		}
-		spawnTime = 1;
-	}
+	spawnUnits(t);
 	for(unsigned i=0; i<units.size(); ++i) 
         if (units[i].type!=0) moveBot(units[i],area,units,botinfos[units[i].id]);
 	moveUnits(&units[0], units.size(), area, t);
@@ -298,4 +289,43 @@ void Server::damageUnit(int i, double d)
 		units[i] = units.back();
 		units.pop_back();
 	}
+}
+void Server::spawnUnits(double t)
+{
+	spawnTime -= t;
+	if (spawnTime > 0) return;
+
+	cout<<"spawning bots\n";
+
+	for(int i=1; i<20; ++i) {
+		for(int k=curSpawn+1; k<curSpawn+3; ++k) {
+			int kk = min(k, (int)area.bases.size()-1);
+			for(int j=0; j<spawnCounts[i][kk]; ++j) {
+				Unit b(area.getSpawn(kk), i, botID++);
+				units.push_back(b);
+				BotInformation* bi = new BotInformation;
+				botinfos.resize(botID);
+				botinfos[botID-1] = bi;
+				cout<<"spawning "<<i<<' '<<kk<<'\n';
+			}
+		}
+	}
+	spawnTime = 10;
+	cout<<"spawning done\n";
+}
+
+float firstBases[32] = {0,.2,.3,.4,.5};
+int firstCounts[32] = {0,2,1,0,0};
+int lastCounts[32] = {0,10,8,0,10};
+void Server::genSpawnCounts()
+{
+	int n = area.bases.size();
+	memset(spawnCounts,0,sizeof(spawnCounts));
+	for(int i=0; i<20; ++i) {
+		int f = n*firstBases[i];
+		for(int j=f; j<n; ++j) {
+			spawnCounts[i][j] = firstCounts[i] + (lastCounts[i]-firstCounts[i])*(j-f)/(n-1-f);
+		}
+	}
+	cout<<"genSpawnCounts done\n";
 }
