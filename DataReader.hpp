@@ -2,7 +2,7 @@
 #define DATAREADER_HPP
 
 struct DataReader {
-	DataReader(void* c): cur((char*)c) {}
+	DataReader(void* c): cur((char*)c) { }
 	char* cur;
 
 #define F(name,type) type name() { type r = *(type*)cur; cur+=sizeof(type); return r; }

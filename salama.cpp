@@ -116,15 +116,26 @@ struct pqnode{
     float len;
     int x;
     int y;
-    int px,py;
+    //int px,py;
     bool operator<(const pqnode& p)const
     {
         return len>p.len;
     }
 };
 
+void drawSalama(Game& game,Vec2 orig,Vec2* targets,int n){
+    curtime = timef();
+    std::priority_queue<pqnode> pq;
+    std::vector<Vec2> tar;
+    tar.insert(tar.end(),targets,targets+n);
+    for(int i=0;i<50;i++)
+    {
+    }
+}
+
 short prevx[300][3000];
 short prevy[300][3000];
+#if 0 
 void drawSalama(Game& game,Vec2 orig,Vec2* targets,int n)
 {
     curtime = timef();
@@ -171,7 +182,7 @@ void drawSalama(Game& game,Vec2 orig,Vec2* targets,int n)
                 return;
             }
         }
-        
+
         static const int dx[]= {0,1,1,1,0,-1,-1,-1};
         static const int dy[]= {1,1,0,-1,-1,-1,0,1};
         for(int i=0;i<8;i++)
@@ -191,12 +202,13 @@ void drawSalama(Game& game,Vec2 orig,Vec2* targets,int n)
         }
     }
 }
+#endif
 
 
 void drawSalama(float x,float y,float tx,float ty)
 {
     glPushMatrix();
-//    glScalef(0.5,0.5,0.5);
+    //    glScalef(0.5,0.5,0.5);
     float xs[128]={};
     float ys[128]={};
     int p;
@@ -246,10 +258,10 @@ void drawSalama(float x,float y,float tx,float ty)
         float ny2 = ny[i]+(i!=p-2?ny[i+1]:0);
 
         /*
-        nx1*=0.5;
-        ny1*=0.5;
-        nx2*=0.5;
-        ny2*=0.5;*/
+           nx1*=0.5;
+           ny1*=0.5;
+           nx2*=0.5;
+           ny2*=0.5;*/
         glTexCoord2f(0,0);
         glVertex3f(xs[i]+nx1,ys[i]+ny1,1);
         glTexCoord2f(1,0);

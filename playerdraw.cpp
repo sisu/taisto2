@@ -15,7 +15,7 @@ void drawPlayer_real(const Unit& u)
     glRotatef(a+90-45,0,0,1);
     glRotatef(90,1,0,0);
     glScalef(0.5,0.5,0.5);
-    draw_model(&vartalo_model);
+    draw_model(&vartalo_model,GL_TRIANGLES);
     glPopMatrix();
     if(u.movex==0 && u.movey==0)
     {
@@ -66,8 +66,13 @@ void drawPlayer_real(const Unit& u)
     glPopMatrix();
 }
 void drawPlayer(const Unit& u){
-    //drawPlayer_real(u);
-    //return;
+    if(u.type==0)
+        glColor3f(0.4,0.8,0.6);
+    else 
+        glColor3f(0.8,0.3,0.0);
+
+    drawPlayer_real(u);
+    return;
     glColor3f(0,0,0);
 
 
@@ -86,10 +91,6 @@ void drawPlayer(const Unit& u){
 
     glPolygonMode(GL_FRONT_AND_BACK,GL_FILL);
 
-    if(u.type==0)
-        glColor3f(0.4,0.8,0.6);
-    else 
-        glColor3f(0.8,0.3,0.0);
 
     drawPlayer_real(u);
     glDepthFunc(GL_LESS);

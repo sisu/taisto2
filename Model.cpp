@@ -2,7 +2,7 @@
 #include<GL/gl.h>
 
 
-void draw_model(Model* m)
+void draw_model(Model* m,unsigned mode)
 {
 #if 1
     glEnableClientState(GL_VERTEX_ARRAY);
@@ -13,7 +13,7 @@ void draw_model(Model* m)
 
     glVertexPointer(3,GL_FLOAT,6*sizeof(float),m->data);
     glNormalPointer(GL_FLOAT,6*sizeof(float),m->data+3);
-    glDrawElements(GL_TRIANGLES,m->in,GL_UNSIGNED_SHORT,(GLvoid*)m->index);
+    glDrawElements(mode,m->in,GL_UNSIGNED_SHORT,(GLvoid*)m->index);
     glDisableClientState(GL_VERTEX_ARRAY);
     glDisableClientState(GL_NORMAL_ARRAY);
 #else

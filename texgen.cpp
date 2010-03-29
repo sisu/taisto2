@@ -228,10 +228,10 @@ GLuint genBuildingTex()
             //if(x>0.5)x = 1-x;
             //if(y>0.5)y = 1-y;
             //double s = abs(turbulence(28*x,28*y,16));
-            int s = (i/16+j/16)%2;
-            texture[i][j][0] = s*1;
-            texture[i][j][1] = s*0.5;
-            texture[i][j][2] = s*0.5;
+            int s = (i/32+j/32)%2;
+            texture[i][j][0] = s*0.0+(!s)*0.1;
+            texture[i][j][1] = s*0.0+(!s)*0.4;
+            texture[i][j][2] = s*0.0+(!s)*0.9;
 			texture[i][j][3] =1;
 		}
 	}

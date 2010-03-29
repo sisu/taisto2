@@ -7,6 +7,7 @@
 #include <errno.h>
 #include <unistd.h>
 #include <sys/socket.h>
+#include <cassert>
 using namespace std;
 
 ClientInfo::ClientInfo(Server& s, int fd): server(s), weapon(0)
@@ -34,6 +35,7 @@ bool ClientInfo::handleMessages()
 				break;
 			default:
 				cout<<"Warning: unknown message type "<<type<<'\n';
+                assert(false);
 				break;
 		}
 	}
