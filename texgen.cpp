@@ -72,7 +72,8 @@ static Texture getAmmo()
 
             int iz = std::min(int(z),255);
             if(iz<5)iz=0;
-            ret.pix[y*ret.w+x]=iz|iz<<24|(iz/2)<<16;
+            ret.pix[y*ret.w+x]=iz|iz<<24|(iz)<<16|iz<<8;
+            //ret.pix[y*ret.w+x]=-1;//iz|iz<<24|(iz)<<16|iz<<8;
         }
     }
     unsigned tex;

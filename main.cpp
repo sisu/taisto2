@@ -193,7 +193,7 @@ void draw_rocket(Bullet bu){
     glPopMatrix();
 }
 
-void draw_bullet(Bullet bu)
+void draw_bullet(Bullet bu,float scale=1)
 {
     Vec2 loc = bu.loc;
     glPushMatrix();
@@ -204,9 +204,8 @@ void draw_bullet(Bullet bu)
     glDisable(GL_LIGHTING);
     //glDisable(GL_DEPTH_TEST);
     glEnable(GL_TEXTURE_2D);
-    glEnable(GL_BLEND);
     glEnable (GL_BLEND); 
-    glBlendFunc (GL_SRC_ALPHA, GL_ONE);
+    //glDisable (GL_BLEND); 
     glBindTexture(GL_TEXTURE_2D,ammo.glid);
     
 //    glTranslatef(-player.loc.x+0.5,-player.loc.y+0.5,0);
@@ -217,14 +216,13 @@ void draw_bullet(Bullet bu)
     //glTranslatef(-area.w/2,-area.h/2,0);
     //glColor4f(0.2,0.8,0.2,0.1);
     float a = atan2(bu.v.y,bu.v.x);
-    glColor3f(1,1,1);
     float v = length(bu.v)*4.5;
     float z = length(bu.loc-bu.origin);//*2.0;
     //std::cout<<z<<"\n";
     z = std::max(0.0f,z-2);
     v = std::min(z,v);
     glRotatef(a*180/M_PI+90,0,0,1);
-    glScalef(1.1,1,1);
+    glScalef(scale,scale,scale);
     float part=1;
     if(bu.hitt-0.01>=0)
     {
@@ -236,7 +234,7 @@ void draw_bullet(Bullet bu)
     glBegin(GL_QUADS);
         
         //glColor4f((part),part,part,(part));
-        glNormal3f(1,0,0);
+        glNormal3f(-1,0,0);
 		glTexCoord2f(0,0);
         glVertex3f(-1,-1,1);
 		glTexCoord2f(0,1);
@@ -351,8 +349,17 @@ void draw(){
 	}
 	for(unsigned i=0; i<game.bullets.size(); ++i) {
         Bullet b = game.bullets[i];
-		if (b.type==0) draw_bullet(b);
+		if (b.type==0){
+            glColor4f(1.5,0.6,0.0,0.5);
+            glBlendFunc (GL_SRC_ALPHA, GL_ONE);
+            draw_bullet(b);
+        }
         else if(b.type==1) draw_rocket(b);
+        else if(b.type==SHOTGUN){
+            glColor4f(0.5,0.7,1,0.5);
+            glBlendFunc (GL_SRC_ALPHA, GL_ONE);
+            draw_bullet(b,.5);
+        }
 	}
 
     for(int l=0;l<game.lightnings.size();l++)
@@ -368,6 +375,7 @@ void draw(){
                 enemies.size());
     }
 
+#if 0 
 	for(unsigned i=0; i<game.lastBullets.size(); ++i) {
         Bullet b = game.lastBullets[i];
 		if (b.type!=0) continue;
@@ -383,6 +391,7 @@ void draw(){
                     */
 //        drawSalama( b.origin.x, b.origin.y, b.loc.x, b.loc.y);
 	}
+#endif
 
 	for(unsigned i=0; i<game.lastBullets.size(); ++i) {
         Bullet b = game.lastBullets[i];
