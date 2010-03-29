@@ -31,6 +31,7 @@ struct Server {
 	std::vector<Unit> units;
 	std::vector<ClientInfo*> clients;
 	std::vector<Bullet> bullets;
+	//std::vector<BotInformation> botinfos;
 
 	int sockfd;
 	int nextID;
