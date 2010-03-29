@@ -254,22 +254,22 @@ void Server::updateBullets(double t)
 }
 void Server::updateBases()
 {
-	int y1=area.bases[curSpawn], y2=area.bases[curSpawn+1];
-	int c1=0,c2=0;
+	int y2=area.bases[curSpawn+1];
+	int c2=0;
 	for(unsigned i=0; i<units.size(); ++i) {
 		Unit& u = units[i];
 //		cout<<"u "<<u.type<<'\n';
 		int a=u.type==0?1:-1;
-		if (abs(u.loc.y-y1)<3) c1+=a;
 		if (abs(u.loc.y-y2)<3) c2+=a;
 	}
 //	cout<<"zxc "<<curSpawn<<' '<<c1<<' '<<c2<<'\n';
-	if (curSpawn && c1<0) {
-		--curSpawn;
-		cout<<"lost base\n";
-	} else if (c2>0) {
+	if (c2>0) {
 		++curSpawn;
 		cout<<"updating base "<<curSpawn<<'\n';
+		DataWriter w;
+		w.writeByte(SRV_BASE);
+		w.writeInt(curSpawn);
+		sendToAll(w);
 	}
 }
 void Server::damageUnit(int i, double d)
