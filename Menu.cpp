@@ -76,5 +76,6 @@ void Menu::exec()
 		draw();
 
 		SDL_GL_SwapBuffers();
+		SDL_Delay(50);
 	}
 }

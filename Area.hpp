@@ -141,6 +141,7 @@ struct Area {
 	int height(int x, int y) const {
         if(x>=w || y>=h)return 1;//+(((abs(x)^abs(y)))&7);
         if(x<0 || y<0)return 1;//+((abs(x)^abs(y))&7);
+		if (a[w*y+x]<0) return 0;
 		return a[w*y+x];
 	}
 	Vec2 getSpawn(int base) {
