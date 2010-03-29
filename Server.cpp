@@ -21,6 +21,7 @@ Server::Server(): end(0), nextID(1),area(20,300)// area("field.in.1")
 	clID = new int[1<<16];
 	spawnTime = 0;
 	curSpawn=0;
+	botID=256;
 	initSocket();
 }
 Server::~Server()
@@ -70,7 +71,7 @@ void Server::updatePhysics(double t)
 {
 	spawnTime -= t;
 	if (spawnTime <= 0) {
-		Unit b(area.getSpawn(curSpawn+1), 1, -1);
+		Unit b(area.getSpawn(curSpawn+1), 1, botID++);
 		units.push_back(b);
 		spawnTime = 5;
 	}
