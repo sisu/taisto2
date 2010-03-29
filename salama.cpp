@@ -1,4 +1,5 @@
 #include<iostream>
+#include"physics.hpp"
 #include<algorithm>
 #include<cassert>
 #include<cstdlib>
@@ -174,9 +175,13 @@ void drawSalama(Game& game,Vec2 orig,Vec2* targets,int n){
                 r*=r;
             //if(j==0)r*=10;
             v+=r*(tar[j])+r*4.5*Vec2(fuaa(orig.x*0.1+curtime*0.1+542*i+54*j)-0.5,fuaa(orig.y*0.1+curtime*0.1+23*i+323*j)-0.5);
+            
             tot+=r;
         }
         v/=tot;
+        if(game.area.blocked(v.x,v.y)){
+            continue;
+        }
         tar.push_back(v);
     }
     //tar.insert(tar.end(),targets,targets+n);
@@ -187,6 +192,10 @@ void drawSalama(Game& game,Vec2 orig,Vec2* targets,int n){
             Vec2 v=tar[i];
             Vec2 u=tar[j];
             float len = length2(v-u);
+            bool hits;
+            wallHitPoint(v,u,game.area,&hits);
+            if(hits)
+                len = 1000000;
             edges[i][j]=len;
             edges[j][i]=len;
         }

@@ -13,7 +13,7 @@ struct Bullet {
 	Vec2 v;
 	int type,id;
     float hitt;
-
+    float height;
 	Bullet(){}
 	Bullet(Vec2 l, Vec2 v, int t, int i):origin(l), loc(l), v(v), type(t), id(i) ,hitt(-1){}
 };
