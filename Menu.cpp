@@ -53,7 +53,7 @@ void Menu::draw()
 	
 	glLineWidth(1);
 	for(unsigned i=0; i<items.size(); ++i) {
-		double x=0, y=.5-.3*i;
+		double x=-.5, y=.5-.3*i;
 		if ((int)i==cur) {
 			glColor3f(.8,.5,1);
 			glLineWidth(3);
@@ -63,7 +63,7 @@ void Menu::draw()
 		glColor3f(1,.3,1);
 		drawString(items[i].title, x, y, .1);
 
-		if (items[i].type==STRING) drawString(items[i].str->c_str(), x+.5, y, .1);
+		if (items[i].type==STRING) drawString(items[i].str->c_str(), x+.6, y, .1);
 	}
 }
 
