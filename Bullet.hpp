@@ -3,6 +3,10 @@
 
 #include "Vector.hpp"
 
+const int SHOTGUN = 3;
+const int LIGHTNING = 2;
+const int ROCKET = 1;
+const int MACHINEGUN=0;
 struct Bullet {
     Vec2 origin;
 	Vec2 loc;
