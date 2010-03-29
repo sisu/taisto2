@@ -464,6 +464,12 @@ void hostGame()
 	server->end=1;
 	SDL_Delay(10);
 }
+void joinGame()
+{
+	Menu m;
+	MenuItem conn={"connect",0};
+	m.exec();
+}
 Menu createMainMenu()
 {
 	Menu m;
@@ -471,7 +477,7 @@ Menu createMainMenu()
 	host.func = hostGame;
 	m.items.push_back(host);
 	MenuItem join={"join game",0};
-	join.func = mainLoop;
+	join.func = joinGame;
 	m.items.push_back(join);
 	m.items.push_back((MenuItem){"quit", 1});
 	return m;
