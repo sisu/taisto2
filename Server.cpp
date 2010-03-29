@@ -14,7 +14,7 @@
 #include <iostream>
 #include "SDL.h"
 using namespace std;
-static const double shields[]={10,2.8};
+static const double shields[]={10,2.8,4};
 
 Server::Server(): end(0), nextID(1),area(30,300)// area("field.in.1")
 {

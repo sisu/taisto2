@@ -68,8 +68,12 @@ void drawPlayer_real(const Unit& u)
 void drawPlayer(const Unit& u){
     if(u.type==0)
         glColor3f(0.4,0.8,0.6);
-    else 
+    else if(u.type==1)
         glColor3f(0.8,0.3,0.0);
+    else {
+        std::cout<<"rakettimies\n";
+        glColor3f(0.5,0.5,0.5);
+    }
 
     //drawPlayer_real(u);
     //return;
