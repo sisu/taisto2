@@ -130,7 +130,8 @@ void draw_rocket(Bullet bu){
     
     double d=2*M_PI*rand()/RAND_MAX;
     double v=4;
-    game.eparts.push_back(ExplosionP(loc,-bu.v+0.2*Vec2(randf(),randf())));
+//	game.eparts.push_back(ExplosionP(loc,-bu.v+0.2*Vec2(randf(),randf())));
+    game.eparts.push_back(ExplosionP(Vec3(loc,1),Vec3(-bu.v,0)+0.2*Vec3(2*randf()-1,2*randf()-1,2*randf()-1)));
     
     glPopMatrix();
 }

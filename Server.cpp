@@ -14,6 +14,7 @@
 #include <iostream>
 #include "SDL.h"
 using namespace std;
+static const double shields[]={10,2.8};
 
 Server::Server(): end(0), nextID(1),area(40,300)// area("field.in.1")
 {
@@ -103,6 +104,7 @@ void Server::updatePhysics(double t)
 					double a = acos(dot(v,v2)/l);
 					if (a > LIGHTNING_ANGLE) continue;
 
+					p.health -= damages[t] / shields[p.type];
 					w.writeInt(p.id);
 					++cnt;
 				}
@@ -122,6 +124,7 @@ void Server::updatePhysics(double t)
 
 	// delayed lightning damage
 	for(unsigned i=0; i<units.size(); ++i) {
+		damageUnit(i, 0);
 	}
 
 //	if (units.size()>1) {Unit& u = units[1]; cout<<"updated physics; "<<u.movex<<' '<<u.movey<<" ; "<<u.loc<<" ; "<<u.shooting<<' '<<u.id<<' '<<clID[u.id]<<'\n';}
@@ -218,7 +221,6 @@ void Server::readInputs()
 	}
 }
 
-static const double shields[]={10,2.8};
 void Server::updateBullets(double t)
 {
 	for(unsigned i=0; i<bullets.size(); ++i) {

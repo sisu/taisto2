@@ -26,12 +26,12 @@ void drawExplosions(Game& g)
 	glBegin(GL_QUADS);
 	for(unsigned i=0; i<g.eparts.size(); ++i) {
 		ExplosionP& p=g.eparts[i];
-		Vec2 v=p.loc;
+		Vec3 v=p.loc;
 //		cout<<v<<'\n';
-		glTexCoord2f(0,0), glVertex3f(v.x-S, v.y-S, 1);
-		glTexCoord2f(1,0), glVertex3f(v.x+S, v.y-S, 1);
-		glTexCoord2f(1,1), glVertex3f(v.x+S, v.y+S, 1);
-		glTexCoord2f(0,1), glVertex3f(v.x-S, v.y+S, 1);
+		glTexCoord2f(0,0), glVertex3f(v.x-S, v.y-S, v.z);
+		glTexCoord2f(1,0), glVertex3f(v.x+S, v.y-S, v.z);
+		glTexCoord2f(1,1), glVertex3f(v.x+S, v.y+S, v.z);
+		glTexCoord2f(0,1), glVertex3f(v.x-S, v.y+S, v.z);
 	}
 	glEnd();
 	glDisable(GL_TEXTURE_2D);
