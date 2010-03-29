@@ -1,9 +1,11 @@
 #include <cmath>
 #include <cstdlib>
 #include <algorithm>
+#include <iostream>
 #include "SDL.h"
 using namespace std;
 
+namespace {
 inline float rndf()
 {
 	return (float)rand()/RAND_MAX;
@@ -80,7 +82,7 @@ void ifft(float* rdst, float* idst, const float* rsrc, const float* isrc, int n)
 	}
 }
 
-const int WTS=1<<18;
+const int WTS=1<<16;
 const int FREQ = 44100;
 
 float sintable[WTS], costable[WTS], nulltable[WTS];
@@ -117,8 +119,65 @@ const int SAMPLES = 4096;
 const int NWT=2;
 float wtables[NWT][WTS];
 
-void callback(void* udata, Uint8* stream, int len)
+const int BPM = 140;
+// samples per beat
+const int SPB = 60*FREQ / BPM;
+int curS=0;
+
+const int NLEN = 8;
+const short OFF=(1<<15)-1;
+short notes[NWT][NLEN] = {
+	{1,OFF,0,OFF,2,3,OFF,OFF},
+	{OFF,1,2,3,OFF,OFF,0,5}
+};
+struct Envelope {
+	float a,d,s,r;
+	float z;
+};
+Envelope envelopes[NWT] = {
+	{.2,.2,.3,.1,.3},
+	{.05,.07,.4,.05,.5}
+};
+float volume(const Envelope& e, float t)
 {
+	if (t<e.a) return t/e.a;
+	t -= e.a;
+	if (t<e.d) return 1 + (e.s-1)*t/e.d;
+	t -= e.d;
+	if (t<e.z) return e.s;
+	t -= e.z;
+	if (t<e.r) return e.s*(1-t/e.d);
+	return 0;
+}
+
+void callback(void* udata, Uint8* stream, int l)
+{
+	Uint16* s = (Uint16*)stream;
+	l /= 2;
+#if 0
+	for(int i=0; i<l; ++i) {
+		int k=curS+i;
+		s[i] = wtables[0][k%WTS]*25000;
+	}
+#endif
+	float buf[SAMPLES]={};
+	int cur0 = curS/SPB;
+	int cur = cur0 % NLEN;
+	int start = cur0*SPB;
+	for(int i=0; i<2; ++i) {
+		int n = notes[i][cur];
+		if (n==OFF) continue;
+		float f = exp2(n/12.);
+		for(int j=0; j<l; ++j) {
+			int k = curS+j;
+			float t = (k - start)/(float)FREQ;
+			k *= f;
+			buf[j] += wtables[i][k%WTS] * volume(envelopes[i], t);
+		}
+	}
+	// TODO: normalize buf?
+	for(int i=0; i<l; ++i) s[i] = buf[i]*20000;
+	curS += l;
 }
 
 const int NHARM=64;
@@ -149,9 +208,13 @@ SDL_AudioSpec spec = {
 	callback, // callback
 	0 // userdata
 };
+} // end namespace
 
-void startMusic()
+void initMusic()
 {
-	SDL_OpenAudio(&spec, 0);
-	SDL_PauseAudio(0);
+	initInstruments();
+	cout<<"wavetables gen done\n";
+	if (SDL_OpenAudio(&spec, 0)<0) {
+		cout<<"Opening audio device failed: "<<SDL_GetError()<<'\n';
+	} else cout<<"Audio open succesful\n";
 }

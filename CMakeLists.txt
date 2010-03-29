@@ -9,7 +9,7 @@ find_package(OpenGL REQUIRED)
 link_libraries(${OPENGL_LIBRARY} "SDL")
 include_directories(${SDL_INCLUDE_DIR})
 
-add_definitions("-Wall -O3")
+add_definitions("-Wall -O2 -Wno-unused-result")
 #add_definitions("-Wall -Os -fomit-frame-pointer -ffast-math")
 
 set(sources main.cpp physics.cpp Server.cpp Game.cpp ClientSocket.cpp
@@ -20,3 +20,4 @@ set(sources main.cpp physics.cpp Server.cpp Game.cpp ClientSocket.cpp
 #MESSAGE( STATUS "flags : ${OPENGL_LIBRARY}" )
 
 add_executable(taisto2 ${sources})
+add_executable(mtest mtest.cpp music.cpp)
