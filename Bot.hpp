@@ -2,6 +2,7 @@
 #define BOT_HPP
 
 struct Unit;
-void moveBot(Unit& u);
+struct Area;
+void moveBot(Unit& u, const Area& area, const std::vector<Unit>& units);
 
 #endif
