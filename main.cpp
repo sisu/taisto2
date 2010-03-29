@@ -201,7 +201,6 @@ void draw_bullet(Bullet bu,float scale=1)
 //    glScalef(0.5,0.5,0.5);
     //glTranslatef(-player.loc.x,-player.loc.y,0.0);
     glDepthMask(0);
-    glDisable(GL_COLOR);
     glDisable(GL_LIGHTING);
     //glDisable(GL_DEPTH_TEST);
     glEnable(GL_TEXTURE_2D);
@@ -274,7 +273,6 @@ void draw_bullet(Bullet bu,float scale=1)
 
     glEnd();
     glPopMatrix();
-    glEnable(GL_COLOR);
     glDisable(GL_BLEND);
     glDisable(GL_TEXTURE_2D);
     //glEnable(GL_DEPTH_TEST);
@@ -436,7 +434,7 @@ void mainLoop()
         lasttime=t;
         r++;
         if(r%104==0){
-            //std::cout<<player.loc.x<<" "<<player.loc.y<<"\n";
+			cout<<player.loc<<'\n';
 //            std::cout<<"dir = "<<player.d<<"\n";
 //            std::cout<<"dir = "<<dt<<"\n";
 			//std::cout<<"pl "<<player.loc<<'\n';
@@ -452,6 +450,10 @@ void mainLoop()
             if (game.units[i].type==0 && game.units[i].id==game.id)
                 player=game.units[i];
         draw();
+		int err = glGetError();
+		if (err) {
+			cout<<"GL ERROR: "<<gluErrorString(err)<<'\n';
+		}
         SDL_GL_SwapBuffers();
         SDL_Delay(10);
 
