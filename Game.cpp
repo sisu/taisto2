@@ -13,9 +13,9 @@ void Game::updateNetwork()
 {
 	socket.sendState();
 	socket.handleMessages();
-    for(int i=0;i<units.size();i++)
+    for(unsigned i=0;i<units.size();i++)
     {
-        if(units[i].id>=unitIndex.size())
+        if(units[i].id>=(int)unitIndex.size())
             unitIndex.resize(units[i].id+20);
         unitIndex[units[i].id]=i;
     }

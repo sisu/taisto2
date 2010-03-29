@@ -134,16 +134,17 @@ short notes[NWT+1][NLEN] = {
 	{1,OFF,0,OFF,2,3,OFF,OFF},
 	{OFF,1,2,3,OFF,OFF,0,5},
 	{0,OFF,0,OFF,0,OFF,0,OFF},
-	{OFF,0,OFF,0,0,0,OFF,0}
+	{OFF,0,OFF,0,OFF,0,OFF,0}
 };
 struct Envelope {
 	float a,d,s,r;
 	float z;
 };
-Envelope envelopes[NWT] = {
+Envelope envelopes[NWT+1] = {
 	{.2,.2,.3,.1,.3},
 	{.05,.07,.4,.1,.5},
-	{.05,.05,.1,.01,.003}
+	{.05,.05,.1,.01,.003},
+	{.05,.1,.7,.05,.3}
 };
 float volume(const Envelope& e, float t)
 {
@@ -156,6 +157,8 @@ float volume(const Envelope& e, float t)
 	if (t<e.r) return e.s*(1-t/e.d);
 	return 0;
 }
+const float BEAT_FREQ = 1500;
+const float BEAT_SLOW = 200;
 
 void callback(void* udata, Uint8* stream, int l)
 {
@@ -168,12 +171,13 @@ void callback(void* udata, Uint8* stream, int l)
 	}
 #endif
 	float buf[SAMPLES]={};
-	for(int i=0; i<NWT; ++i) {
-		for(int k=0; k<2; ++k) {
-			int cur0 = (curS-k*SPB)/SPB;
-			int cur = (cur0+NLEN) % NLEN;
-			int start= cur0*SPB;
+	for(int k=0; k<2; ++k) {
+		int cur0 = (curS-k*SPB)/SPB;
+		int cur = (cur0+NLEN) % NLEN;
+		int start= cur0*SPB;
 
+#if 1
+		for(int i=0; i<NWT; ++i) {
 			int n = notes[i][cur];
 			if (n==OFF) continue;
 			float f = exp2(n/12.);
@@ -184,11 +188,14 @@ void callback(void* udata, Uint8* stream, int l)
 				buf[j] += wtables[i][k%WTS] * volume(envelopes[i], t);
 			}
 		}
-	}
-	{
-		int cur0 = curS/SPB;
-		int cur=cur0%NLEN;
-		int start=cur0*SPB;
+#else
+		if (notes[3][cur]==OFF) continue;
+		for(int i=0; i<l; ++i) {
+			int k = curS+i;
+			float t = (k-start)/(float)FREQ;
+			buf[i] += sin(BEAT_FREQ*t/(1+t*BEAT_SLOW)) * volume(envelopes[3], t);
+		}
+#endif
 	}
 	// TODO: normalize buf?
 	for(int i=0; i<l; ++i) s[i] = buf[i]*20000;
