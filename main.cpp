@@ -3,6 +3,7 @@
 #include "salama.hpp"
 #include <SDL/SDL.h>
 #include"Unit.hpp"
+#include "HUD.hpp"
 #include"texgen.hpp"
 #include"Area.hpp"
 #include"cube.hpp"
@@ -179,7 +180,7 @@ void draw_rocket(Bullet bu){
     glColor3f(0.5,0.5,0);
 
 //=======
-    glColor3f(0.3,0.3,0.3);
+    glColor3f(0.3,0.9,0.3);
     glScalef(0.1,0.1,0.1);
     glRotatef(timef()*200,0,0,1);
 //>>>>>>> 1c0bce074761328992930dcf72559e3f144de933:main.cpp
@@ -334,6 +335,7 @@ void draw(){
     glClear(GL_COLOR_BUFFER_BIT|GL_DEPTH_BUFFER_BIT);
 	glEnable(GL_NORMALIZE);
     glLoadIdentity();
+    drawHud(game);
     glTranslatef(0,0,-30);
     //glTranslatef(0,0,-35);
 	//glRotatef(-45,1,0,0);
@@ -371,7 +373,7 @@ void draw(){
 
             enemies.push_back(game.units[game.unitIndex[j]].loc);
         }
-        drawSalama(game,player.loc,&enemies[0],
+        drawSalama(game,game.units[game.unitIndex[game.lightnings[l].second[0]]].loc,&enemies[0],
                 enemies.size());
     }
 

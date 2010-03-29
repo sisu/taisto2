@@ -14,7 +14,7 @@
 #include <iostream>
 #include "SDL.h"
 using namespace std;
-static const double shields[]={10,2.8,4};
+static const double shields[]={10,2.8,4,0.2,4};
 
 Server::Server(): end(0), nextID(1),area(30,300)// area("field.in.1")
 {
@@ -72,8 +72,8 @@ void Server::updatePhysics(double t)
 {
 	spawnTime -= t;
 	if (spawnTime <= 0) {
-		Unit b(area.getSpawn(curSpawn+1), 1+rand()%2, botID++);
-		units.push_back(b);
+		Unit b(area.getSpawn(curSpawn+1), 1+rand()%4, botID++);
+        if(b.type!=3) units.push_back(b);//ei salamia
 		spawnTime = 1;
 	}
 	for(unsigned i=0; i<units.size(); ++i) 
