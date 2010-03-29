@@ -95,6 +95,7 @@ void draw_area()
     int h = 50;
     int sx = player.loc.x-w/2;
     int sy = player.loc.y-h/2;
+    glColor4f(1,1,1,1);
     for(int i=sx;i<sx+w;i++)
     {
         for(int j=sy;j<sy+h;j++)
@@ -111,27 +112,7 @@ void draw_area()
         }
     }
 
-    glTranslatef(0,0,0.1);
-    for(int i=0;i<game.area.bases.size();i++){
-        //glEnable(GL_TEXTURE_2D);
-        glColor3f(1,1,1);
-        glBindTexture(GL_TEXTURE_2D,groundTex);
-        glBegin(GL_QUADS);{
-            glNormal3f(0,0,1);
-            glTexCoord2f(0,0);
-            glVertex3f(-1009,game.area.bases[i]-10,0);
-            glTexCoord2f(200,0);
-            glVertex3f(1000,game.area.bases[i]-10,0);
-            glTexCoord2f(200,200);
-            glVertex3f(1000,game.area.bases[i]+10,0);
-            glTexCoord2f(0,200);
-            glVertex3f(-1000,game.area.bases[i]+10,0);
-        }
-        glEnd();
-        glRotatef(-45,0,0,1);
-        glDisable(GL_TEXTURE_2D);
-    }
-    glPopMatrix();
+    
 
     //ground
     glEnable(GL_TEXTURE_2D);
@@ -149,7 +130,32 @@ void draw_area()
         glVertex3f(-1000,1000,0);
     glEnd();
     glRotatef(-45,0,0,1);
-    glDisable(GL_TEXTURE_2D);
+    glTranslatef(0,0,0.1);
+    for(int i=0;i<game.area.bases.size();i++){
+        //glEnable(GL_TEXTURE_2D);
+
+        glEnable(GL_BLEND);
+        //glBlendFunc(GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA);
+
+        glColor4f(0.0,0.7,1.1,0.8);
+        glEnable(GL_TEXTURE_2D);
+        glBindTexture(GL_TEXTURE_2D,groundTex);
+        glBegin(GL_QUADS);{
+            glNormal3f(0,0,1);
+            glTexCoord2f(0,0);
+            glVertex3f(-1009,game.area.bases[i]-3,0);
+            glTexCoord2f(200,0);
+            glVertex3f(1000,game.area.bases[i]-3,0);
+            glTexCoord2f(200,200);
+            glVertex3f(1000,game.area.bases[i]+3,0);
+            glTexCoord2f(0,200);
+            glVertex3f(-1000,game.area.bases[i]+3,0);
+        }
+        glEnd();
+        glDisable(GL_BLEND);
+        glDisable(GL_TEXTURE_2D);
+    }glDisable(GL_TEXTURE_2D);
+    glPopMatrix();
 }
 void draw_rocket(Bullet bu){
     Vec2 loc = bu.loc;
