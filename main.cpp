@@ -10,10 +10,10 @@
 #include<GL/gl.h>
 #include<GL/glu.h>
 #include<GL/glext.h>
-#include"ukko.c"
+//#include"ukko.c"
 #include"ukko_walk1.c"
 #include"ukko_walk2.c"
-#include"ase.c"
+//#include"ase.c"
 #include"rocket.c"
 #include"physics.hpp"
 #include "Server.hpp"
@@ -105,7 +105,7 @@ void draw_area()
                 glTranslatef(i,j,0);
                 glScalef(0.51,0.51,2+2*area.height(i,j));
             
-                drawcube();
+                drawcube(4+4*area.height(i,j));
                 glPopMatrix();
             }
         }
@@ -123,9 +123,14 @@ void draw_rocket(Bullet bu){
     glRotatef(a*180/M_PI+90,0,0,1);
     glRotatef(90,1,0,0);
 
-    glColor3f(1,0,0);
+    glColor3f(0.3,0.3,0.3);
     glScalef(0.1,0.1,0.1);
+    glRotatef(timef()*200,0,0,1);
     draw_model(&raketti_model);
+    
+    double d=2*M_PI*rand()/RAND_MAX;
+    double v=4;
+    game.eparts.push_back(ExplosionP(loc,-bu.v+0.2*Vec2(randf(),randf())));
     
     glPopMatrix();
 }
@@ -150,13 +155,13 @@ void draw_bullet(Bullet bu)
 //    glTranslatef(loc.x-0.5,loc.y-0.5,0);
     glTranslatef(loc.x,loc.y,0);
 
-    glScalef(0.5,0.5,0.5);
+    //glScalef(0.5,0.5,0.5);
     //glTranslatef(-area.w/2,-area.h/2,0);
     //glColor4f(0.2,0.8,0.2,0.1);
     float a = atan2(bu.v.y,bu.v.x);
     glColor3f(1,1,1);
     float v = length(bu.v)*4.5;
-    float z = length(bu.loc-bu.origin)*2.0;
+    float z = length(bu.loc-bu.origin);//*2.0;
     //std::cout<<z<<"\n";
     z = std::max(0.0f,z-2);
     v = std::min(z,v);
@@ -217,6 +222,7 @@ void draw_bullet(Bullet bu)
     glDepthMask(1);
 }
 
+/*
 void draw_player(float x,float y,float dir,float movey = 0)
 {
 //	x-=player.loc.x, y-=player.loc.y;
@@ -233,7 +239,7 @@ void draw_player(float x,float y,float dir,float movey = 0)
     glTranslatef(-0.8,0.5,0.4);
     draw_model(&ase_model);
     glPopMatrix();
-}
+}*/
 
 void setLights()
 {
@@ -254,6 +260,11 @@ void setPerspective()
     glMatrixMode(GL_PROJECTION);
 	glLoadIdentity();
     gluPerspective(45,4.0/3.0,0.01,1000);
+    glEnable(GL_MULTISAMPLE);
+    glHint(GL_LINE_SMOOTH_HINT,GL_NICEST);
+    glHint(GL_POLYGON_SMOOTH_HINT,GL_NICEST);
+    glEnable(GL_LINE_SMOOTH);
+
     glMatrixMode(GL_MODELVIEW);
 }
 
@@ -264,24 +275,27 @@ void draw(){
     glClear(GL_COLOR_BUFFER_BIT|GL_DEPTH_BUFFER_BIT);
 	glEnable(GL_NORMALIZE);
     glLoadIdentity();
-    glTranslatef(0,0,-25);
+    glTranslatef(0,0,-45);
 	//glRotatef(-45,1,0,0);
 	glTranslatef(-player.loc.x, -player.loc.y, 0);
     glColor3f(1,1,1);
     
+    //ground
     glEnable(GL_TEXTURE_2D);
     glBindTexture(GL_TEXTURE_2D,groundTex);
+    glRotatef(45,0,0,1);
     glBegin(GL_QUADS);
 		glNormal3f(0,0,1);
         glTexCoord2f(0,0);
         glVertex3f(-1009,-1000,0);
-        glTexCoord2f(60,0);
+        glTexCoord2f(200,0);
         glVertex3f(1000,-1000,0);
-        glTexCoord2f(60,60);
+        glTexCoord2f(200,200);
         glVertex3f(1000,1000,0);
-        glTexCoord2f(0,60);
+        glTexCoord2f(0,200);
         glVertex3f(-1000,1000,0);
     glEnd();
+    glRotatef(-45,0,0,1);
     glDisable(GL_TEXTURE_2D);
 
     draw_area();

@@ -175,13 +175,28 @@ GLuint genGroundTex()
             //if(x>0.5)x = 1-x;
             //if(y>0.5)y = 1-y;
             double s = turbulence(128*x,128*y,32);
-            double s2 = turbulence(128*x+200,128*y+200,16);
-            texture[i][j][0] = s*0.2;
-            texture[i][j][1] = s*0.2;
-            texture[i][j][2] = s*0.2;
-            texture[i][j][0]+= s2*0.1;
-            texture[i][j][1]+= s2*0.05;
-            texture[i][j][2]+= s2*0.0;
+            //s=0;
+            int is =0;
+            float z = (i/32+j/32)%2;
+            int xx= i%32;
+            int yy= j%32;
+            const int bev = 10;
+            int f = (i/32)*37+(j/32)*12;
+            int foo = std::max(abs(16-xx),abs(16-yy));
+            if(f%10==0)z=0;
+#define FF  if(xx+yy<bev)z=0
+
+            FF;
+            xx = 31-xx;
+            FF;
+            yy = 31-yy;
+            FF;
+            xx = 31-xx;
+            FF;
+            if((int(s*20)%2))is=1;
+            texture[i][j][0] = is*0.01;
+            texture[i][j][1] = z*0.5+is*0.1;
+            texture[i][j][2] = z*0.3+is*0.1;
 			texture[i][j][3] =1;
 		}
 	}
@@ -203,19 +218,20 @@ GLuint genGroundTex()
 }
 GLuint genBuildingTex()
 {
-	const int TS=256;
+	const int TS=64;
     static float texture[TS][TS][4];
 	genNoise();
 
 	for(int i=0; i<TS; ++i) {
 		for(int j=0; j<TS; ++j) {
 			double x=double(j)/TS, y=double(i)/TS;
-            if(x>0.5)x = 1-x;
-            if(y>0.5)y = 1-y;
-            double s = abs(turbulence(28*x,28*y,16));
-            texture[i][j][0] = s*0.2;
-            texture[i][j][1] = s*0.2;
-            texture[i][j][2] = s*0.2;
+            //if(x>0.5)x = 1-x;
+            //if(y>0.5)y = 1-y;
+            //double s = abs(turbulence(28*x,28*y,16));
+            int s = (i/32+j/32)%2;
+            texture[i][j][0] = s*0.0+(!s)*0.1;
+            texture[i][j][1] = s*0.0+(!s)*0.4;
+            texture[i][j][2] = s*0.0+(!s)*0.9;
 			texture[i][j][3] =1;
 		}
 	}

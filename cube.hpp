@@ -28,17 +28,27 @@ GLfloat normals[] = {0,0,1,  0,0,1,  0,0,1,  0,0,1,             // v0-v1-v2-v3
                      0,-1,0,  0,-1,0,  0,-1,0,  0,-1,0,         // v7-v4-v3-v2
                      0,0,-1,  0,0,-1,  0,0,-1,  0,0,-1};        // v4-v7-v6-v5
 
+static const float SENT = 2.3;
 //texture coord 
 GLfloat colors[] = {
+    //1,1,    1,0,  0,0,  0,1,           
     1,1,    1,0,  0,0,  0,1,           
-    1,1,    1,0,  0,0,  0,1,           
-    1,1,    1,0,  0,0,  0,1,           
-    1,1,    1,0,  0,0,  0,1,           
-    1,1,    1,0,  0,0,  0,1,           
+    //1,1,    1,0,  0,0,  0,1,           
+    SENT,1,    SENT,0,  0,0,  0,1,
+    1,SENT,    1,0,  0,0,  0,SENT,           
+    1,SENT,    1,0,  0,0,  0,SENT,           
+    SENT,1,    SENT,0,  0,0,  0,1,           
     1,1,    1,0,  0,0,  0,1};
 
-void drawcube()
+void drawcube(float h=1)
 {
+    float f2 = h+0.05;
+    for(int i = 0 ;i<24*2;i++)
+    {
+        if(colors[i]==SENT)
+            colors[i]=f2;
+    }
+
     // enable and specify pointers to vertex arrays
     glEnableClientState(GL_NORMAL_ARRAY);
     //glEnableClientState(GL_COLOR_ARRAY);
@@ -52,12 +62,18 @@ void drawcube()
     glBindTexture(GL_TEXTURE_2D,buildingTex);
     glDrawElements(GL_QUADS, 24, GL_UNSIGNED_BYTE,(GLvoid*) indices);
     glDisable(GL_TEXTURE_2D);
+
     
 
 
     glDisableClientState(GL_VERTEX_ARRAY);  // disable vertex arrays
     //glDisableClientState(GL_COLOR_ARRAY);
     glDisableClientState(GL_NORMAL_ARRAY);
+    for(int i = 0 ;i<24*2;i++)
+    {
+        if(colors[i]==f2)
+            colors[i]=SENT;
+    }
 }
 
 #endif

@@ -21,7 +21,7 @@ struct Server {
 	void readInputs();
 	void sendState();
 	void sendToAll(const void* s, int n);
-	void sendToAll(DataWriter w);
+	void sendToAll(DataWriter& w);
 	void updateBullets(double t);
 	void updateBases();
 	void damageUnit(int i, double d);

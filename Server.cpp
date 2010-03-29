@@ -166,7 +166,7 @@ void Server::sendToAll(const void* s, int n)
 	for(unsigned i=0; i<clients.size(); ++i)
 		clients[i]->conn.write(s,n);
 }
-void Server::sendToAll(DataWriter w)
+void Server::sendToAll(DataWriter& w)
 {
 	for(unsigned i=0; i<clients.size(); ++i)
 		clients[i]->conn.write(w);

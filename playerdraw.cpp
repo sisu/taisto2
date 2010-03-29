@@ -5,17 +5,17 @@
 #include <cmath>
 #include <GL/gl.h>
 
-void drawPlayer(const Unit& u)
+void drawPlayer_real(const Unit& u)
 {
     glPushMatrix();
-    glColor3f(0.7,1,0.8);
     glTranslatef(u.loc.x,u.loc.y,1);
     double a = u.d*180/M_PI;
     glPushMatrix();
-    glRotatef(a+90+45,0,0,1);
+    glTranslatef(0,0,0.5);
+    glRotatef(a+90-45,0,0,1);
     glRotatef(90,1,0,0);
     glScalef(0.5,0.5,0.5);
-    draw_model(&vartalo_model);
+    draw_model(&vartalo_model,GL_TRIANGLES);
     glPopMatrix();
     if(u.movex==0 && u.movey==0)
     {
@@ -35,7 +35,6 @@ void drawPlayer(const Unit& u)
         float dm = std::min(fmod(360+a-d,360),fmod(360+d-a,360));
         d+=90;
         if(u.type==0)
-//        std::cout<<dm<<"\n";
         if(dm<90)
         {
             d-=180;
@@ -45,7 +44,7 @@ void drawPlayer(const Unit& u)
         glRotatef(90,1,0,0);
         glRotatef(180,0,1,0);
         glScalef(0.5,0.5,0.5);
-        float t = dir*timef()*length(Vec2(u.movex,u.movey))*4.5*2;
+        float t = dir*timef()*length(Vec2(u.movex,u.movey))*4.5*4;
         float h = sin(t);
         float x = cos(t);
             
@@ -65,4 +64,34 @@ void drawPlayer(const Unit& u)
     }
 
     glPopMatrix();
+}
+void drawPlayer(const Unit& u){
+    if(u.type==0)
+        glColor3f(0.4,0.8,0.6);
+    else 
+        glColor3f(0.8,0.3,0.0);
+
+    drawPlayer_real(u);
+    return;
+    glColor3f(0,0,0);
+
+
+    glPolygonMode(GL_BACK,GL_LINE);
+    glEnable(GL_CULL_FACE);
+    glCullFace(GL_FRONT);
+    glEnable(GL_BLEND);
+    glBlendFunc(GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA);
+    glDepthFunc(GL_LEQUAL);
+    glLineWidth(3);
+    drawPlayer_real(u);
+
+
+    glDisable(GL_BLEND);
+    glDisable(GL_CULL_FACE);
+
+    glPolygonMode(GL_FRONT_AND_BACK,GL_FILL);
+
+
+    drawPlayer_real(u);
+    glDepthFunc(GL_LESS);
 }
