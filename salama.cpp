@@ -1,4 +1,5 @@
 #include<iostream>
+#include<cassert>
 #include<cstdlib>
 #include "timef.h"
 #include "Game.hpp"
@@ -67,7 +68,6 @@ void drawSalamaStrip(Vec2* v,int p)
     {
         float xx = v[i+1].x-v[i].x;
         float yy = v[i+1].y-v[i].y;
-        float len1 = sqrt(xx*xx+yy*yy);
         /*
         if(len1<1){
             //skip
@@ -134,15 +134,95 @@ struct pqnode{
     float len;
     int x;
     int y;
-    int px,py;
+    //int px,py;
     bool operator<(const pqnode& p)const
     {
         return len>p.len;
     }
 };
 
+float edges[128][128];
+int last[128];
+void drawSalama(Game& game,Vec2 orig,Vec2* targets,int n){
+    curtime = timef();
+    //curtime=0;
+    std::priority_queue<pqnode> pq;
+    std::vector<Vec2> tar;
+    tar.push_back(orig);
+    memset(last,-1,sizeof(last));
+    for(int i=0;i<50;i++)
+    {
+        Vec2 v(0,0);
+        float tot = 0;
+        for(int j=0;j<n;j++)
+        {
+            float r = fuaa(curtime*2+23*j+53*i);//fuaa(curtime*1000+23*j);//fuaa(curtime*100+23);//randf();//fuaa(curtime*10+23);
+            assert(r>=0);
+            assert(r<=1);
+            v+=r*(targets[j])+2*Vec2(fuaa(curtime*5+542*i+54*j)-0.5,fuaa(curtime*5+23*i+323*j)-0.5);
+            tot+=r;
+        }
+        v/=tot;
+        tar.push_back(v);
+    }
+    //tar.insert(tar.end(),targets,targets+n);
+    for(int i=0;i<n;i++)
+        tar.push_back(targets[i]);
+    for(int i=0;i<tar.size();i++)
+    {
+        for(int j=i+1;j<tar.size();j++)
+        {
+            Vec2 v=tar[i];
+            Vec2 u=tar[j];
+            float len = length2(v-u);
+            edges[i][j]=len;
+            edges[j][i]=len;
+        }
+    }
+    last[0]=-2;
+    for(int i=1;i<tar.size();i++)
+    {
+        pqnode n;
+        n.x=0;
+        n.y=i;
+        n.len = edges[0][i];
+        pq.push(n);
+    }
+    while(pq.size())
+    {
+        pqnode p = pq.top();
+        pq.pop();
+        if(last[p.y]!=-1)continue;
+        last[p.y]=p.x;
+        for(int i=1;i<tar.size();i++)
+        {
+            if(last[i]==-1)
+            {
+                pqnode n;
+                n.x =p.y;
+                n.y = i;
+                n.len = edges[n.x][n.y];
+                pq.push(n);
+            }
+        }
+    }
+    for(int i=1;i<tar.size();i++)
+    {
+        std::vector<Vec2> strip;
+        int z = i;
+        while(z!=-2)
+        {
+            strip.push_back(tar[z]);
+            z = last[z];
+            assert(z!=-1);
+        }
+        drawSalamaStrip(&strip[0],strip.size());
+    }
+}
+
 short prevx[300][3000];
 short prevy[300][3000];
+#if 0 
 void drawSalama(Game& game,Vec2 orig,Vec2* targets,int n)
 {
     curtime = timef();
@@ -259,6 +339,7 @@ void drawSalama(Game& game,Vec2 orig,Vec2* targets,int n)
     }
 #endif
 }
+#endif
 
 
 void drawSalama(float x,float y,float tx,float ty)

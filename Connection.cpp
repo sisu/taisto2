@@ -1,5 +1,9 @@
 #include "Connection.hpp"
 #include "DataWriter.hpp"
+#include <sys/types.h>
+#include <sys/socket.h>
+#include <fcntl.h>
+#include <netinet/in.h>
 #include <unistd.h>
 #include <iostream>
 #include <cassert>
@@ -7,6 +11,7 @@ using namespace std;
 
 bool Connection::read()
 {
+    assert(cur<1<<20);
 	if (cur<4) {
 		int n = ::read(fd, buf+cur, 4-cur);
 		if (n<0) return 0;
@@ -35,8 +40,13 @@ void Connection::write(const void* s, int n)
 	::write(fd, &n, 4);
 	::write(fd, s, n);
 }
-void Connection::write(DataWriter w)
+void Connection::write(DataWriter& w)
 {
-	*(int*)w.Data = w.len();
-	::write(fd, w.Data, 4+w.len());
+	fcntl(fd, F_SETFL, 0);
+    char buf[4];
+    *(int*)buf = w.len();
+    ::write(fd,buf,4);
+	int sent = ::write(fd, w.data(),w.len());
+    assert(sent==w.len());
+	fcntl(fd, F_SETFL, O_NONBLOCK);
 }

@@ -10,10 +10,10 @@
 #include<GL/gl.h>
 #include<GL/glu.h>
 #include<GL/glext.h>
-#include"ukko.c"
+//#include"ukko.c"
 #include"ukko_walk1.c"
 #include"ukko_walk2.c"
-#include"ase.c"
+//#include"ase.c"
 #include"rocket.c"
 #include"physics.hpp"
 #include "Server.hpp"
@@ -21,42 +21,23 @@
 #include"timef.h"
 #include "explosion.hpp"
 #include "LCD.hpp"
+#include "input.hpp"
+#include "Menu.hpp"
+#include "playerdraw.cpp"
 using namespace std;
-
 
 Game game;
 
-bool keyboard[256];
-int mouseX, mouseY;
-bool mouse[4];
 int screenW=1024, screenH=768;
 
 //double ay=0;
-int gameEnd = false;
 
-Area area(100,10000);//("field.in.1");
+//Area area(100,10000);//("field.in.1");
+Area& area=game.area;
 Unit player;
 float playerdir;
 int mouseState;
 int weapon=0;
-void readInput()
-{
-    SDL_Event e;
-    while(SDL_PollEvent(&e)) {
-        if (e.type==SDL_QUIT) gameEnd=1;
-    }
-
-    SDL_PumpEvents();
-    Uint8* keys = SDL_GetKeyState(0);
-    for(int i=0; i<256; ++i) 
-        keyboard[i]=keys[i];
-
-
-
-    if(keys[SDLK_ESCAPE])gameEnd=true;
-    int mstate = SDL_GetMouseState(&mouseX, &mouseY);
-    for(int i=0; i<3; ++i) mouse[i] = mstate & SDL_BUTTON(1+i);
-}
 void handleInput()
 {
     static float lasttime = 0;
@@ -99,33 +80,6 @@ void draw_interp_model(Model* m1,Model* m2,float x)
     glDisableClientState(GL_VERTEX_ARRAY);
     glDisableClientState(GL_NORMAL_ARRAY);
 }
-void draw_model(Model* m)
-{
-#if 1
-    glEnableClientState(GL_VERTEX_ARRAY);
-    glEnableClientState(GL_NORMAL_ARRAY);
-    //glEnable(GL_TEXTURE_2D);
-//glBindTexture(GL_TEXTURE_2D,ammo.glid);
-
-
-    glVertexPointer(3,GL_FLOAT,6*sizeof(float),m->data);
-    glNormalPointer(GL_FLOAT,6*sizeof(float),m->data+3);
-    glDrawElements(GL_TRIANGLES,m->in,GL_UNSIGNED_SHORT,(GLvoid*)m->index);
-    glDisableClientState(GL_VERTEX_ARRAY);
-    glDisableClientState(GL_NORMAL_ARRAY);
-#else
-    glBegin(GL_TRIANGLES);
-    for(int i=0;i<m->in;i++)
-    {
-        int j = m->index[i]*6;
-//        glColor3f(m->data[j+3],m->data[j+4],m->data[j+5]);
-        glNormal3f(m->data[j+3],m->data[j+4],m->data[j+5]);
-        glVertex3f(m->data[j+0],m->data[j+1],m->data[j+2]);
-        //std::cout<<m->data[i+0]<<" "<<m->data[i+1]<<" "<<m->data[i+2]<<"\n";;
-    }
-    glEnd();
-#endif
-}
 void draw_area()
 {
     glPushMatrix();
@@ -151,7 +105,7 @@ void draw_area()
                 glTranslatef(i,j,0);
                 glScalef(0.51,0.51,2+2*area.height(i,j));
             
-                drawcube();
+                drawcube(4+4*area.height(i,j));
                 glPopMatrix();
             }
         }
@@ -170,10 +124,19 @@ void draw_rocket(Bullet bu){
     glRotatef(timef()*100,0,1,0);
     glRotatef(90,1,0,0);
 
+//<<<<<<< HEAD:main.cpp
     glColor3f(0.5,0.5,0);
-    glScalef(0.05,0.05,0.05);
 
+//=======
+    glColor3f(0.3,0.3,0.3);
+    glScalef(0.1,0.1,0.1);
+    glRotatef(timef()*200,0,0,1);
+//>>>>>>> 1c0bce074761328992930dcf72559e3f144de933:main.cpp
     draw_model(&raketti_model);
+    
+    double d=2*M_PI*rand()/RAND_MAX;
+    double v=4;
+    game.eparts.push_back(ExplosionP(loc,-bu.v+0.2*Vec2(randf(),randf())));
     
     glPopMatrix();
 }
@@ -198,13 +161,13 @@ void draw_bullet(Bullet bu)
 //    glTranslatef(loc.x-0.5,loc.y-0.5,0);
     glTranslatef(loc.x,loc.y,0);
 
-    glScalef(0.5,0.5,0.5);
+    //glScalef(0.5,0.5,0.5);
     //glTranslatef(-area.w/2,-area.h/2,0);
     //glColor4f(0.2,0.8,0.2,0.1);
     float a = atan2(bu.v.y,bu.v.x);
     glColor3f(1,1,1);
     float v = length(bu.v)*4.5;
-    float z = length(bu.loc-bu.origin)*2.0;
+    float z = length(bu.loc-bu.origin);//*2.0;
     //std::cout<<z<<"\n";
     z = std::max(0.0f,z-2);
     v = std::min(z,v);
@@ -265,6 +228,7 @@ void draw_bullet(Bullet bu)
     glDepthMask(1);
 }
 
+/*
 void draw_player(float x,float y,float dir,float movey = 0)
 {
 //	x-=player.loc.x, y-=player.loc.y;
@@ -281,7 +245,7 @@ void draw_player(float x,float y,float dir,float movey = 0)
     glTranslatef(-0.8,0.5,0.4);
     draw_model(&ase_model);
     glPopMatrix();
-}
+}*/
 
 void setLights()
 {
@@ -294,50 +258,78 @@ void setLights()
 	float pos2[] = {.2,-.3,.8,0};
 	glLightfv(GL_LIGHT1, GL_POSITION, pos2);
 }
+void setPerspective()
+{
+    glEnable(GL_DEPTH_TEST);
+    glDepthFunc(GL_LESS);
+    glShadeModel(GL_SMOOTH);
+    glMatrixMode(GL_PROJECTION);
+	glLoadIdentity();
+    gluPerspective(45,4.0/3.0,0.01,1000);
+    glEnable(GL_MULTISAMPLE);
+    glHint(GL_LINE_SMOOTH_HINT,GL_NICEST);
+    glHint(GL_POLYGON_SMOOTH_HINT,GL_NICEST);
+    glEnable(GL_LINE_SMOOTH);
+
+    glMatrixMode(GL_MODELVIEW);
+}
 
 double spin = 0;
 void draw(){
+    setPerspective();
 	setLights();
     glClear(GL_COLOR_BUFFER_BIT|GL_DEPTH_BUFFER_BIT);
 	glEnable(GL_NORMALIZE);
     glLoadIdentity();
-    glTranslatef(0,0,-20);
+    glTranslatef(0,0,-30);
+    //glTranslatef(0,0,-35);
 	//glRotatef(-45,1,0,0);
 	glTranslatef(-player.loc.x, -player.loc.y, 0);
     glColor3f(1,1,1);
     
+    //ground
     glEnable(GL_TEXTURE_2D);
     glBindTexture(GL_TEXTURE_2D,groundTex);
+    glRotatef(45,0,0,1);
     glBegin(GL_QUADS);
 		glNormal3f(0,0,1);
         glTexCoord2f(0,0);
         glVertex3f(-1009,-1000,0);
-        glTexCoord2f(60,0);
+        glTexCoord2f(200,0);
         glVertex3f(1000,-1000,0);
-        glTexCoord2f(60,60);
+        glTexCoord2f(200,200);
         glVertex3f(1000,1000,0);
-        glTexCoord2f(0,60);
+        glTexCoord2f(0,200);
         glVertex3f(-1000,1000,0);
     glEnd();
+    glRotatef(-45,0,0,1);
     glDisable(GL_TEXTURE_2D);
 
     draw_area();
 	for(unsigned i=0; i<game.units.size(); ++i) {
 		Unit& u=game.units[i];
-		draw_player(u.loc.x,u.loc.y,u.d,sin(u.d)*u.movey+cos(u.d)*u.movex);
+        drawPlayer(u);
+		//draw_player(u.loc.x,u.loc.y,u.d,sin(u.d)*u.movey+cos(u.d)*u.movex);
 	}
 	for(unsigned i=0; i<game.bullets.size(); ++i) {
         Bullet b = game.bullets[i];
 		if (b.type==0) draw_bullet(b);
         else if(b.type==1) draw_rocket(b);
 	}
+    std::vector<Vec2> enemies;
+    for(int i=0;i<game.units.size();i++)
+    {
+        enemies.push_back(game.units[i].loc);
+    }
+    drawSalama(game,player.loc,&enemies[0],
+            enemies.size());
 	for(unsigned i=0; i<game.lastBullets.size(); ++i) {
         Bullet b = game.lastBullets[i];
 		if (b.type!=0) continue;
         draw_bullet(b);
 
         Vec2 target= b.loc;
-        drawSalama(game,b.origin,&target,1);
+        //std::vector<Vecc2
         /*
         drawSalama( b.origin.x,
                     b.origin.y,
@@ -377,7 +369,8 @@ void mainLoop()
     double lasttime = 0;
 	bool res = game.socket.connect("127.0.0.1");
 	cout<<"connect res "<<res<<'\n';
-    while(!gameEnd) {
+    glClear(GL_ACCUM_BUFFER_BIT);
+    while(1) {
         double t = timef();
         double dt=t-lasttime;
         lasttime=t;
@@ -389,6 +382,7 @@ void mainLoop()
 			//std::cout<<"pl "<<player.loc<<'\n';
         }
         readInput();
+		if (keyboard[27]) break;
         handleInput();
 		game.weapon = weapon;
 		game.player = &player;
@@ -401,29 +395,52 @@ void mainLoop()
         SDL_GL_SwapBuffers();
         SDL_Delay(10);
 
+#if 0
 		if (game.area.w && game.area.w!=area.w) {
 			Area& a=game.area;
 			area.w=a.w, area.h=a.h, area.a=a.a;
 		}
+#endif
     }
-
+	cout<<"returning from main loop\n";
 }
-void setPerspective()
-{
-    glEnable(GL_DEPTH_TEST);
-    glDepthFunc(GL_LESS);
-    glShadeModel(GL_SMOOTH);
-    glMatrixMode(GL_PROJECTION);
-    gluPerspective(45,4.0/3.0,0.01,1000);
-    glMatrixMode(GL_MODELVIEW);
 
-    glClear(GL_ACCUM_BUFFER_BIT);
+Server* server;
+int startServer(void*)
+{
+	server = new Server;
+	server->loop();
+	delete server;
+	server=0;
+	return 0;
+}
+void hostGame()
+{
+	SDL_CreateThread(startServer, 0);
+	SDL_Delay(50);
+	mainLoop();
+	cout<<"setting server end\n";
+	server->end=1;
+	SDL_Delay(10);
+}
+Menu createMainMenu()
+{
+	Menu m;
+	MenuItem host={"host game",0};
+	host.func = hostGame;
+	m.items.push_back(host);
+	MenuItem join={"join game",0};
+	join.func = mainLoop;
+	m.items.push_back(join);
+	m.items.push_back((MenuItem){"quit", 1});
+	return m;
 }
 
 int main(int argc, char* argv[])
 {
     srand(time(0));
     SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO | SDL_INIT_TIMER);
+	atexit(SDL_Quit);
 	if (argc>1) {
 		Server s;
 		s.loop();
@@ -433,8 +450,10 @@ int main(int argc, char* argv[])
     initTextures();
 	initLCD();
 
-    setPerspective();
+#if 0
     mainLoop();
-
-    SDL_Quit();
+#else
+	Menu m = createMainMenu();
+	m.exec();
+#endif
 }

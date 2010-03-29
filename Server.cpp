@@ -23,6 +23,13 @@ Server::Server(): end(0), nextID(1),area(20,300)// area("field.in.1")
 	curSpawn=0;
 	initSocket();
 }
+Server::~Server()
+{
+	cout<<"destructing server\n";
+	for(unsigned i=0; i<clients.size(); ++i) delete clients[i];
+	shutdown(sockfd, SHUT_RDWR);
+	close(sockfd);
+}
 
 void Server::loop()
 {
@@ -103,6 +110,11 @@ void Server::initSocket()
 	serv_addr.sin_family = AF_INET;
 	serv_addr.sin_addr.s_addr = INADDR_ANY;
 	serv_addr.sin_port = htons(SERVER_PORT);
+	int yes=1;
+	if (setsockopt(sockfd, SOL_SOCKET, SO_REUSEADDR, &yes, sizeof(yes)) < 0) {
+		perror("setsockopt fail");
+		exit(2);
+	}
 	if (bind(sockfd, (struct sockaddr *) &serv_addr, sizeof(serv_addr)) < 0) {
 		perror("ERROR on binding");
 		exit(1);
@@ -154,7 +166,7 @@ void Server::sendToAll(const void* s, int n)
 	for(unsigned i=0; i<clients.size(); ++i)
 		clients[i]->conn.write(s,n);
 }
-void Server::sendToAll(DataWriter w)
+void Server::sendToAll(DataWriter& w)
 {
 	for(unsigned i=0; i<clients.size(); ++i)
 		clients[i]->conn.write(w);
@@ -162,8 +174,22 @@ void Server::sendToAll(DataWriter w)
 
 void Server::readInputs()
 {
-	for(unsigned i=0; i<clients.size(); ++i)
-		clients[i]->handleMessages();
+	for(unsigned i=0; i<clients.size(); ) {
+		if (clients[i]->handleMessages()) ++i;
+		else {
+			Unit* u = clients[i]->u;
+			if (u) {
+				int x = u-&units[0];
+				units[x] = units.back();
+				units.pop_back();
+			}
+
+			delete clients[i];
+			clients[i]=clients.back();
+			clients.pop_back();
+			clID[clients[i]->id] = i;
+		}
+	}
 }
 
 static const double shields[]={10,2.8};
@@ -173,15 +199,18 @@ void Server::updateBullets(double t)
 		Bullet& b = bullets[i];
 		int h;
 		if (!moveBullet(b, &units[0], units.size(), area, t, &h)) {
+			if (h>=0) damageUnit(h, damages[b.type]);
 			if (b.type==1) {
 				double r2 = EXPLOSION_SIZE*EXPLOSION_SIZE;
 				for(unsigned j=0; j<units.size(); ++j) {
 					Unit& u = units[j];
-					if (length2(u.loc-b.loc) > r2) continue;
-					damageUnit(j, damages[b.type]*(length(u.loc-b.loc)/EXPLOSION_SIZE));
+					Vec2 d = u.loc-b.loc;
+					if (length2(d) > r2) continue;
+					unsigned s=units.size();
+					damageUnit(j, damages[b.type]*(1 - length(d)/EXPLOSION_SIZE));
+					if (units.size()<s) --j;
 				}
 			}
-			if (h>=0) damageUnit(h, damages[b.type]);
 //			cout<<"collision @ "<<c<<' '<<b.loc<<' '<<length(c-b.loc)<<'\n';
 			DataWriter w;
 			w.writeByte(SRV_HIT);

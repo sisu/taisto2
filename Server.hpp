@@ -12,6 +12,7 @@ const int SERVER_PORT = 56125;
 struct DataWriter;
 struct Server {
 	Server();
+	~Server();
 	void loop();
 	void updatePhysics(double t);
 
@@ -20,12 +21,12 @@ struct Server {
 	void readInputs();
 	void sendState();
 	void sendToAll(const void* s, int n);
-	void sendToAll(DataWriter w);
+	void sendToAll(DataWriter& w);
 	void updateBullets(double t);
 	void updateBases();
 	void damageUnit(int i, double d);
 
-	bool end;
+	volatile bool end;
 
 	std::vector<Unit> units;
 	std::vector<ClientInfo*> clients;
