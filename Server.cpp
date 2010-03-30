@@ -73,10 +73,9 @@ static int bulletid = 0;
 static int itemid = 0;
 void Server::updatePhysics(double t)
 {
-	spawnTime -= t;
+	//spawnTime -= t;
 	if (spawnTime <= 0) {
-		spawnTime = 1;
-        
+		//spawnTime = 1;
 
         //spawn items
 	}
@@ -87,7 +86,22 @@ void Server::updatePhysics(double t)
 	moveUnits(&units[0], units.size(), area, t);
 //	moveBullets(&bullets[0], bullets.size(), &units[0], units.size(), area, t);
 	updateBullets(t);
-    
+
+	for(unsigned i=0; i<items_map.vec.size(); ++i) {
+        items_map.vec[i].timeLeft-=t;
+    }
+	for(unsigned i=0; i<items_map.vec.size(); ++i) {
+        if(items_map.vec[i].timeLeft<=0)
+        {
+            Item j = items_map.vec[i];
+            DataWriter w;
+            w.writeByte(SRV_DELITEM);
+            w.writeInt(j.id);
+            sendToAll(w);
+            items_map.remove(j.id);
+            break;
+        }
+    }
 	for(unsigned i=0; i<units.size(); ++i) {
         if(units[i].type!=0)continue;
         Unit& u = units[i];
@@ -333,6 +347,7 @@ void Server::spawnUnits(double t)
         Item it;
         it.id = itemid;
         it.loc = s;
+        it.timeLeft = 200.0f*(5+10*randf())/items_map.vec.size();
         it.type=ITEM_HEALTH;
         it.a = 360*randf();
         DataWriter w;
