@@ -8,13 +8,12 @@
 void drawPlayer_real(const Unit& u)
 {
     glPushMatrix();
-    glTranslatef(u.loc.x,u.loc.y,1);
     double a = u.d*180/M_PI;
     glPushMatrix();
     glTranslatef(0,0,0.5);
     glRotatef(a+90-45,0,0,1);
     glRotatef(90,1,0,0);
-    glScalef(0.5,0.5,0.5);
+    glScalef(0.4,0.4,0.4);
     draw_model(&vartalo_model,GL_TRIANGLES);
     glPopMatrix();
     if(u.movex==0 && u.movey==0)
@@ -65,12 +64,43 @@ void drawPlayer_real(const Unit& u)
 
     glPopMatrix();
 }
+static void quad(double w,double h)
+{
+    glPushMatrix();
+    glScalef(w,h,0);
+    glBegin(GL_QUADS);
+        glVertex3f(-1,-1,1);
+        glVertex3f(-1,1,1);
+        glVertex3f(1,1,1);
+        glVertex3f(1,-1,1);
+    glEnd();
+    glPopMatrix();
+
+}
 void drawPlayer(const Unit& u){
 
     //drawPlayer_real(u);
     //return;
-    glColor3f(0,0,0);
+    //
+    
+    //
+    
+    glPushMatrix();
+    glTranslatef(u.loc.x,u.loc.y,1);
 
+    //helabaari
+    glPushMatrix();
+    glTranslatef(1.0,0.0,0);
+    glColor3f(0,0,0);
+    glRotatef(90,0,0,1);
+    quad(1,0.1);
+
+    glColor3f(1,0,0);
+    glTranslatef(0,0,0.1);
+    quad(1*u.health,0.05);
+    glPopMatrix();
+
+    glColor3f(0,0,0);
 
     glPolygonMode(GL_BACK,GL_LINE);
     glEnable(GL_CULL_FACE);
@@ -101,4 +131,5 @@ void drawPlayer(const Unit& u){
 
     drawPlayer_real(u);
     glDepthFunc(GL_LESS);
+    glPopMatrix();
 }

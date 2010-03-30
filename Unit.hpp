@@ -8,7 +8,7 @@ struct Unit {
 	Vec2 loc;
 	double d;
 
-	int movex,movey;
+	double movex,movey;
 	double health;
 
 	int type,id;

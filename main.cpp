@@ -111,8 +111,8 @@ void draw_area()
 //    glTranslatef(-player.loc.x+0.5,-player.loc.y+0.5,0);
     //glTranslatef(-area.w/2,-area.h/2,0);
 
-    int w = 50;
-    int h = 50;
+    int w = 60;
+    int h = 60;
     int sx = player.loc.x-w/2;
     int sy = player.loc.y-h/2;
     glColor4f(1,1,1,1);
@@ -507,12 +507,12 @@ void mainLoop()
         handleInput();
 		game.weapon = weapon;
 		game.player = &player;
+        draw();
 		game.updateNetwork();
 		game.updateState(dt);
 		for(unsigned i=0; i<game.units.size(); ++i)
             if (game.units[i].type==0 && game.units[i].id==game.id)
                 player=game.units[i];
-        draw();
 		int err = glGetError();
 		if (err) {
 			cout<<"GL ERROR: "<<gluErrorString(err)<<'\n';

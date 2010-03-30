@@ -21,8 +21,8 @@ struct Game {
     IDMap<Bullet> bullets_map;
 #endif
     IDMap<Item> items_map;
-    std::vector<Item>& items;
 	std::vector<Bullet>& bullets;
+    std::vector<Item>& items;
 
 
 	std::vector<Bullet> lastBullets;

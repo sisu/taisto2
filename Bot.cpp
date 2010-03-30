@@ -145,6 +145,8 @@ void moveBot(Unit& u, const Area& area, const std::vector<Unit>& units, BotInfor
 
 			std::vector<square> SQ;
 			bfsnode cur = Q[rand() % std::max(1,(int(Q.size()) / 2)) + Q.size() / 2];
+            while(cur.y>u.loc.y)
+                cur = Q[rand() % std::max(1,(int(Q.size()) / 2)) + Q.size() / 2];
 			if(!fail) {
 				cur = Q[index];
 			}
@@ -176,7 +178,7 @@ void moveBot(Unit& u, const Area& area, const std::vector<Unit>& units, BotInfor
 
 			if(SQ.size() < 2) return;
 
-			double x = int(u.loc.x) + 0.5, y = int(u.loc.y) + 0.5;
+			double x = (int)u.loc.x + 0.5, y = (int)u.loc.y + 0.5;
 			double nx = SQ[1].x + 0.5, ny = SQ[1].y + 0.5; 
 
 			//std::cout<<x<<" "<<nx<<" "<<y<<" "<<ny<<std::endl;
@@ -187,8 +189,22 @@ void moveBot(Unit& u, const Area& area, const std::vector<Unit>& units, BotInfor
 			//std::cout<<"Angle: \t"<<angle<<std::endl;
 
 			u.d = angle;
-			u.movey = sign(ny - y);
-			u.movex = sign(nx - x);
+            double ay = ny-y;
+            double ax = nx-x;
+            double len = sqrt(ax*ax+ay*ay);
+			u.movey = ay/len;
+			u.movex = ax/len;
+            /*
+            u.movex = u.movey=0;
+            
+            if(abs(ax)>abs(ay))
+            {
+                u.movex = sign(ax);
+            }else
+            {
+                u.movey = sign(ay);
+            }*/
+            
 
 			//std::cout<<"MOVEY: "<<u.movey<<std::endl;
 			//std::cout<<"MOVEX: "<<u.movex<<std::endl;
@@ -227,10 +243,28 @@ jou:
 			return;
 		}
 
-		if(x != int(yourInfo->plan.back().x) || y != int(yourInfo->plan.back().y)) {
-			u.d = atan2(yourInfo->plan.back().y - u.loc.y, yourInfo->plan.back().x - u.loc.x);
-			u.movey = sign(sin(u.d));
-			u.movex = sign(cos(u.d));
+        if(length2(u.loc-yourInfo->plan.back())>1){
+            /*
+			u.d = atan2(, yourInfo->plan.back().x - u.loc.x);
+			u.movey = sign((int)(10*sin(u.d)));
+			u.movex = sign((int)(10*cos(u.d)));
+            */
+            double ax = yourInfo->plan.back().x - u.loc.x;
+            double ay = yourInfo->plan.back().y - u.loc.y;
+            double len = sqrt(ax*ax+ay*ay);
+			u.movey = ay/len;
+			u.movex = ax/len;
+            #if 0
+            u.movex = u.movey=0;
+            
+            if(abs(ax)>abs(ay))
+            {
+                u.movex = sign(ax);
+            }else
+            {
+                u.movey = sign(ay);
+            }
+#endif
 		} else {
 			yourInfo->plan.pop_back();
 			goto jou;

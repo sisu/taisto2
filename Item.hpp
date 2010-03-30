@@ -10,6 +10,7 @@ struct Item
     int type;
     Vec2 loc;
     int id;
+    float timeLeft;
     float a;
 };
 
