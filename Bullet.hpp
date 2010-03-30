@@ -3,6 +3,7 @@
 
 #include "Vector.hpp"
 
+const int BOUNCEGUN=4;
 const int SHOTGUN = 3;
 const int LIGHTNING = 2;
 const int ROCKET = 1;
@@ -14,8 +15,9 @@ struct Bullet {
 	int type,id;
     float hitt;
     float height;
+	int bounce;
 	Bullet(){}
-	Bullet(Vec2 l, Vec2 v, int t, int i):origin(l), loc(l), v(v), type(t), id(i) ,hitt(-1),height(0){}
+	Bullet(Vec2 l, Vec2 v, int t, int i):origin(l), loc(l), v(v), type(t), id(i) ,hitt(-1),height(0),bounce(0){}
 };
 
 extern double loadTimes[];

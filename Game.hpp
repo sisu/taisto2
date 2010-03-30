@@ -7,7 +7,7 @@
 #include "Area.hpp"
 #include "ClientSocket.hpp"
 #include "Bullet.hpp"
-#include "explosion.hpp"
+#include "Particle.hpp"
 #include <vector>
 #include <utility>
 struct Game {
@@ -26,7 +26,7 @@ struct Game {
 
 
 	std::vector<Bullet> lastBullets;
-	std::vector<ExplosionP> eparts;
+	std::vector<Particle> particles;
 	std::vector<std::pair<double, std::vector<int> > > lightnings;
 
 	ClientSocket socket;

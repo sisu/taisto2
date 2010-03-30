@@ -20,7 +20,6 @@
 #include "Server.hpp"
 #include "Game.hpp"
 #include"timef.h"
-#include "explosion.hpp"
 #include "LCD.hpp"
 #include "input.hpp"
 #include "Menu.hpp"
@@ -232,7 +231,7 @@ void draw_rocket(Bullet bu){
     double d=2*M_PI*rand()/RAND_MAX;
     double v=4;
 //	game.eparts.push_back(ExplosionP(loc,-bu.v+0.2*Vec2(randf(),randf())));
-    game.eparts.push_back(ExplosionP(Vec3(loc,1),Vec3(-bu.v,0)+0.2*Vec3(2*randf()-1,2*randf()-1,2*randf()-1)));
+    game.particles.push_back(Particle(Vec3(loc,1),Vec3(-bu.v,0)+0.2*Vec3(2*randf()-1,2*randf()-1,2*randf()-1),EXPLOSION_P));
     
     glPopMatrix();
 }
@@ -422,7 +421,11 @@ void draw(){
             glColor4f(0.5,0.7,1,0.5);
             glBlendFunc (GL_SRC_ALPHA, GL_ONE);
             draw_bullet(b,.5);
-        }
+        } else if (b.type==BOUNCEGUN) {
+			glColor4f(.5,.5,.5,1);
+			glBlendFunc(GL_SRC_ALPHA, GL_ONE);
+			draw_bullet(b,.1);
+		}
 	}
 
     for(int l=0;l<game.lightnings.size();l++)
@@ -455,6 +458,11 @@ void draw(){
 //        drawSalama( b.origin.x, b.origin.y, b.loc.x, b.loc.y);
 	}
 #endif
+	for(unsigned i=0; i<game.lastBullets.size(); ++i) {
+		Bullet b = game.lastBullets[i];
+		if (b.type==BOUNCEGUN) {
+		}
+	}
 
 	for(unsigned i=0; i<game.lastBullets.size(); ++i) {
         Bullet b = game.lastBullets[i];
