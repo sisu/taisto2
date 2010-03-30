@@ -159,7 +159,7 @@ void moveBot(Unit& u, const Area& area, const std::vector<Unit>& units, BotInfor
 
 			yourInfo->planTime = 30*(3+rand()%4);
 			yourInfo->plan.resize(0);
-			for(int i = 0; i < SQ.size(); ++i) {
+			for(int i = 0; i < SQ.size() - 1; ++i) {
 				Vec2 vc;
 				vc.x = SQ[i].x + 0.5;
 				vc.y = SQ[i].y + 0.5;
