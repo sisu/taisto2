@@ -142,6 +142,8 @@ void Server::updatePhysics(double t)
 				ClientInfo& c = *clients[clID[u.id]];
 				if (c.weapon!=0 && !c.bcnt[t]) continue;
 				c.bcnt[t]--;
+				DataWriter w;
+				c.sendBCounts();
 			}
 			u.shootTime = loadTimes[t];
 

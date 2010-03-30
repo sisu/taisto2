@@ -13,6 +13,7 @@ struct ClientInfo {
 	bool handleMessages();
 	void sendInit();
 	void readState(DataReader r);
+	void sendBCounts();
 
 	Server& server;
 	Unit* u;

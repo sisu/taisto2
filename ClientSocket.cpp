@@ -66,7 +66,7 @@ void ClientSocket::handleMessages()
                 readDestroyItem(r);
 				break;
 			case SRV_BCOUNT:
-				readBCounts(r);
+				r.read(g.bcnt, 8*4);
 				break;
 			case SRV_ITEMS:
 				readItems(r);
@@ -144,10 +144,6 @@ void ClientSocket::readLightning(DataReader r)
 	vector<int> ids((int*)r.cur, ((int*)r.cur)+cnt);
 	g.lightnings.push_back(make_pair(0.0, ids));
 //	cout<<"adding lightning "<<cnt<<'\n';
-}
-void ClientSocket::readBCounts(DataReader r)
-{
-	r.read(g.bcnt, 8*4);
 }
 void ClientSocket::readItems(DataReader r)
 {

@@ -21,15 +21,14 @@ void drawHud(Game& g)
     char buf[100];
     sprintf(buf,"%i",(int)(100*g.player->health));
 	draw(buf,.8,-.8);
+#if 0
+	// deprecated?
 	sprintf(buf,"%.1f", g.nextSpawn);
 	draw(buf,.75,-.65);
-#if 0
-    glLineWidth(3);
-    glColor3f(0.5,0.2,0);
-    drawString(buf,0.8,-0.8,0.1);
-    glLineWidth(1);
-    glColor3f(1,0.5,0);
-    drawString(buf,0.8,-0.8,0.1);
-
 #endif
+
+	for(int i=1; i<6; ++i) {
+		sprintf(buf, "%d", g.bcnt[i]);
+		drawString(buf, -.9+.3*i, -.95, .05);
+	}
 }
