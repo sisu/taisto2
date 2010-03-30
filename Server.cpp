@@ -419,7 +419,7 @@ void Server::spawnUnits(double t)
 			}
 		}
 	}
-	spawnTime = 10;
+	spawnTime = 20;
 	cout<<"spawning done\n";
 }
 
