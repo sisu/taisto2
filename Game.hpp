@@ -41,6 +41,14 @@ struct Game {
 
     std::vector<int> unitIndex;
 	int curBase;
+    void reset()
+    {
+        items_map =IDMap<Item>();
+        bullets_map = IDMap<Bullet>();
+        lastBullets.resize(0);
+        lightnings.resize(0);
+        particles.resize(0);
+    }
 };
 
 #endif

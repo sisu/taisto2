@@ -487,6 +487,7 @@ void draw(){
 
 void mainLoop()
 {
+    game.reset();
 	player.loc = Vec2(.5,.5);
     std::cout<<player.loc.x<<" "<<player.loc.y<<"\n";
 
@@ -559,6 +560,7 @@ void hostGame()
 void joinGame()
 {
 	Menu m;
+    game.reset();
 	MenuItem host={"hostname",STRING};
 	host.str = &curHost;
 	m.items.push_back(host);

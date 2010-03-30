@@ -1,6 +1,7 @@
 #include "Unit.hpp"
 #include "Area.hpp"
 #include "physics.hpp"
+#include "timef.h" // form randf()
 #include <cstdlib>
 #include <cmath>
 #include <algorithm>
@@ -85,7 +86,6 @@ void moveBot(Unit& u, const Area& area, const std::vector<Unit>& units, BotInfor
 
 	bool ok = false;
 	wallHitPoint(curLoc, myLoc, area, &ok);
-
 
 	if(yourInfo->planTime == 0 || !ok) {
 

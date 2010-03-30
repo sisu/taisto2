@@ -68,22 +68,6 @@ struct Area {
         {
             addRect(0,bases[i]-5,w,10,0);
         }
-        for(int x=0;x<w;x++)
-        {
-            for(int y=0;y<h;y++)
-            {
-                if(height(x,y)==0)
-                {
-                    if(x<=1||y<=1){
-                        continue;
-                    }else {
-                        set(x-1,y-1,0);
-                        set(x-0,y-1,0);
-                        set(x-1,y-0,0);
-                    }
-                }
-            }
-        }
         for(int i=0;i<2;i++)
         {
             int y=1;
@@ -106,6 +90,22 @@ struct Area {
                 if(x<1)x=1;
                 if(x>=w-1)x=w-2;
                 set(x,y,-1);
+            }
+        }
+        for(int x=0;x<w;x++)
+        {
+            for(int y=0;y<h;y++)
+            {
+                if(height(x,y)==0)
+                {
+                    if(x<=1||y<=1){
+                        continue;
+                    }else {
+                        set(x-1,y-1,0);
+                        set(x-0,y-1,0);
+                        set(x-1,y-0,0);
+                    }
+                }
             }
         }
 #undef set 
