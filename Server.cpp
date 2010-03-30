@@ -421,6 +421,13 @@ void Server::spawnUnits(double t)
 	}
 	spawnTime = 20;
 	cout<<"spawning done\n";
+
+	{
+		DataWriter w;
+		w.writeByte(SRV_SPAWNTIME);
+		w.writeFloat(spawnTime);
+		sendToAll(w);
+	}
 }
 
 int firstBases[32] = {0,0,3,0,1,2,15};

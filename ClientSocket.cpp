@@ -71,6 +71,9 @@ void ClientSocket::handleMessages()
 			case SRV_ITEMS:
 				readItems(r);
 				break;
+			case SRV_SPAWNTIME:
+				g.nextSpawn = r.readFloat();
+				break;
 			default:
 				cout<<"Unknown message "<<type<<'\n';
 				break;

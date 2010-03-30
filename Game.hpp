@@ -51,6 +51,7 @@ struct Game {
     }
 
 	int bcnt[8];
+	float nextSpawn;
 };
 
 #endif

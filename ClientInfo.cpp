@@ -73,6 +73,12 @@ void ClientInfo::sendInit()
 		w.writeInt(server.curSpawn);
 		conn.write(w);
 	}
+	{
+		DataWriter w;
+		w.writeByte(SRV_SPAWNTIME);
+		w.writeFloat(server.spawnTime);
+		conn.write(w);
+	}
 }
 void ClientInfo::readState(DataReader r)
 {

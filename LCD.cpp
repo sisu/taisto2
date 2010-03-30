@@ -51,12 +51,17 @@ void drawString(const char* str, double x, double y, double s)
 	glDisable(GL_LIGHTING);
 	glDisable(GL_TEXTURE_2D);
 	glDisable(GL_BLEND);
+	glDisable(GL_DEPTH_TEST);
+//	glDisable(GL_CULL_FACE);
+	glDepthMask(0);
 
 	glBegin(GL_LINES);
 	for(int i=0; str[i]; ++i) printChar(contains[(unsigned char)str[i]], x+i*.6*s, y, .25*s, .5*s);
 	glEnd();
 
 	glEnable(GL_LIGHTING);
+	glEnable(GL_DEPTH_TEST);
+	glDepthMask(1);
 	glPopMatrix();
 
 	glMatrixMode(GL_PROJECTION);
