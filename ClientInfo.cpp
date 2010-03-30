@@ -65,6 +65,12 @@ void ClientInfo::sendInit()
         w.write((void*)&server.items_map.vec[i],sizeof(Item));
         conn.write(w);
     }
+	{
+		DataWriter w;
+		w.writeByte(SRV_BASE);
+		w.writeInt(server.curSpawn);
+		conn.write(w);
+	}
 }
 void ClientInfo::readState(DataReader r)
 {
