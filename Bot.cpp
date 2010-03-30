@@ -74,11 +74,12 @@ void moveBot(Server& server,Unit& u, const Area& area, const std::vector<Unit>& 
 			//std::cout<<"Player loc: "<<units[i].loc.x<<" "<<units[i].loc.y<<std::endl;
 		}
 	}
+    bool enemies=  true;
 
 	if(myunits.size() == 0) {
-        u.movex =u.movey=0;
+        u.movex = u.movey=0;
         u.shooting = false;
-        return;
+        enemies=false;
     }
 
 	std::sort(myunits.begin(),myunits.end(),cmp);
@@ -86,8 +87,8 @@ void moveBot(Server& server,Unit& u, const Area& area, const std::vector<Unit>& 
 	Vec2 curLoc, myLoc;
 	curLoc.x = u.loc.x;
 	curLoc.y = u.loc.y;
-	myLoc.x = myunits[0].loc.x;
-	myLoc.y = myunits[0].loc.y;
+	myLoc.x = enemies?myunits[0].loc.x:(area.w/2);
+	myLoc.y = enemies?myunits[0].loc.y:0;
 
 	bool ok = false;
 	wallHitPoint(curLoc, myLoc, area, &ok);
@@ -120,7 +121,7 @@ void moveBot(Server& server,Unit& u, const Area& area, const std::vector<Unit>& 
 		while(index < int(Q.size())) {
 			bfsnode cur = Q[index];
 
-			if(cur.x == int(myunits[0].loc.x) && cur.y == int(myunits[0].loc.y)) {
+			if(cur.x == int(myLoc.x) && cur.y == int(myLoc.y)) {
 				fail = false;
 				break;
 			}
@@ -205,13 +206,13 @@ void moveBot(Server& server,Unit& u, const Area& area, const std::vector<Unit>& 
 			u.d = angle;
             double ay = ny-y;
             double ax = nx-x;
+            if(abs(ax)<0.3)ax=0;
+            if(abs(ay)<0.3)ay=0;
             double len = sqrt(ax*ax+ay*ay);
             ax/=len;
             ay/=len;
-            if(abs(ax)<0.3)ax=0;
-            if(abs(ay)<0.3)ay=0;
-			u.movey =0.9*u.movey+0.1*ay;
-			u.movex =0.9*u.movex+0.1*ax;
+			u.movey =0.5*u.movey+0.5*ay;
+			u.movex =0.5*u.movex+0.5*ax;
             /*
             u.movex = u.movey=0;
             
@@ -275,8 +276,10 @@ jou:
             ay/=len;
             //if(abs(ax)<0.1)ax=0;
             //if(abs(ay)<0.1)ay=0;
-			u.movey =0.5*u.movey+0.5*ay;
-			u.movex =0.5*u.movex+0.5*ax;
+            u.movex = ax;
+            u.movey = ay;
+			//u.movey =0.5*u.movey+0.5*ay;
+			//u.movex =0.5*u.movex+0.5*ax;
             #if 0
             u.movex = u.movey=0;
             
