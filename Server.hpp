@@ -50,6 +50,7 @@ struct Server {
 	int botID;
 
 	int spawnCounts[32][64]; // [type][base]
+	double unitMove;
 };
 
 #endif

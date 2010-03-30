@@ -26,6 +26,7 @@ Server::Server(): end(0), nextID(1),area(30,900)// area("field.in.1")
 	botID=256;
 	initSocket();
 	genSpawnCounts();
+	unitMove = 0;
 }
 Server::~Server()
 {
@@ -84,7 +85,14 @@ void Server::updatePhysics(double t)
 	spawnUnits(t);
 	for(unsigned i=0; i<units.size(); ++i) 
         if (units[i].type!=0) moveBot(units[i],area,units,botinfos[units[i].id]);
-	moveUnits(&units[0], units.size(), area, t);
+
+	unitMove += t;
+	const double MOVE_STEP = .025;
+	while(unitMove >= MOVE_STEP) {
+		moveUnits(&units[0], units.size(), area, MOVE_STEP);
+		unitMove -= MOVE_STEP;
+	}
+
 //	moveBullets(&bullets[0], bullets.size(), &units[0], units.size(), area, t);
 	updateBullets(t);
     
