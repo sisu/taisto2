@@ -88,6 +88,12 @@ inline Vec3 cross(const Vec3& a, const Vec3& b)
 	);
 }
 
+#include "timef.h"
+inline Vec3 rvec3()
+{
+	return Vec3(2*randf()-1,2*randf()-1,2*randf()-1);
+}
+
 #include <ostream>
 inline std::ostream& operator<<(std::ostream& o, const Vec2& v)
 {

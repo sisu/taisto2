@@ -39,10 +39,6 @@ void Game::updateState(double t)
 		else lightnings[i]=lightnings.back(), lightnings.pop_back();
 	}
 }
-static float rndf()
-{
-	return (float)rand()/RAND_MAX;
-}
 void Game::destroyBullet(int id, double xx, double yy)
 {
 	//if (x>=bullets.size()) return;
@@ -59,16 +55,21 @@ void Game::destroyBullet(int id, double xx, double yy)
 
     bx.loc = c;
     bx.hitt = timef();
-    if (bx.type==BOUNCEGUN) lastBullets.push_back(bx);
+//    if (bx.type==BOUNCEGUN) lastBullets.push_back(bx);
 
 	if (bx.type==1) {
 		// generate explosion particles
 		for(int i=0; i<1024; ++i) {
 //			double d=2*M_PI*rand()/RAND_MAX;
 //			particles.push_back(ExplosionP(c, v*Vec2(cos(d),sin(d))));
-			double s=3*EXPLOSION_SIZE*rndf();
-			Vec3 v(2*rndf()-1,2*rndf()-1,2*rndf()-1);
+			double s=3*EXPLOSION_SIZE*randf();
+			Vec3 v = rvec3();
 			particles.push_back(Particle(Vec3(c,1), s*v, EXPLOSION_P, EXPLOSION_SIZE));
+		}
+	} else if (bx.type==BOUNCEGUN) {
+		for(int i=0; i<64; ++i) {
+			double s=10*randf();
+			particles.push_back(Particle(Vec3(c,1), s*rvec3(), SPARK_P, .05, .1));
 		}
 	}
 

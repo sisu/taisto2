@@ -422,9 +422,9 @@ void draw(){
             glBlendFunc (GL_SRC_ALPHA, GL_ONE);
             draw_bullet(b,.5);
         } else if (b.type==BOUNCEGUN) {
-			glColor4f(.5,.5,.5,1);
+			glColor4f(1,.2,.2,1);
 			glBlendFunc(GL_SRC_ALPHA, GL_ONE);
-			draw_bullet(b,.1);
+			draw_bullet(b,.2);
 		}
 	}
 
@@ -474,6 +474,7 @@ void draw(){
         }
 	}
 	drawExplosions(game);
+	drawSparks(&game.particles[0], game.particles.size());
 
     /*
        glBegin(GL_TRIANGLES);

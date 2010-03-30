@@ -15,7 +15,7 @@
 #include <iostream>
 #include "SDL.h"
 using namespace std;
-static const double shields[]={10,2,2,0.2,2};
+static const double shields[]={10,2,2,0.2,2,2};
 
 Server::Server(): end(0), nextID(1),area(30,900)// area("field.in.1")
 {
@@ -386,9 +386,9 @@ void Server::spawnUnits(double t)
 	cout<<"spawning done\n";
 }
 
-float firstBases[32] = {0,0,.3,.2,.1};
-int firstCounts[32] = {0,2,1,0,0};
-int lastCounts[32] = {0,10,8,0,10};
+float firstBases[32] = {0,0,.3,.2,.1,.1};
+int firstCounts[32] = {0,2,1,0,0,1};
+int lastCounts[32] = {0,10,8,0,10,6};
 void Server::genSpawnCounts()
 {
 	int n = area.bases.size();
