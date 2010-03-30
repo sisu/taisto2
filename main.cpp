@@ -394,7 +394,6 @@ void draw(){
     glClear(GL_COLOR_BUFFER_BIT|GL_DEPTH_BUFFER_BIT);
 	glEnable(GL_NORMALIZE);
     glLoadIdentity();
-    drawHud(game);
     glTranslatef(0,0,-50);
     //glTranslatef(0,0,-35);
 	//glRotatef(-45,1,0,0);
@@ -491,7 +490,7 @@ void draw(){
        glVertex3d(1,1,0);
        glEnd();*/
 
-//	drawString("abcdefg", 0, 0, .2);
+    drawHud(game);
 }
 
 void mainLoop()
@@ -560,7 +559,7 @@ int startServer(void*)
 void hostGame()
 {
 	SDL_CreateThread(startServer, 0);
-	SDL_Delay(50);
+	SDL_Delay(200);
 	mainLoop();
 	cout<<"setting server end\n";
 	server->end=1;

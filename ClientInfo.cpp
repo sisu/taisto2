@@ -73,6 +73,13 @@ void ClientInfo::sendInit()
 		w.writeInt(server.curSpawn);
 		conn.write(w);
 	}
+	{
+		DataWriter w;
+		w.writeByte(SRV_SPAWNTIME);
+		w.writeFloat(server.spawnTime);
+		conn.write(w);
+	}
+	sendBCounts();
 }
 void ClientInfo::readState(DataReader r)
 {
@@ -83,4 +90,11 @@ void ClientInfo::readState(DataReader r)
 		u->shooting = r.readByte();
 	} else r.cur+=4+4+8+1;
 	weapon = r.readInt();
+}
+void ClientInfo::sendBCounts()
+{
+	DataWriter w;
+	w.writeByte(SRV_BCOUNT);
+	w.write(bcnt, 8*4);
+	conn.write(w);
 }

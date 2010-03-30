@@ -38,6 +38,7 @@ void Game::updateState(double t)
 		if (lightnings[i].first < 1.5*LIGHTNING_TIME) ++i;
 		else lightnings[i]=lightnings.back(), lightnings.pop_back();
 	}
+	nextSpawn -= t;
 }
 void Game::destroyBullet(int id, double xx, double yy)
 {

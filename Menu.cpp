@@ -48,7 +48,7 @@ void Menu::draw()
 //	setProjection();
 	glDisable(GL_DEPTH_TEST);
 	glDisable(GL_LIGHTING);
-	glClear(GL_COLOR_BUFFER_BIT);
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	glLoadIdentity();
 	
 	glLineWidth(1);

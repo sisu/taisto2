@@ -142,6 +142,8 @@ void Server::updatePhysics(double t)
 				ClientInfo& c = *clients[clID[u.id]];
 				if (c.weapon!=0 && !c.bcnt[t]) continue;
 				c.bcnt[t]--;
+				DataWriter w;
+				c.sendBCounts();
 			}
 			u.shootTime = loadTimes[t];
 
@@ -449,6 +451,13 @@ void Server::spawnUnits(double t)
 	}*/
 	spawnTime = 20;
 	cout<<"spawning done\n";
+
+	{
+		DataWriter w;
+		w.writeByte(SRV_SPAWNTIME);
+		w.writeFloat(spawnTime);
+		sendToAll(w);
+	}
 }
 
 int firstBases[32] = {0,0,3,0,1,2,15};
