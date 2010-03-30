@@ -3,6 +3,7 @@
 #include "physics.hpp"
 #include "timef.h" // form randf()
 #include <cstdlib>
+#include "Server.hpp"
 #include <cmath>
 #include <algorithm>
 #include <vector>
@@ -57,7 +58,7 @@ int sign(double a) {
 	return 1;
 }
 
-void moveBot(Unit& u, const Area& area, const std::vector<Unit>& units, BotInformation* yourInfo)
+void moveBot(Server& server,Unit& u, const Area& area, const std::vector<Unit>& units, BotInformation* yourInfo)
 {
 	if(units.size() == 0) return;
 
@@ -74,7 +75,11 @@ void moveBot(Unit& u, const Area& area, const std::vector<Unit>& units, BotInfor
 		}
 	}
 
-	if(myunits.size() == 0) return;
+	if(myunits.size() == 0) {
+        u.movex =u.movey=0;
+        u.shooting = false;
+        return;
+    }
 
 	std::sort(myunits.begin(),myunits.end(),cmp);
 
@@ -145,8 +150,15 @@ void moveBot(Unit& u, const Area& area, const std::vector<Unit>& units, BotInfor
 
 			std::vector<square> SQ;
 			bfsnode cur = Q[rand() % std::max(1,(int(Q.size()) / 2)) + Q.size() / 2];
-            while(cur.y>u.loc.y)
+            int foolcount=10;
+            while(abs(cur.y-area.bases[server.curSpawn])
+                    >
+                    abs(u.loc.y-area.bases[server.curSpawn])
+                && foolcount--
+                    ){
                 cur = Q[rand() % std::max(1,(int(Q.size()) / 2)) + Q.size() / 2];
+            }
+
 			if(!fail) {
 				cur = Q[index];
 			}

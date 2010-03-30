@@ -92,6 +92,7 @@ struct Area {
                 set(x,y,-1);
             }
         }
+        for(int z = 0;z<4;z++)
         for(int x=0;x<w;x++)
         {
             for(int y=0;y<h;y++)
