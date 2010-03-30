@@ -142,7 +142,7 @@ void moveBot(Unit& u, const Area& area, const std::vector<Unit>& units, BotInfor
 			// found a target, start following
 			// list route
 			std::vector<square> SQ;
-			bfsnode& cur = Q[rand() % Q.size()];
+			bfsnode cur = Q[rand() % Q.size()];
 			if(!fail) {
 				cur = Q[index];
 			}
