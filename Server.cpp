@@ -349,6 +349,37 @@ void Server::damageUnit(int i, double d)
 void Server::spawnUnits(double t)
 {
 	spawnTime -= t;
+    flowSpawnTime-=t;
+	memset(enemyCounts,0,sizeof(enemyCounts));
+    for(int i=0;i<(int)units.size();i++)
+    {
+        enemyCounts[units[i].type]++;
+    }
+    if(flowSpawnTime<0){
+        for(int k=curSpawn+2; k<curSpawn+3; ++k) {
+            int kk = min(k, (int)area.bases.size()-1);
+            int tot = 0;
+            for(int i=0;i<20;i++)
+            {
+                tot+=spawnCounts[i][kk];
+            }
+            int r = rand()%tot;
+            int t=0;
+            int s=0;
+            for(t=0;s<r && t<5;t++)s+=spawnCounts[t][kk];
+            t--;
+            if(t==3)break;
+            if(enemyCounts[t]>=3*spawnCounts[t][kk])
+                continue;
+            Unit b(area.getSpawn(kk), t, botID++);
+            units.push_back(b);
+            BotInformation* bi = new BotInformation;
+            botinfos.resize(botID);
+            botinfos.at(botID-1) = bi;
+
+        }
+        flowSpawnTime=1;
+    }
 	if (spawnTime > 0) return;
     for(int i=0;i<10;i++)
     { 
@@ -369,12 +400,8 @@ void Server::spawnUnits(double t)
     }
 
 	cout<<"spawning bots\n";
-	memset(enemyCounts,0,sizeof(enemyCounts));
-    for(int i=0;i<(int)units.size();i++)
-    {
-        enemyCounts[units[i].type]++;
-    }
 
+    /*
 	for(int i=1; i<20; ++i) {
 		for(int k=curSpawn+1; k<curSpawn+3; ++k) {
 			int kk = min(k, (int)area.bases.size()-1);
@@ -390,14 +417,14 @@ void Server::spawnUnits(double t)
 				cout<<"spawning "<<i<<' '<<kk<<'\n';
 			}
 		}
-	}
+	}*/
 	spawnTime = 20;
 	cout<<"spawning done\n";
 }
 
-float firstBases[32] = {0,0,.0,.2,.4,.1};
+float firstBases[32] = {0,0,.1,.2,.4,.1};
 int firstCounts[32] = {0,3,2,0,1,1};
-int lastCounts[32] = {0,10,5,0,10,6};
+int lastCounts[32] = {0,10,2,0,10,6};
 void Server::genSpawnCounts()
 {
 	int n = area.bases.size();

@@ -52,6 +52,7 @@ struct Server {
 	int spawnCounts[32][64]; // [type][base]
     int enemyCounts[32];
 	double unitMove;
+    double flowSpawnTime;
 };
 
 #endif
