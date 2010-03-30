@@ -60,8 +60,8 @@ struct Area {
             int x = rand()%(w);
             int y = rand()%(h-10);
             y+=10;
-            int ww = rand()%10+10;
-            int hh = rand()%10+10;
+            int ww = rand()%10+14;
+            int hh = rand()%10+5;
             addRect(x,y,ww,hh,rand()%5+1);
         }
         for(int i=0;i<(int)bases.size();i++)
