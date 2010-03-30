@@ -4,6 +4,8 @@
 #include <vector>
 #include "Unit.hpp"
 #include "ClientInfo.hpp"
+#include "Item.hpp"
+#include "IDMap.hpp"
 #include "Area.hpp"
 #include "Bullet.hpp"
 #include "BotInformation.hpp"
@@ -34,6 +36,7 @@ struct Server {
 	std::vector<Unit> units;
 	std::vector<ClientInfo*> clients;
 	std::vector<Bullet> bullets;
+    IDMap<Item> items_map;
 	std::vector<BotInformation*> botinfos;
 
 	int sockfd;

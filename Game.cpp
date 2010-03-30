@@ -4,10 +4,10 @@
 #include "Bullet.hpp"
 #include "Vector.hpp"
 
-Game::Game(): socket(*this)
+Game::Game():bullets(bullets_map.vec),items(items_map.vec), socket(*this)
 {
 	weapon=0;
-	bulletIndex = new int[1<<16];
+	//bulletIndex = new int[1<<16];
 }
 void Game::updateNetwork()
 {
@@ -45,14 +45,18 @@ static float rndf()
 }
 void Game::destroyBullet(int id, double xx, double yy)
 {
-	unsigned x = bulletIndex[id];
-	if (x>=bullets.size()) return;
+	//if (x>=bullets.size()) return;
+
     Vec2 c(xx,yy);
-    Bullet bx = bullets[x];
+    Bullet bx = bullets_map.getById(id);
 	if (bx.id!=id) return;
-	bullets[x] = bullets.back();
-	bullets.pop_back();
-	bulletIndex[bullets[x].id] = x;
+
+	//bullets[x] = bullets.back();
+	//bullets.pop_back();
+	//bulletIndex[bullets[x].id] = x;
+
+    bullets_map.remove(id);
+
     bx.loc = c;
     bx.hitt = timef();
     lastBullets.push_back(bx);

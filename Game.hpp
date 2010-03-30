@@ -1,6 +1,8 @@
 #ifndef GAME_HPP
 #define GAME_HPP
 
+#include "Item.hpp"
+#include "IDMap.hpp"
 #include "Unit.hpp"
 #include "Area.hpp"
 #include "ClientSocket.hpp"
@@ -8,12 +10,21 @@
 #include "explosion.hpp"
 #include <vector>
 #include <utility>
-
 struct Game {
 	Game();
 	Area area;
 	std::vector<Unit> units;
+#if 0
 	std::vector<Bullet> bullets;
+	int* bulletIndex;
+#else 
+    IDMap<Bullet> bullets_map;
+#endif
+    IDMap<Item> items_map;
+    std::vector<Item>& items;
+	std::vector<Bullet>& bullets;
+
+
 	std::vector<Bullet> lastBullets;
 	std::vector<ExplosionP> eparts;
 	std::vector<std::pair<double, std::vector<int> > > lightnings;
@@ -27,9 +38,8 @@ struct Game {
 	Unit* player;
 	int weapon;
 
-	int* bulletIndex;
-    std::vector<int> unitIndex;
 
+    std::vector<int> unitIndex;
 	int curBase;
 };
 

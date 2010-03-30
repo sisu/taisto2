@@ -82,8 +82,15 @@ void draw_interp_model(Model* m1,Model* m2,float x)
     glDisableClientState(GL_VERTEX_ARRAY);
     glDisableClientState(GL_NORMAL_ARRAY);
 }
+static int sign(double x)
+{
+	return x<0?-1:x>0?1:0;
+}
 void drawWall(double x0, double x1, double y0, double y1, float z0, float z1)
 {
+	Vec3 c = cross(Vec3(x1-x0,y1-y0,0), Vec3(0,0,z1-z0));
+//	cout<<"asd "<<x0<<' '<<x1<<' '<<y0<<' '<<y1<<' '<<z0<<' '<<z1<<" ; "<<c.x<<' '<<c.y<<'\n';
+	glNormal3f(sign(c.x),sign(c.y),0);
 	glTexCoord2f(0,z0), glVertex3f(x0,y0,z0);
 	glTexCoord2f(1,z0), glVertex3f(x1,y1,z0);
 	glTexCoord2f(1,z1), glVertex3f(x1,y1,z1);
@@ -109,10 +116,12 @@ void draw_area()
     int sx = player.loc.x-w/2;
     int sy = player.loc.y-h/2;
     glColor4f(1,1,1,1);
+
     glEnable(GL_TEXTURE_2D);
     glBindTexture(GL_TEXTURE_2D,buildingTex);
 #if 0
     glTranslatef(0.5,0.5,0);
+>>>>>>> 1be66e84bad984a84a0352060ca8a20dba25394e:main.cpp
     for(int i=sx;i<sx+w;i++)
     {
         for(int j=sy;j<sy+h;j++)
@@ -134,6 +143,7 @@ void draw_area()
 			int h=area.height(i,j);
 			if (area.blocked(i,j)) {
 				int hh=fixH(h);
+				glNormal3f(0,0,1);
 				glTexCoord2f(0,0), glVertex3f(i,j,hh);
 				glTexCoord2f(1,0), glVertex3f(i+1,j,hh);
 				glTexCoord2f(1,1), glVertex3f(i+1,j+1,hh);
@@ -224,6 +234,21 @@ void draw_rocket(Bullet bu){
 //	game.eparts.push_back(ExplosionP(loc,-bu.v+0.2*Vec2(randf(),randf())));
     game.eparts.push_back(ExplosionP(Vec3(loc,1),Vec3(-bu.v,0)+0.2*Vec3(2*randf()-1,2*randf()-1,2*randf()-1)));
     
+    glPopMatrix();
+}
+
+void draw_item(Item it)
+{
+    Vec2 loc = it.loc;
+    glPushMatrix();
+    glTranslatef(loc.x,loc.y,0);
+    glScalef(0.25,0.25,0.25);
+    glRotatef(it.a,0,0,1);
+    glColor3f(1,1,1);
+    glEnable(GL_TEXTURE_2D);
+    glBindTexture(GL_TEXTURE_2D,healthTex);
+    drawcube();
+    glDisable(GL_TEXTURE_2D);
     glPopMatrix();
 }
 
@@ -378,6 +403,11 @@ void draw(){
 	for(unsigned i=0; i<game.units.size(); ++i) {
 		Unit& u=game.units[i];
         drawPlayer(u);
+		//draw_player(u.loc.x,u.loc.y,u.d,sin(u.d)*u.movey+cos(u.d)*u.movex);
+	}
+	for(unsigned i=0; i<game.items.size(); ++i) {
+		Item& u=game.items[i];
+        draw_item(u);
 		//draw_player(u.loc.x,u.loc.y,u.d,sin(u.d)*u.movey+cos(u.d)*u.movex);
 	}
 	for(unsigned i=0; i<game.bullets.size(); ++i) {

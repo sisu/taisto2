@@ -4,6 +4,7 @@
 #include "msg.hpp"
 #include "Area.hpp"
 #include "Bot.hpp"
+#include "timef.h"
 #include <sys/types.h> 
 #include <sys/socket.h>
 #include <netinet/in.h>
@@ -14,9 +15,9 @@
 #include <iostream>
 #include "SDL.h"
 using namespace std;
-static const double shields[]={10,2.8,4,0.2,4};
+static const double shields[]={10,2,2,0.2,2};
 
-Server::Server(): end(0), nextID(1),area(30,300)// area("field.in.1")
+Server::Server(): end(0), nextID(1),area(30,900)// area("field.in.1")
 {
 	//for(int i=2; i<area.h; i+=30) area.bases.push_back(i);
 	clID = new int[1<<16];
@@ -37,7 +38,7 @@ Server::~Server()
 void Server::loop()
 {
 	cout<<"starting server loop\n";
-	double t=SDL_GetTicks()/1e3;
+	double t=timef();
 	while(!end) {
 		double nt = SDL_GetTicks()/1e3;
 		pollConnections();
@@ -69,14 +70,45 @@ void Server::loop()
 	}
 }
 static int bulletid = 0;
+static int itemid = 0;
 void Server::updatePhysics(double t)
 {
+	spawnTime -= t;
+	if (spawnTime <= 0) {
+		spawnTime = 1;
+        
+
+        //spawn items
+	}
+
 	spawnUnits(t);
 	for(unsigned i=0; i<units.size(); ++i) 
         if (units[i].type!=0) moveBot(units[i],area,units,botinfos[units[i].id]);
 	moveUnits(&units[0], units.size(), area, t);
 //	moveBullets(&bullets[0], bullets.size(), &units[0], units.size(), area, t);
 	updateBullets(t);
+    
+	for(unsigned i=0; i<units.size(); ++i) {
+        if(units[i].type!=0)continue;
+        Unit& u = units[i];
+        if(u.health>=1.0)continue;
+        for(unsigned j=0;j<items_map.vec.size();j++)
+        {
+            Item& i = items_map.vec[j];
+            if(length2(u.loc-i.loc)<1)
+            {
+                std::cout<<"item used "<<i.id<<"\n";
+                u.health+=0.25;
+                u.health = std::min(1.0,u.health);
+                DataWriter w;
+                w.writeByte(SRV_DELITEM);
+                w.writeInt(i.id);
+                sendToAll(w);
+                items_map.remove(i.id);
+                break;
+            }
+        }
+    }
 
 	for(unsigned i=0; i<units.size(); ++i) {
 		Unit& u = units[i];
@@ -130,6 +162,7 @@ void Server::updatePhysics(double t)
 		}
 	}
 
+
 	// delayed lightning damage
 	for(unsigned i=0; i<units.size(); ++i) {
 		damageUnit(i, 0);
@@ -179,8 +212,8 @@ void Server::pollConnections()
 //		++sockets_used;
 
 		fcntl(newsockfd, F_SETFL, O_NONBLOCK);
-
-
+        
+        
 //		const char* message = "Connection established";
 //		n = write(newsockfd,message,strlen(message));
 	}
@@ -294,6 +327,22 @@ void Server::spawnUnits(double t)
 {
 	spawnTime -= t;
 	if (spawnTime > 0) return;
+    for(int i=0;i<10;i++)
+    { 
+        Vec2 s = area.getSpawn(curSpawn)+Vec2(randf()-0.5,randf()-0.5);;
+        Item it;
+        it.id = itemid;
+        it.loc = s;
+        it.type=ITEM_HEALTH;
+        it.a = 360*randf();
+        DataWriter w;
+        w.writeByte(SRV_ADDITEM);
+        w.write((void*)&it,sizeof(Item));
+        itemid++;
+        sendToAll(w);
+        std::cout<<"add item "<<it.id<<"\n";
+        items_map.insert(it);
+    }
 
 	cout<<"spawning bots\n";
 
