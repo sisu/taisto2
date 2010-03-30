@@ -77,7 +77,7 @@ struct Area {
         for(int b=0;b<h;b+=50)
         {
 
-            for(int i=0;i<20;i++)
+            for(int i=0;i<30;i++)
             {
                 int ww = rand()%15+4;
                 int x =  rand()%(w-ww);

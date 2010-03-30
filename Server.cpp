@@ -359,6 +359,7 @@ void Server::updateBases()
 		w.writeByte(SRV_BASE);
 		w.writeInt(curSpawn);
 		sendToAll(w);
+        spawnTime = 0;
 	}
 	else if (curSpawn && c1<-2) {
 		--curSpawn;
@@ -366,6 +367,7 @@ void Server::updateBases()
 		w.writeByte(SRV_BASE);
 		w.writeInt(curSpawn);
 		sendToAll(w);
+        spawnTime = 0;
 	}
 }
 void Server::damageUnit(int i, double d)
