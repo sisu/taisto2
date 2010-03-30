@@ -127,7 +127,7 @@ void drawPlayer(const Unit& u){
     }else if(u.type==4)
     {
         glColor3f(0.5,0.5,1.5);
-    }
+    } else if (u.type==5) glColor3f(.8,.3,.8);
 
     drawPlayer_real(u);
     glDepthFunc(GL_LESS);
