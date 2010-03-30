@@ -87,7 +87,7 @@ void Server::updatePhysics(double t)
         if (units[i].type!=0) moveBot(*this,units[i],area,units,botinfos[units[i].id]);
 
 	unitMove += t;
-	const double MOVE_STEP = .025;
+	const double MOVE_STEP = .010;
 	while(unitMove >= MOVE_STEP) {
 		moveUnits(&units[0], units.size(), area, MOVE_STEP);
 		unitMove -= MOVE_STEP;
@@ -360,7 +360,40 @@ void Server::damageUnit(int i, double d)
 }
 void Server::spawnUnits(double t)
 {
+	double f = max(1.0,sqrt(clients.size()));
 	spawnTime -= t;
+    flowSpawnTime-=t;
+	memset(enemyCounts,0,sizeof(enemyCounts));
+    for(int i=0;i<(int)units.size();i++)
+    {
+        enemyCounts[units[i].type]++;
+    }
+    if(flowSpawnTime<0){
+        for(int i=0;i<curSpawn+1;i++)
+        for(int k=curSpawn+2; k<curSpawn+3; ++k) {
+            int kk = min(k, (int)area.bases.size()-1);
+            int tot = 0;
+            for(int i=0;i<20;i++)
+            {
+                tot+=f*spawnCounts[i][kk];
+            }
+            int r = rand()%tot;
+            int t=0;
+            int s=0;
+            for(t=0;s<r && t<5;t++)s+=f*spawnCounts[t][kk];
+            t--;
+            if(t==3)break;
+            if(enemyCounts[t]>=f*3*spawnCounts[t][kk])
+                continue;
+            Unit b(area.getSpawn(kk), t, botID++);
+            units.push_back(b);
+            BotInformation* bi = new BotInformation;
+            botinfos.resize(botID);
+            botinfos.at(botID-1) = bi;
+
+        }
+        flowSpawnTime=1;
+    }
 	if (spawnTime > 0) return;
 #if 0
     for(int i=0;i<10;i++)
@@ -381,7 +414,6 @@ void Server::spawnUnits(double t)
         items_map.insert(it);
     }
 #endif
-	double f = max(1.0,sqrt(clients.size()));
 	vector<Item> added;
 	for(int i=0; i<20; ++i) {
 		for(int j=0; j<f*itemSpawns[i][curSpawn]; ++j) {
@@ -399,12 +431,8 @@ void Server::spawnUnits(double t)
 	sendToAll(w);
 
 	cout<<"spawning bots\n";
-	memset(enemyCounts,0,sizeof(enemyCounts));
-    for(int i=0;i<(int)units.size();i++)
-    {
-        enemyCounts[units[i].type]++;
-    }
 
+    /*
 	for(int i=1; i<20; ++i) {
 		for(int k=curSpawn+1; k<curSpawn+3; ++k) {
 			int kk = min(k, (int)area.bases.size()-1);
@@ -420,7 +448,7 @@ void Server::spawnUnits(double t)
 				cout<<"spawning "<<i<<' '<<kk<<'\n';
 			}
 		}
-	}
+	}*/
 	spawnTime = 20;
 	cout<<"spawning done\n";
 

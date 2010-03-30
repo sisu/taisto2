@@ -1,5 +1,6 @@
 #ifndef AREA_HPP
 #define AREA_HPP
+#include<algorithm>
 #include<iostream>
 #include<stdlib.h>
 #include<string>
@@ -45,38 +46,8 @@ struct Area {
             bases.push_back(i);
         }
         std::cout<<"konstruktori!\n";
-        for(int i=0;i<w;i++)
-        {
-            set(i,0,1);
-            set(i,h-1,1);
-        }
-        for(int i=0;i<h;i++)
-        {
-            set(0,i,1);
-            set(w-1,i,1);
-        }
-        for(int b=0;b<h;b+=50)
-        {
 
-            for(int i=0;i<20;i++)
-            {
-                int ww = rand()%5+4;
-                int x =  rand()%(w-ww/2);
-                int y =  b+rand()%(50);
-                //y+=10;
-                int hh = rand()%3+4;
-                if(blocked(x+ww/2,y+hh/2)){
-                    i--;
-                    continue;
-                }
-                addRect(x,y,ww,hh,rand()%5+1);
-            }
-        }
-        for(int i=0;i<(int)bases.size();i++)
-        {
-            addRect(0,bases[i]-5,w,10,0);
-        }
-        const int caves = 0;
+        const int caves = 2;
         for(int i=0;i<caves;i++)
         {
             int y=1;
@@ -84,14 +55,14 @@ struct Area {
             while(y<h-2)
             {
                 int ox = x;
-                switch(rand()%4){
+                switch(rand()%3){
                     case 0:
                     //case 2:
-                        //x++;
+                        x++;
                         break;
                     //case 3:
                     case 1:
-                        //x--;
+                        x--;
                         break;
                     default:
                         y++;
@@ -103,12 +74,46 @@ struct Area {
                 set(x,y,-1);
             }
         }
-        for(int z = 0;z<3;z++)
+        for(int b=0;b<h;b+=50)
+        {
+
+            for(int i=0;i<20;i++)
+            {
+                int ww = rand()%15+4;
+                int x =  rand()%(w-ww);
+                int y =  b+rand()%(50);
+                //y+=10;
+                int hh = rand()%3+4;
+                for(int xx=0;xx<ww;xx++)
+                {
+                    for(int yy=0;yy<hh;yy++)
+                    {
+                        if(height(xx+x,yy+y)==-1){
+                            i--;
+                            goto endloop;
+                        }
+                    }
+                }
+                addRect(x,y,ww,hh,rand()%5+1);
+endloop:;
+            }
+        }
+        for(int i=0;i<(int)bases.size();i++)
+        {
+            addRect(0,bases[i]-5,w,10,0);
+        }
+        /*
+        std::reverse(a,a+w*h);
+        removeDeadEnds();
+        std::reverse(a,a+w*h);
+        removeDeadEnds();
+        */
+        for(int z = 0;z<0;z++)
         for(int x=0;x<w;x++)
         {
             for(int y=0;y<h;y++)
             {
-                if(height(x,y)==0)
+                if(height(x,y)<=0)
                 {
                     if(x<=1||y<=1){
                         continue;
@@ -123,6 +128,8 @@ struct Area {
                 }
             }
         }
+
+        /*
         for(int x=0;x<w;x++)
         {
             for(int y=0;y<h;y++)
@@ -141,9 +148,16 @@ struct Area {
                     }
                 }
             }
-        }
+        }*/
 
-        removeDeadEnds();
+        for(int x=0;x<w;x++)
+        {
+            for(int y=0;y<h;y++)
+            {
+                if(height(x,y)<0)
+                    set(x,y,0);
+            }
+        }
 #undef set 
         
     }
@@ -177,7 +191,7 @@ struct Area {
 	int height(int x, int y) const {
         if(x>=w || y>=h)return 1;//+(((abs(x)^abs(y)))&7);
         if(x<0 || y<0)return 1;//+((abs(x)^abs(y))&7);
-		if (a[w*y+x]<0) return 0;
+		//if (a[w*y+x]<0) return 0;
 		return a[w*y+x];
 	}
 	Vec2 getSpawn(int base) {
@@ -285,7 +299,7 @@ struct Area {
         {
             for(int x2=x;x2>=0&&x2<w;x2+=d)
             {
-                if(blocked(x2,y-1))
+                if(blocked(x2,y-1)||blocked(x2,y))
                     break;
                 m = std::min(m,rec(x2,y-1));
             }
@@ -310,10 +324,15 @@ struct Area {
                         int down = rec(xx,yy+1);
                         if(left<std::min(down,right))
                             xx--;
-                        else if(right<std::min(down,left))
+                        else if(right<=std::min(down,left))
                             xx--;
                         else
                             yy--;
+                        if(blocked(xx,yy))
+                        {
+                            yy++;
+                            break;
+                        }
                     }
                     bool found = false;
                     for(int d=-1;d<=1;d+=2)
@@ -326,10 +345,9 @@ struct Area {
                             if(rec(x2,yy)<=1){
                                 //best = abs(x2-xx);
                                 found=true;
-                                for(int ix=xx;ix!=x2+d;ix+=d)
+                                for(int ix=xx;ix!=x2+d*2;ix+=d)
                                 {
                                     setBlocked(ix,yy,0);
-                                    std::cout<<"removed "<<ix<<","<<yy<<"\n";
                                 }
                                 break;
                             }

@@ -42,7 +42,9 @@ void moveUnits(Unit* us, int n, const Area& a,double dt)
 		u.loc += u.movey * d;
 		u.loc += u.movex * Vec2(d.y, -d.x);
 #else
+
 		double s = MOVE_SPEED * dt;
+        //if(u.type==0)s*=2;
 		u.loc.y += u.movey * s;
 		u.loc.x += u.movex * s;
 #endif
