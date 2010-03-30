@@ -65,6 +65,9 @@ void ClientSocket::handleMessages()
             case SRV_DELITEM:
                 readDestroyItem(r);
 				break;
+			case SRV_BCOUNT:
+				readBCounts(r);
+				break;
 			default:
 				cout<<"Unknown message "<<type<<'\n';
 				break;
@@ -135,6 +138,10 @@ void ClientSocket::readLightning(DataReader r)
 	vector<int> ids((int*)r.cur, ((int*)r.cur)+cnt);
 	g.lightnings.push_back(make_pair(0.0, ids));
 //	cout<<"adding lightning "<<cnt<<'\n';
+}
+void ClientSocket::readBCounts(DataReader r)
+{
+	r.read(g.bcnt, 8*4);
 }
 
 void ClientSocket::sendState()

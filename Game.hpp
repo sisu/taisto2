@@ -49,6 +49,8 @@ struct Game {
         lightnings.resize(0);
         particles.resize(0);
     }
+
+	int bcnt[8];
 };
 
 #endif

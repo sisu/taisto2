@@ -11,6 +11,7 @@ const unsigned char
 	SRV_LIGHTNING=5,
 	SRV_BASE=6,
     SRV_ADDITEM=7,
-    SRV_DELITEM=8;
+    SRV_DELITEM=8,
+	SRV_BCOUNT=9;
 
 #endif

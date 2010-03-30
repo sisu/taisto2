@@ -3,6 +3,7 @@
 
 #include "Vector.hpp"
 
+const int GRENADE=5;
 const int BOUNCEGUN=4;
 const int SHOTGUN = 3;
 const int LIGHTNING = 2;
