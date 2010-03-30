@@ -30,6 +30,7 @@ struct Server {
 	void damageUnit(int i, double d);
 	void spawnUnits(double t);
 	void genSpawnCounts();
+	void spawnClient(ClientInfo& c);
 
 	volatile bool end;
 

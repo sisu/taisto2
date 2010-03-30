@@ -55,8 +55,7 @@ void Server::loop()
 			if (c.spawnTime<0) {
 				memset(c.bcnt,0,sizeof(c.bcnt));
 				c.sendBCounts();
-				units.push_back(Unit(area.getSpawn(curSpawn), 0, c.id));
-				c.u = &units.back();
+				spawnClient(c);
 			}
 		}
 		readInputs();
@@ -74,7 +73,7 @@ void Server::loop()
 }
 static int bulletid = 0;
 static int itemid = 0;
-const int packSizes[] = {0,15,150,30,100,5};
+const int packSizes[] = {0,15,50,30,100,5};
 void Server::updatePhysics(double t)
 {
 	//spawnTime -= t;
@@ -238,7 +237,7 @@ void Server::pollConnections()
 		ClientInfo* cl = new ClientInfo(*this, newsockfd);
 		clients.push_back(cl);
 		cl->sendInit();
-		units.push_back(Unit(area.getSpawn(curSpawn), 0, cl->id));
+		spawnClient(*cl);
 		clID[cl->id] = clients.size()-1;
 //		sockets[sockets_used] = newsockfd;
 //		++sockets_used;
@@ -249,6 +248,17 @@ void Server::pollConnections()
 //		const char* message = "Connection established";
 //		n = write(newsockfd,message,strlen(message));
 	}
+}
+void Server::spawnClient(ClientInfo& c)
+{
+	bool fail=0;
+	for(unsigned i=0; i<units.size(); ++i) {
+		Unit& u = units[i];
+		if (u.type!=0 && abs(area.bases[curSpawn]-u.loc.y)<BASE_SIZE) fail=1;
+	}
+	int b = max(0, curSpawn-fail);
+	units.push_back(Unit(area.getSpawn(b), 0, c.id));
+	c.u = &units.back();
 }
 void Server::sendState()
 {
@@ -338,8 +348,8 @@ void Server::updateBases()
 		Unit& u = units[i];
 //		cout<<"u "<<u.type<<'\n';
 		int a=u.type==0?1:-1;
-		if (abs(u.loc.y-y2)<3) c2+=a;
-		if (abs(u.loc.y-y1)<3) c1+=a;
+		if (abs(u.loc.y-y2)<BASE_SIZE) c2+=a;
+		if (abs(u.loc.y-y1)<BASE_SIZE) c1+=a;
 	}
 //	cout<<"zxc "<<curSpawn<<' '<<c1<<' '<<c2<<'\n';
 	if (c2>0) {
