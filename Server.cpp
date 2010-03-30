@@ -350,7 +350,7 @@ void Server::updateBases()
 		w.writeInt(curSpawn);
 		sendToAll(w);
 	}
-	else if (curSpawn && c1<2) {
+	else if (curSpawn && c1<-2) {
 		--curSpawn;
 		DataWriter w;
 		w.writeByte(SRV_BASE);
