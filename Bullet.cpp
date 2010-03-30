@@ -4,7 +4,7 @@
 using namespace std;
 
 double loadTimes[] = {.01,.3,LIGHTNING_TIME,0.5,.08,.6};
-double damages[] = {0.1,5,.5,1.5,.22,25};
+double damages[] = {0.1,5,.5,1.5,.6,25};
 static double speeds[] = {10,30,0,30,100,25};
 static double spreads[] = {.3,.15,0,0.5,.15,.2};
 
