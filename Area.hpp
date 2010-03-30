@@ -102,13 +102,13 @@ endloop:;
         {
             addRect(0,bases[i]-5,w,10,0);
         }
-        /*
+        ///*
         std::reverse(a,a+w*h);
         removeDeadEnds();
         std::reverse(a,a+w*h);
         removeDeadEnds();
-        */
-        for(int z = 0;z<0;z++)
+        //*/
+        for(int z = 0;z<2;z++)
         for(int x=0;x<w;x++)
         {
             for(int y=0;y<h;y++)
