@@ -77,6 +77,14 @@ static void quad(double w,double h)
     glPopMatrix();
 
 }
+const float playerColors[][3] = {
+	{.4,.8,.6},
+	{.8,.3,.0},
+	{.5,.5,.5},
+	{1,0,1},
+	{.5,.5,1},
+	{.8,.3,.8}
+};
 void drawPlayer(const Unit& u){
 
     //drawPlayer_real(u);
@@ -117,6 +125,7 @@ void drawPlayer(const Unit& u){
 
     glPolygonMode(GL_FRONT_AND_BACK,GL_FILL);
 
+#if 0
     if(u.type==0)
         glColor3f(0.4,0.8,0.6);
     else if(u.type==1)
@@ -126,8 +135,11 @@ void drawPlayer(const Unit& u){
         glColor3f(0.5,0.5,0.5);
     }else if(u.type==4)
     {
-        glColor3f(0.5,0.5,1.5);
+        glColor3f(0.5,0.5,1);
     } else if (u.type==5) glColor3f(.8,.3,.8);
+#else
+	glColor3fv(playerColors[u.type]);
+#endif
 
     drawPlayer_real(u);
     glDepthFunc(GL_LESS);
