@@ -305,7 +305,7 @@ void Server::spawnUnits(double t)
 				units.push_back(b);
 				BotInformation* bi = new BotInformation;
 				botinfos.resize(botID);
-				botinfos[botID-1] = bi;
+				botinfos.at(botID-1) = bi;
 				cout<<"spawning "<<i<<' '<<kk<<'\n';
 			}
 		}

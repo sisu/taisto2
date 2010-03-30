@@ -9,6 +9,10 @@ struct BotInformation {
 	int planTime;
 	bool stayStill;
 	std::vector<Vec2> plan;
+
+	BotInformation() {
+		id = planTime = stayStill = 0;
+	}
 };
 
 #endif

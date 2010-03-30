@@ -15,7 +15,7 @@ struct Bullet {
     float hitt;
     float height;
 	Bullet(){}
-	Bullet(Vec2 l, Vec2 v, int t, int i):origin(l), loc(l), v(v), type(t), id(i) ,hitt(-1){}
+	Bullet(Vec2 l, Vec2 v, int t, int i):origin(l), loc(l), v(v), type(t), id(i) ,hitt(-1),height(0){}
 };
 
 extern double loadTimes[];
