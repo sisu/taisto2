@@ -142,7 +142,7 @@ void moveBot(Unit& u, const Area& area, const std::vector<Unit>& units, BotInfor
 			// found a target, start following
 			// list route
 			std::vector<square> SQ;
-			bfsnode cur = Q[rand() % Q.size()];
+			bfsnode cur = Q[rand() % std::max(1,(int(Q.size()) / 2)) + Q.size() / 2];
 			if(!fail) {
 				cur = Q[index];
 			}
@@ -220,11 +220,14 @@ void moveBot(Unit& u, const Area& area, const std::vector<Unit>& units, BotInfor
 		}
 
 		int x = u.loc.x, y = u.loc.y;
-
+jou:
 		if(x != int(yourInfo->plan.back().x) || y != int(yourInfo->plan.back().y)) {
-			u.d = atan2(yourInfo->plan.back().x - u.loc.x, yourInfo->plan.back().y - u.loc.y);
+			u.d = atan2(yourInfo->plan.back().y - u.loc.y, yourInfo->plan.back().x - u.loc.x);
 			u.movey = sign(sin(u.d));
 			u.movex = sign(cos(u.d));
+		} else {
+			yourInfo->plan.pop_back();
+			goto jou;
 		}
 
 	}
