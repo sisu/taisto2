@@ -53,6 +53,8 @@ void Server::loop()
 			if (c.u) continue;
 			c.spawnTime -= nt-t;
 			if (c.spawnTime<0) {
+				memset(c.bcnt,0,sizeof(c.bcnt));
+				c.sendBCounts();
 				units.push_back(Unit(area.getSpawn(curSpawn), 0, c.id));
 				c.u = &units.back();
 			}
