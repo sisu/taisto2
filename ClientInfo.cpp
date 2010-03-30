@@ -59,13 +59,13 @@ void ClientInfo::sendInit()
 	conn.write(w);
 	cout<<"sent init "<<w.len()<<'\n';;
     
-    for(int i=0;i<server.items_map.vec.size();i++)
-    {
-        DataWriter w;
-        w.writeByte(SRV_ADDITEM);
-        w.write((void*)&server.items_map.vec[i],sizeof(Item));
-        conn.write(w);
-    }
+	{
+		DataWriter w;
+		w.writeByte(SRV_ITEMS);
+		w.writeInt(server.items_map.size());
+		for(int i=0; i<server.items_map.size(); ++i) w.write(&server.items_map[i], sizeof(Item));
+		conn.write(w);
+	}
 	{
 		DataWriter w;
 		w.writeByte(SRV_BASE);

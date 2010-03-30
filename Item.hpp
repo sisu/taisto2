@@ -12,6 +12,9 @@ struct Item
     int id;
     float timeLeft;
     float a;
+
+	Item() {}
+	Item(int t, Vec2 l, int i, float time, float a): type(t), loc(l), id(i), timeLeft(time), a(a) {}
 };
 
 

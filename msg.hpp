@@ -12,6 +12,7 @@ const unsigned char
 	SRV_BASE=6,
     SRV_ADDITEM=7,
     SRV_DELITEM=8,
-	SRV_BCOUNT=9;
+	SRV_BCOUNT=9,
+	SRV_ITEMS=10;
 
 #endif
