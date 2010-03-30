@@ -8,6 +8,7 @@ struct BotInformation {
 	int id; 
 	int planTime;
 	bool stayStill;
+    bool enemyFound;
 	std::vector<Vec2> plan;
 
 	BotInformation() {
