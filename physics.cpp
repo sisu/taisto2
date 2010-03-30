@@ -84,7 +84,7 @@ Vec2 wallHitPoint(Vec2 from, Vec2 to, const Area& a, bool* hitp)
 			iy+=dy, iiy+=dy;
 		}
 	}
-	*hitp = hit;
+	if (hitp) *hitp = hit;
 	return hit?c:to;
 }
 

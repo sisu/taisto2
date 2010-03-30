@@ -3,9 +3,11 @@
 
 #include <cmath>
 
+struct Vec3;
 struct Vec2 {
 	Vec2() {}
 	Vec2(double x, double y): x(x), y(y) {}
+	Vec2(const Vec3& v);
 	double x,y;
 };
 #define OP(op,ope)\
@@ -86,6 +88,11 @@ inline Vec3 cross(const Vec3& a, const Vec3& b)
 		a.z*b.x - a.x*b.z,
 		a.x*b.y - a.y*b.x
 	);
+}
+
+inline Vec2::Vec2(const Vec3& v)
+{
+	x=v.x, y=v.y;
 }
 
 #include "timef.h"

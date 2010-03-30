@@ -2,6 +2,8 @@
 #define PARTICLE_HPP
 
 #include "Vector.hpp"
+#include "Area.hpp"
+#include "physics.hpp"
 
 struct Particle {
 	Vec3 loc, v;
@@ -16,8 +18,9 @@ struct Particle {
 		spd = length(v);
 	}
 
-	bool update(double t) {
-		loc += v*t;
+	bool update(double t, const Area& a) {
+//		loc += v*t;
+		loc = Vec3(wallHitPoint(loc, loc+v*t, a), loc.z+v.z*t);
 		time += t;
 		dist += spd*t;
 		return time<.4 && dist<maxd;

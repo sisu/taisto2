@@ -298,12 +298,16 @@ void Server::updateBullets(double t)
 		if (!moveBullet(b, &units[0], units.size(), area, t, &h)) {
 			if (h>=0) damageUnit(h, damages[b.type]);
 			if (b.type==ROCKET || b.type==GRENADE) {
+				b.loc -= normalize(b.v) * .05;
 				double r = b.type==ROCKET ? EXPLOSION_SIZE : GRENADE_SIZE;
 				double r2 = r*r;
 				for(unsigned j=0; j<units.size(); ++j) {
 					Unit& u = units[j];
 					Vec2 d = u.loc-b.loc;
 					if (length2(d) > r2) continue;
+					bool fail;
+					wallHitPoint(b.loc, u.loc, area, &fail);
+					if (fail) continue;
 					unsigned s=units.size();
 					damageUnit(j, damages[b.type]*(1 - length(d)/r));
 					if (units.size()<s) --j;
