@@ -246,6 +246,10 @@ void draw_item(Item it)
     glColor3f(1,1,1);
     glEnable(GL_TEXTURE_2D);
     glBindTexture(GL_TEXTURE_2D,healthTex);
+	if (it.type!=0) {
+		glDisable(GL_TEXTURE_2D);
+		glColor3fv(playerColors[1+it.type]);
+	}
     drawcube();
     glDisable(GL_TEXTURE_2D);
     glPopMatrix();

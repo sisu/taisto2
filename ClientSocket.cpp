@@ -68,6 +68,9 @@ void ClientSocket::handleMessages()
 			case SRV_BCOUNT:
 				readBCounts(r);
 				break;
+			case SRV_ITEMS:
+				readItems(r);
+				break;
 			default:
 				cout<<"Unknown message "<<type<<'\n';
 				break;
@@ -142,6 +145,15 @@ void ClientSocket::readLightning(DataReader r)
 void ClientSocket::readBCounts(DataReader r)
 {
 	r.read(g.bcnt, 8*4);
+}
+void ClientSocket::readItems(DataReader r)
+{
+	int n=r.readInt();
+	Item it;
+	for(int i=0; i<n; ++i) {
+		r.read(&it, sizeof(it));
+		g.items_map.insert(it);
+	}
 }
 
 void ClientSocket::sendState()

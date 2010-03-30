@@ -72,6 +72,7 @@ void Server::loop()
 }
 static int bulletid = 0;
 static int itemid = 0;
+const int packSizes[] = {0,0,15,150,30,100,5};
 void Server::updatePhysics(double t)
 {
 	//spawnTime -= t;
@@ -86,7 +87,7 @@ void Server::updatePhysics(double t)
         if (units[i].type!=0) moveBot(*this,units[i],area,units,botinfos[units[i].id]);
 
 	unitMove += t;
-	const double MOVE_STEP = .025;
+	const double MOVE_STEP = .010;
 	while(unitMove >= MOVE_STEP) {
 		moveUnits(&units[0], units.size(), area, MOVE_STEP);
 		unitMove -= MOVE_STEP;
@@ -113,21 +114,21 @@ void Server::updatePhysics(double t)
 	for(unsigned i=0; i<units.size(); ++i) {
         if(units[i].type!=0)continue;
         Unit& u = units[i];
-        if(u.health>=1.0)continue;
+//        if(u.health>=1.0)continue;
         for(unsigned j=0;j<items_map.vec.size();j++)
         {
             Item& i = items_map.vec[j];
+			if (i.type==0 && u.health>=1) continue;
             if(length2(u.loc-i.loc)<1)
             {
-                std::cout<<"item used "<<i.id<<"\n";
-                u.health+=0.25;
-                u.health = std::min(1.0,u.health);
+                std::cout<<"item used "<<i.id<<' '<<i.type<<"\n";
+				if (i.type==0) u.health = min(1.0,u.health+.25);
+				else clients[clID[u.id]]->bcnt[i.type] += packSizes[i.type];
                 DataWriter w;
                 w.writeByte(SRV_DELITEM);
                 w.writeInt(i.id);
                 sendToAll(w);
                 items_map.remove(i.id);
-                break;
             }
         }
     }
@@ -137,6 +138,11 @@ void Server::updatePhysics(double t)
 		u.shootTime -= t;
 		if (u.shooting && u.shootTime<=0) {
 			int t = u.type>0 ? u.type-1 : clients[clID[u.id]]->weapon;
+			if (u.type==0) {
+				ClientInfo& c = *clients[clID[u.id]];
+				if (c.weapon!=0 && !c.bcnt[t]) continue;
+				c.bcnt[t]--;
+			}
 			u.shootTime = loadTimes[t];
 
 			if (t==2) { // lightning
@@ -292,12 +298,16 @@ void Server::updateBullets(double t)
 		if (!moveBullet(b, &units[0], units.size(), area, t, &h)) {
 			if (h>=0) damageUnit(h, damages[b.type]);
 			if (b.type==ROCKET || b.type==GRENADE) {
+				b.loc -= normalize(b.v) * .05;
 				double r = b.type==ROCKET ? EXPLOSION_SIZE : GRENADE_SIZE;
 				double r2 = r*r;
 				for(unsigned j=0; j<units.size(); ++j) {
 					Unit& u = units[j];
 					Vec2 d = u.loc-b.loc;
 					if (length2(d) > r2) continue;
+					bool fail;
+					wallHitPoint(b.loc, u.loc, area, &fail);
+					if (fail) continue;
 					unsigned s=units.size();
 					damageUnit(j, damages[b.type]*(1 - length(d)/r));
 					if (units.size()<s) --j;
@@ -348,6 +358,7 @@ void Server::damageUnit(int i, double d)
 }
 void Server::spawnUnits(double t)
 {
+	double f = max(1.0,sqrt(clients.size()));
 	spawnTime -= t;
     flowSpawnTime-=t;
 	memset(enemyCounts,0,sizeof(enemyCounts));
@@ -356,20 +367,21 @@ void Server::spawnUnits(double t)
         enemyCounts[units[i].type]++;
     }
     if(flowSpawnTime<0){
+        for(int i=0;i<curSpawn+1;i++)
         for(int k=curSpawn+2; k<curSpawn+3; ++k) {
             int kk = min(k, (int)area.bases.size()-1);
             int tot = 0;
             for(int i=0;i<20;i++)
             {
-                tot+=spawnCounts[i][kk];
+                tot+=f*spawnCounts[i][kk];
             }
             int r = rand()%tot;
             int t=0;
             int s=0;
-            for(t=0;s<r && t<5;t++)s+=spawnCounts[t][kk];
+            for(t=0;s<r && t<5;t++)s+=f*spawnCounts[t][kk];
             t--;
             if(t==3)break;
-            if(enemyCounts[t]>=3*spawnCounts[t][kk])
+            if(enemyCounts[t]>=f*3*spawnCounts[t][kk])
                 continue;
             Unit b(area.getSpawn(kk), t, botID++);
             units.push_back(b);
@@ -381,6 +393,7 @@ void Server::spawnUnits(double t)
         flowSpawnTime=1;
     }
 	if (spawnTime > 0) return;
+#if 0
     for(int i=0;i<10;i++)
     { 
         Vec2 s = area.getSpawn(curSpawn)+Vec2(randf()-0.5,randf()-0.5);;
@@ -398,6 +411,22 @@ void Server::spawnUnits(double t)
         std::cout<<"add item "<<it.id<<"\n";
         items_map.insert(it);
     }
+#endif
+	vector<Item> added;
+	for(int i=0; i<20; ++i) {
+		for(int j=0; j<f*itemSpawns[i][curSpawn]; ++j) {
+			Vec2 s = area.getSpawn(curSpawn) + Vec2(randf()-.5,randf()-.5);
+			float t = 200. * (5+10*randf())/items_map.vec.size();
+			Item it(i, s, itemid++, t, 360*randf());
+			items_map.insert(it);
+			added.push_back(it);
+		}
+	}
+	DataWriter w;
+	w.writeByte(SRV_ITEMS);
+	w.writeInt(added.size());
+	w.write(&added[0], added.size()*sizeof(Item));
+	sendToAll(w);
 
 	cout<<"spawning bots\n";
 
@@ -405,8 +434,8 @@ void Server::spawnUnits(double t)
 	for(int i=1; i<20; ++i) {
 		for(int k=curSpawn+1; k<curSpawn+3; ++k) {
 			int kk = min(k, (int)area.bases.size()-1);
-			for(int j=0; j<spawnCounts[i][kk]; ++j) {
-                if(enemyCounts[i]>=3*spawnCounts[i][kk])
+			for(int j=0; j<f*spawnCounts[i][kk]; ++j) {
+                if(enemyCounts[i]>=f*3*spawnCounts[i][kk])
                     continue;
 				Unit b(area.getSpawn(kk), i, botID++);
 				units.push_back(b);
@@ -422,17 +451,27 @@ void Server::spawnUnits(double t)
 	cout<<"spawning done\n";
 }
 
-float firstBases[32] = {0,0,.1,.2,.4,.1};
-int firstCounts[32] = {0,3,2,0,1,1};
-int lastCounts[32] = {0,10,2,0,10,6};
+int firstBases[32] = {0,0,3,0,1,2,15};
+int firstCounts[32] = {0,3,2,0,1,1,1};
+int lastCounts[32] = {0,7,3,0,7,4,1};
+int fItemBases[32] = {0,2,3,0,1,4};
+int fItemCounts[32] = {5,3,4,4,6,2};
+int lItemCounts[32] = {8,6,8,10,12,6};
 void Server::genSpawnCounts()
 {
 	int n = area.bases.size();
 	memset(spawnCounts,0,sizeof(spawnCounts));
 	for(int i=0; i<20; ++i) {
-		int f = n*firstBases[i];
+		int f = firstBases[i];
 		for(int j=f; j<n; ++j) {
 			spawnCounts[i][j] = firstCounts[i] + (lastCounts[i]-firstCounts[i])*(j-f)/(n-1-f);
+		}
+	}
+	memset(itemSpawns,0,sizeof(itemSpawns));
+	for(int i=0; i<20; ++i) {
+		int f = fItemBases[i];
+		for(int j=f; j<n; ++j) {
+			itemSpawns[i][j] = fItemCounts[i] + (lItemCounts[i]-fItemCounts[i])*(j-f)/(n-1-f);
 		}
 	}
 	cout<<"genSpawnCounts done\n";

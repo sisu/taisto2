@@ -30,7 +30,7 @@ void Game::updateState(double t)
 		else destroyBullet(bullets[i].id, bullets[i].loc.x, bullets[i].loc.y);
 	}
 	for(unsigned i=0; i<particles.size(); ) {
-		if (particles[i].update(t)) ++i;
+		if (particles[i].update(t,area)) ++i;
 		else particles[i]=particles.back(), particles.pop_back();
 	}
 	for(unsigned i=0; i<lightnings.size(); ) {
@@ -57,6 +57,7 @@ void Game::destroyBullet(int id, double xx, double yy)
     bx.hitt = timef();
 //    if (bx.type==BOUNCEGUN) lastBullets.push_back(bx);
 
+	c -= .05*normalize(bx.v);
 	if (bx.type==ROCKET) {
 		// generate explosion particles
 		for(int i=0; i<1024; ++i) {

@@ -45,6 +45,15 @@ struct IDMap
         i2i[id]=-1;
         return 1;
     }
+	int size() const {
+		return vec.size();
+	}
+	const T& operator[](int i) const {
+		return vec[i];
+	}
+	T& operator[](int i) {
+		return vec[i];
+	}
 };
 
 #endif

@@ -42,7 +42,9 @@ void moveUnits(Unit* us, int n, const Area& a,double dt)
 		u.loc += u.movey * d;
 		u.loc += u.movex * Vec2(d.y, -d.x);
 #else
+
 		double s = MOVE_SPEED * dt;
+        //if(u.type==0)s*=2;
 		u.loc.y += u.movey * s;
 		u.loc.x += u.movex * s;
 #endif
@@ -84,7 +86,7 @@ Vec2 wallHitPoint(Vec2 from, Vec2 to, const Area& a, bool* hitp)
 			iy+=dy, iiy+=dy;
 		}
 	}
-	*hitp = hit;
+	if (hitp) *hitp = hit;
 	return hit?c:to;
 }
 
