@@ -425,6 +425,10 @@ void draw(){
 			glColor4f(1,.2,.2,1);
 			glBlendFunc(GL_SRC_ALPHA, GL_ONE);
 			draw_bullet(b,.2);
+		} else if (b.type==GRENADE) {
+			glColor3f(1,1,0);
+			glBlendFunc(GL_ONE, GL_ONE);
+			draw_bullet(b,.4);
 		}
 	}
 

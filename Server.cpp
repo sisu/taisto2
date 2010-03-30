@@ -291,14 +291,15 @@ void Server::updateBullets(double t)
 		int h;
 		if (!moveBullet(b, &units[0], units.size(), area, t, &h)) {
 			if (h>=0) damageUnit(h, damages[b.type]);
-			if (b.type==1) {
-				double r2 = EXPLOSION_SIZE*EXPLOSION_SIZE;
+			if (b.type==ROCKET || b.type==GRENADE) {
+				double r = b.type==ROCKET ? EXPLOSION_SIZE : GRENADE_SIZE;
+				double r2 = r*r;
 				for(unsigned j=0; j<units.size(); ++j) {
 					Unit& u = units[j];
 					Vec2 d = u.loc-b.loc;
 					if (length2(d) > r2) continue;
 					unsigned s=units.size();
-					damageUnit(j, damages[b.type]*(1 - length(d)/EXPLOSION_SIZE));
+					damageUnit(j, damages[b.type]*(1 - length(d)/r));
 					if (units.size()<s) --j;
 				}
 			}

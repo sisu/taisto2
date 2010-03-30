@@ -230,6 +230,7 @@ void moveBot(Server& server,Unit& u, const Area& area, const std::vector<Unit>& 
 			if(!ok && !fail) {
 				u.shooting = 1;	
 				u.d = atan2(myLoc.y - curLoc.y, myLoc.x - curLoc.x);
+				if (u.type==BOUNCEGUN) u.d+=.4*(2*randf()-1);
 			} else if(!ok) {
 				u.d = atan2(myLoc.y - curLoc.y, myLoc.x - curLoc.x);
 			} else {

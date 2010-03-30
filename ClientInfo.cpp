@@ -15,6 +15,7 @@ ClientInfo::ClientInfo(Server& s, int fd): server(s), weapon(0)
 	conn.fd=fd;
 	u=0;
 	spawnTime=0;
+	memset(bcnt,0,sizeof(bcnt));
 }
 ClientInfo::~ClientInfo()
 {

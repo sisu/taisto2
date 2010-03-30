@@ -20,6 +20,8 @@ struct ClientInfo {
 	int id;
 	int weapon;
 	double spawnTime;
+
+	int bcnt[8];
 };
 
 #endif
