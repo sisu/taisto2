@@ -4,7 +4,7 @@
 #include "Bullet.hpp"
 #include "Vector.hpp"
 
-Game::Game():bullets(bullets_map.vec),items(items_map.vec), socket(*this)
+Game::Game():items(items_map.vec),bullets(bullets_map.vec), socket(*this)
 {
 	weapon=0;
 	//bulletIndex = new int[1<<16];
@@ -29,9 +29,9 @@ void Game::updateState(double t)
 		if (moveBullet(bullets[i], &units[0], units.size(), area, t, &tmp)) ++i;
 		else destroyBullet(bullets[i].id, bullets[i].loc.x, bullets[i].loc.y);
 	}
-	for(unsigned i=0; i<eparts.size(); ) {
-		if (eparts[i].update(t)) ++i;
-		else eparts[i]=eparts.back(), eparts.pop_back();
+	for(unsigned i=0; i<particles.size(); ) {
+		if (particles[i].update(t)) ++i;
+		else particles[i]=particles.back(), particles.pop_back();
 	}
 	for(unsigned i=0; i<lightnings.size(); ) {
 		lightnings[i].first += t;
@@ -59,16 +59,16 @@ void Game::destroyBullet(int id, double xx, double yy)
 
     bx.loc = c;
     bx.hitt = timef();
-    lastBullets.push_back(bx);
+    if (bx.type==BOUNCEGUN) lastBullets.push_back(bx);
 
 	if (bx.type==1) {
 		// generate explosion particles
 		for(int i=0; i<1024; ++i) {
 //			double d=2*M_PI*rand()/RAND_MAX;
-//			eparts.push_back(ExplosionP(c, v*Vec2(cos(d),sin(d))));
+//			particles.push_back(ExplosionP(c, v*Vec2(cos(d),sin(d))));
 			double s=3*EXPLOSION_SIZE*rndf();
 			Vec3 v(2*rndf()-1,2*rndf()-1,2*rndf()-1);
-			eparts.push_back(ExplosionP(Vec3(c,1), s*v));
+			particles.push_back(Particle(Vec3(c,1), s*v, EXPLOSION_P, EXPLOSION_SIZE));
 		}
 	}
 

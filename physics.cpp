@@ -110,8 +110,17 @@ bool moveBullet(Bullet& b, Unit* us, int n, const Area& a, double t, int* hitt)
 	else bj=-1;
 	bool hit;
 	Vec2 c = wallHitPoint(b.loc, b.loc+normalize(b.v)*sqrt(l2), a, &hit);
-	if (hit) b.loc=c, *hitt=-1;
-	else if (bj>=0) b.loc+=normalize(b.v)*sqrt(l2), *hitt=bj;
-	else b.loc=l, *hitt=-1;
-	return bj<0 && !hit;
+	if (hit && b.bounce) {
+		if (c.x==(int)c.x) b.v.x*=-1;
+		else b.v.y*=-1;
+		b.loc += b.v*.01;
+		t -= length(c-b.loc)/length(b.v);
+		--b.bounce;
+		return moveBullet(b, us, n, a, t, hitt);
+	} else {
+		if (hit) b.loc=c, *hitt=-1;
+		else if (bj>=0) b.loc+=normalize(b.v)*sqrt(l2), *hitt=bj;
+		else b.loc=l, *hitt=-1;
+		return bj<0 && !hit;
+	}
 }

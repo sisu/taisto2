@@ -18,7 +18,7 @@ add_definitions("-Wall -g -Wno-unused-result")
 
 set(sources main.cpp physics.cpp Server.cpp Game.cpp ClientSocket.cpp
         ClientInfo.cpp Connection.cpp DataWriter.cpp Bullet.cpp texgen.cpp
-		Bot.cpp salama.cpp explosion.cpp LCD.cpp Menu.cpp input.cpp Model.cpp
+		Bot.cpp salama.cpp Particle.cpp LCD.cpp Menu.cpp input.cpp Model.cpp
 		music.cpp HUD.cpp)
 
 #MESSAGE( STATUS "flags : ${OPENGL_LIBRARY}" )

@@ -1,18 +1,18 @@
-#include <cstdlib>
-#include <cmath>
-#include <algorithm>
+#include "Particle.hpp"
+#include "Game.hpp"
+#include "Bullet.hpp"
 #include <GL/gl.h>
 #include <GL/glu.h>
-#include <iostream>
-#include "texgen.hpp"
-#include "explosion.hpp"
-#include "Game.hpp"
-#include "texgen.hpp"
-using namespace std;
+
+extern GLuint explosionTex;
+
+void drawSparks(Game& g)
+{
+}
 
 void drawExplosions(Game& g)
 {
-	if (g.eparts.empty()) return;
+	if (g.particles.empty()) return;
 //	cout<<"drawing "<<g.eparts.size()<<" particles\n";
 	glEnable(GL_TEXTURE_2D);
 	glBindTexture(GL_TEXTURE_2D, explosionTex);
@@ -24,8 +24,9 @@ void drawExplosions(Game& g)
 //	glDisable(GL_DEPTH_TEST);
 	const double S=.35;
 	glBegin(GL_QUADS);
-	for(unsigned i=0; i<g.eparts.size(); ++i) {
-		ExplosionP& p=g.eparts[i];
+	for(unsigned i=0; i<g.particles.size(); ++i) {
+		Particle& p=g.particles[i];
+		if (p.type!=EXPLOSION_P) continue;
 		Vec3 v=p.loc;
 //		cout<<v<<'\n';
 		glTexCoord2f(0,0), glVertex3f(v.x-S, v.y-S, v.z);
