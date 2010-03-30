@@ -60,8 +60,8 @@ struct Area {
             int x = rand()%(w);
             int y = rand()%(h-10);
             y+=10;
-            int ww = rand()%10+5;
-            int hh = rand()%10+5;
+            int ww = rand()%10+10;
+            int hh = rand()%10+10;
             addRect(x,y,ww,hh,rand()%5+1);
         }
         for(int i=0;i<(int)bases.size();i++)
@@ -75,7 +75,7 @@ struct Area {
             while(y<h-2)
             {
                 int ox = x;
-                switch(rand()%3){
+                switch(rand()%4){
                     case 0:
                         x++;
                         break;
@@ -92,7 +92,7 @@ struct Area {
                 set(x,y,-1);
             }
         }
-        for(int z = 0;z<4;z++)
+        for(int z = 0;z<3;z++)
         for(int x=0;x<w;x++)
         {
             for(int y=0;y<h;y++)
@@ -102,9 +102,12 @@ struct Area {
                     if(x<=1||y<=1){
                         continue;
                     }else {
-                        set(x-1,y-1,0);
-                        set(x-0,y-1,0);
-                        set(x-1,y-0,0);
+                        //if(rand()%2)
+                            set(x-1,y-1,0);
+                        //if(rand()%2)
+                            set(x-0,y-1,0);
+                        //if(rand()%2)
+                            set(x-1,y-0,0);
                     }
                 }
             }

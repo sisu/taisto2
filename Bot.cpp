@@ -98,8 +98,10 @@ void moveBot(Server& server,Unit& u, const Area& area, const std::vector<Unit>& 
 
 		// write bfs here
 
-		int dx[] = {1,0,0,-1};
-		int dy[] = {0,1,-1,0};
+		int dy[] = {1,-1,0,0,1,1,-1,-1};
+		int dx[] = {0,0,1,-1,1,-1,1,-1};
+        //std::random_shuffle(dx,dx+8);
+        //std::random_shuffle(dy,dy+8);
 
 		const int LIMIT = 21;
 
@@ -127,7 +129,7 @@ void moveBot(Server& server,Unit& u, const Area& area, const std::vector<Unit>& 
 				break;
 			}
 
-			for(int i = 0; i < 4; ++i) {
+			for(int i = 0; i < 8; ++i) {
 				if(!area.blocked(cur.x + dx[i], cur.y + dy[i])) {
 					bfsnode nbn = (bfsnode){cur.x + dx[i], cur.y + dy[i], index, cur.len + 1};
 					if(!used.count(nbn)) {
@@ -204,8 +206,12 @@ void moveBot(Server& server,Unit& u, const Area& area, const std::vector<Unit>& 
             double ay = ny-y;
             double ax = nx-x;
             double len = sqrt(ax*ax+ay*ay);
-			u.movey = ay/len;
-			u.movex = ax/len;
+            ax/=len;
+            ay/=len;
+            if(abs(ax)<0.3)ax=0;
+            if(abs(ay)<0.3)ay=0;
+			u.movey =0.9*u.movey+0.1*ay;
+			u.movex =0.9*u.movex+0.1*ax;
             /*
             u.movex = u.movey=0;
             
@@ -264,8 +270,12 @@ jou:
             double ax = yourInfo->plan.back().x - u.loc.x;
             double ay = yourInfo->plan.back().y - u.loc.y;
             double len = sqrt(ax*ax+ay*ay);
-			u.movey = ay/len;
-			u.movex = ax/len;
+            ax/=len;
+            ay/=len;
+            //if(abs(ax)<0.1)ax=0;
+            //if(abs(ay)<0.1)ay=0;
+			u.movey =0.5*u.movey+0.5*ay;
+			u.movex =0.5*u.movex+0.5*ax;
             #if 0
             u.movex = u.movey=0;
             
