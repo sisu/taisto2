@@ -16,7 +16,7 @@ ClientInfo::ClientInfo(Server& s, int fd): server(s), weapon(0)
 	u=0;
 	spawnTime=0;
 	memset(bcnt,0,sizeof(bcnt));
-	for(int i=0; i<8; ++i) bcnt[i]=1e8;
+//	for(int i=0; i<8; ++i) bcnt[i]=1e8;
 }
 ClientInfo::~ClientInfo()
 {

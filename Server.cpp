@@ -123,7 +123,7 @@ void Server::updatePhysics(double t)
             {
                 std::cout<<"item used "<<i.id<<' '<<i.type<<"\n";
 				if (i.type==0) u.health = min(1.0,u.health+.25);
-				else clients[clID[u.id]]->bcnt[i.type] += packSizes[i.type];
+				else clients[clID[u.id]]->bcnt[i.type] += packSizes[i.type], clients[clID[u.id]]->sendBCounts();
                 DataWriter w;
                 w.writeByte(SRV_DELITEM);
                 w.writeInt(i.id);
