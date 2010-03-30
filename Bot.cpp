@@ -142,7 +142,6 @@ void moveBot(Unit& u, const Area& area, const std::vector<Unit>& units, BotInfor
 			// found a target, start following
 			// list route
 
-			std::cout<<"moro"<<std::endl;
 
 			std::vector<square> SQ;
 			bfsnode cur = Q[rand() % std::max(1,(int(Q.size()) / 2)) + Q.size() / 2];
@@ -160,10 +159,10 @@ void moveBot(Unit& u, const Area& area, const std::vector<Unit>& units, BotInfor
 
 			yourInfo->planTime = 30*(3+rand()%4);
 			yourInfo->plan.resize(0);
-			for(int i = 0; i < SQ.size(); ++i) {
+			for(int i = 0; i < SQ.size() - 1; ++i) {
 				Vec2 vc;
-				vc.x = SQ[i].x;
-				vc.y = SQ[i].y;
+				vc.x = SQ[i].x + 0.5;
+				vc.y = SQ[i].y + 0.5;
 				yourInfo->plan.push_back(vc);
 			}
 
