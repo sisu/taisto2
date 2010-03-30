@@ -392,7 +392,7 @@ void draw(){
 	glEnable(GL_NORMALIZE);
     glLoadIdentity();
     drawHud(game);
-    glTranslatef(0,0,-30);
+    glTranslatef(0,0,-50);
     //glTranslatef(0,0,-35);
 	//glRotatef(-45,1,0,0);
 	glTranslatef(-player.loc.x, -player.loc.y, 0);
