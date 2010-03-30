@@ -245,8 +245,10 @@ void draw_item(Item it)
     glScalef(0.25,0.25,0.25);
     glRotatef(it.a,0,0,1);
     glColor3f(1,1,1);
-    //glBindTexture(GL_TEXTURE_2D,ammo.glid);
+    glEnable(GL_TEXTURE_2D);
+    glBindTexture(GL_TEXTURE_2D,healthTex);
     drawcube();
+    glDisable(GL_TEXTURE_2D);
     glPopMatrix();
 }
 

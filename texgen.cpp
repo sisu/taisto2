@@ -254,6 +254,41 @@ GLuint genBuildingTex()
     glBindTexture(GL_TEXTURE_2D,0);
     return t;
 }
+GLuint genHealthTex()
+{
+	const int TS=64;
+    static float texture[TS][TS][4];
+	genNoise();
+
+	for(int i=0; i<TS; ++i) {
+		for(int j=0; j<TS; ++j) {
+			double x=double(j)/TS, y=double(i)/TS;
+            texture[i][j][0] = 1;
+            texture[i][j][1] = 0;
+            texture[i][j][2] = 0;
+            if((x<0.333 || x>=0.666) and ( y<1/3.0 or y>2/3.0)){
+                texture[i][j][1] = 1;
+                texture[i][j][2] = 1;
+            }
+			texture[i][j][3] =1;
+		}
+	}
+	GLuint t;
+	glGenTextures(1, &t);
+	glBindTexture(GL_TEXTURE_2D, t);
+	glTexParameterf( GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER,
+			GL_LINEAR_MIPMAP_NEAREST );
+    // when texture area is large, bilinear filter the original
+    glTexParameterf( GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR );
+
+    glTexParameterf( GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT );
+    glTexParameterf( GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT );
+
+    std::cout<<"mipmaps = "<<gluBuild2DMipmaps( GL_TEXTURE_2D, 4,TS,TS,
+            GL_RGBA, GL_FLOAT, texture )<<'\n';
+    glBindTexture(GL_TEXTURE_2D,0);
+    return t;
+}
 
 
 
@@ -263,6 +298,7 @@ Texture salama;
 unsigned explosionTex;
 unsigned groundTex;
 unsigned buildingTex;
+unsigned healthTex;
 
 void initTextures()
 {
@@ -271,4 +307,5 @@ void initTextures()
 	explosionTex = genExplosionTex();
     groundTex = genGroundTex();
     buildingTex = genBuildingTex();
+    healthTex = genHealthTex();
 }

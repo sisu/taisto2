@@ -12,6 +12,7 @@ extern Texture salama;
 extern unsigned explosionTex;
 extern unsigned groundTex;
 extern unsigned buildingTex;
+extern unsigned healthTex;
 
 extern void initTextures();
 
