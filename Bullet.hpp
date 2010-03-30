@@ -29,5 +29,6 @@ Bullet genBullet(int type, Vec2 l, double d, int id);
 #define LIGHTNING_ANGLE (1.5)
 #define LIGHTNING_RAD (12.0)
 #define LIGHTNING_TIME (.05)
+#define GRENADE_SIZE (8.0)
 
 #endif

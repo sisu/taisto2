@@ -83,7 +83,7 @@ void Server::updatePhysics(double t)
 
 	spawnUnits(t);
 	for(unsigned i=0; i<units.size(); ++i) 
-        if (units[i].type!=0) moveBot(units[i],area,units,botinfos[units[i].id]);
+        if (units[i].type!=0) moveBot(*this,units[i],area,units,botinfos[units[i].id]);
 
 	unitMove += t;
 	const double MOVE_STEP = .025;
@@ -291,14 +291,15 @@ void Server::updateBullets(double t)
 		int h;
 		if (!moveBullet(b, &units[0], units.size(), area, t, &h)) {
 			if (h>=0) damageUnit(h, damages[b.type]);
-			if (b.type==1) {
-				double r2 = EXPLOSION_SIZE*EXPLOSION_SIZE;
+			if (b.type==ROCKET || b.type==GRENADE) {
+				double r = b.type==ROCKET ? EXPLOSION_SIZE : GRENADE_SIZE;
+				double r2 = r*r;
 				for(unsigned j=0; j<units.size(); ++j) {
 					Unit& u = units[j];
 					Vec2 d = u.loc-b.loc;
 					if (length2(d) > r2) continue;
 					unsigned s=units.size();
-					damageUnit(j, damages[b.type]*(1 - length(d)/EXPLOSION_SIZE));
+					damageUnit(j, damages[b.type]*(1 - length(d)/r));
 					if (units.size()<s) --j;
 				}
 			}
@@ -368,13 +369,21 @@ void Server::spawnUnits(double t)
     }
 
 	cout<<"spawning bots\n";
+	memset(enemyCounts,0,sizeof(enemyCounts));
+    for(int i=0;i<(int)units.size();i++)
+    {
+        enemyCounts[units[i].type]++;
+    }
 
 	for(int i=1; i<20; ++i) {
 		for(int k=curSpawn+1; k<curSpawn+3; ++k) {
 			int kk = min(k, (int)area.bases.size()-1);
 			for(int j=0; j<spawnCounts[i][kk]; ++j) {
+                if(enemyCounts[i]>=3*spawnCounts[i][kk])
+                    continue;
 				Unit b(area.getSpawn(kk), i, botID++);
 				units.push_back(b);
+                enemyCounts[i]++;
 				BotInformation* bi = new BotInformation;
 				botinfos.resize(botID);
 				botinfos.at(botID-1) = bi;
@@ -386,9 +395,9 @@ void Server::spawnUnits(double t)
 	cout<<"spawning done\n";
 }
 
-float firstBases[32] = {0,0,.3,.2,.1,.1};
-int firstCounts[32] = {0,2,1,0,0,1};
-int lastCounts[32] = {0,10,8,0,10,6};
+float firstBases[32] = {0,0,.0,.2,.4,.1};
+int firstCounts[32] = {0,3,2,0,1,1};
+int lastCounts[32] = {0,10,5,0,10,6};
 void Server::genSpawnCounts()
 {
 	int n = area.bases.size();

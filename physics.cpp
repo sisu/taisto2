@@ -88,8 +88,35 @@ Vec2 wallHitPoint(Vec2 from, Vec2 to, const Area& a, bool* hitp)
 	return hit?c:to;
 }
 
+const double GRENADE_SLOW = .9;
 bool moveBullet(Bullet& b, Unit* us, int n, const Area& a, double t, int* hitt)
 {
+	if (b.type==GRENADE) {
+		*hitt=-1;
+		bool hit;
+		double v0 = length(b.v);
+		Vec2 nv = b.v/v0;
+		Vec2 s = b.loc + b.v*t - .5*GRENADE_SLOW*t*t*nv;
+		Vec2 c = wallHitPoint(b.loc, s, a, &hit);
+		if (hit) {
+			double l = length(c-b.loc);
+			b.loc=c;
+			if (!b.bounce) return 0;
+			if (c.x==(int)c.x) b.v.x*=-1;
+			else b.v.y*=-1;
+			b.loc += b.v*.01;
+//			t -= l/length(b.v);
+			double tt = (sqrt(v0*v0 - 2*GRENADE_SLOW*l)-v0)/GRENADE_SLOW;
+			b.v *= 1-GRENADE_SLOW*tt;
+			--b.bounce;
+			return moveBullet(b, us, n, a, t-tt, hitt);
+		} else {
+			b.loc=c;
+			b.v *= 1-GRENADE_SLOW*t;
+		}
+		double vv = v0 - GRENADE_SLOW*t;
+		return vv > 6;
+	}
 	Vec2 l = b.loc + b.v*t;
 	// FIXME: optimize
 	Vec2 nv = normalize(b.v);
@@ -109,7 +136,8 @@ bool moveBullet(Bullet& b, Unit* us, int n, const Area& a, double t, int* hitt)
 	if (bdd2<l2) l2=bdd2;
 	else bj=-1;
 	bool hit;
-	Vec2 c = wallHitPoint(b.loc, b.loc+normalize(b.v)*sqrt(l2), a, &hit);
+	Vec2 c = wallHitPoint(b.loc, b.loc+nv*sqrt(l2), a, &hit);
+#if 0
 	if (hit && b.bounce) {
 		if (c.x==(int)c.x) b.v.x*=-1;
 		else b.v.y*=-1;
@@ -117,7 +145,9 @@ bool moveBullet(Bullet& b, Unit* us, int n, const Area& a, double t, int* hitt)
 		t -= length(c-b.loc)/length(b.v);
 		--b.bounce;
 		return moveBullet(b, us, n, a, t, hitt);
-	} else {
+	} else
+#endif
+	{
 		if (hit) b.loc=c, *hitt=-1;
 		else if (bj>=0) b.loc+=normalize(b.v)*sqrt(l2), *hitt=bj;
 		else b.loc=l, *hitt=-1;

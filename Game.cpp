@@ -57,7 +57,7 @@ void Game::destroyBullet(int id, double xx, double yy)
     bx.hitt = timef();
 //    if (bx.type==BOUNCEGUN) lastBullets.push_back(bx);
 
-	if (bx.type==1) {
+	if (bx.type==ROCKET) {
 		// generate explosion particles
 		for(int i=0; i<1024; ++i) {
 //			double d=2*M_PI*rand()/RAND_MAX;
@@ -70,6 +70,12 @@ void Game::destroyBullet(int id, double xx, double yy)
 		for(int i=0; i<64; ++i) {
 			double s=10*randf();
 			particles.push_back(Particle(Vec3(c,1), s*rvec3(), SPARK_P, .05, .1));
+		}
+	} else if (bx.type==GRENADE) {
+		for(int i=0; i<2048; ++i) {
+			double s = 4*GRENADE_SIZE*randf();
+			Vec3 v = rvec3();
+			particles.push_back(Particle(Vec3(c,1), s*v, EXPLOSION_P, GRENADE_SIZE));
 		}
 	}
 
