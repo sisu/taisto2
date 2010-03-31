@@ -16,6 +16,7 @@
 #include "SDL.h"
 using namespace std;
 static const double shields[]={10,2,2,0.2,2,2};
+const int packSizes[] = {0,15,100,50,30,5,5};
 
 Server::Server(): end(0), nextID(1),area(30,900)// area("field.in.1")
 {
@@ -75,7 +76,6 @@ void Server::loop()
 }
 static int bulletid = 0;
 static int itemid = 0;
-const int packSizes[] = {0,15,100,50,30,5};
 void Server::updatePhysics(double t)
 {
 	//spawnTime -= t;
@@ -313,7 +313,7 @@ void Server::readInputs()
 		}
 	}
 }
-void Server::sendStats() {
+void Server::sendStats(){
     DataWriter w;
     w.writeByte(SRV_STATS);
     //w.writeB
@@ -324,35 +324,58 @@ void Server::updateBullets(double t)
 	for(unsigned i=0; i<bullets.size(); ++i) {
 		Bullet& b = bullets[i];
 		int h;
-		if (!moveBullet(b, &units[0], units.size(), area, t, &h)) {
-			if (h>=0) damageUnit(h, damages[b.type]);
-			if (b.type==ROCKET || b.type==GRENADE) {
-				b.loc -= normalize(b.v) * .05;
-				double r = b.type==ROCKET ? EXPLOSION_SIZE : GRENADE_SIZE;
-				double r2 = r*r;
-				for(unsigned j=0; j<units.size(); ++j) {
-					Unit& u = units[j];
-					Vec2 d = u.loc-b.loc;
-					if (length2(d) > r2) continue;
-					bool fail;
-					wallHitPoint(b.loc, u.loc, area, &fail);
-					if (fail) continue;
-					unsigned s=units.size();
-					damageUnit(j, damages[b.type]*(1 - length(d)/r));
-					if (units.size()<s) --j;
+		if(b.type != RAILGUN) {
+			if (!moveBullet(b, &units[0], units.size(), area, t, &h)) {
+				if (h>=0) damageUnit(h, damages[b.type]);
+				if (b.type==ROCKET || b.type==GRENADE) {
+					b.loc -= normalize(b.v) * .05;
+					double r = b.type==ROCKET ? EXPLOSION_SIZE : GRENADE_SIZE;
+					double r2 = r*r;
+					for(unsigned j=0; j<units.size(); ++j) {
+						Unit& u = units[j];
+						Vec2 d = u.loc-b.loc;
+						if (length2(d) > r2) continue;
+						bool fail;
+						wallHitPoint(b.loc, u.loc, area, &fail);
+						if (fail) continue;
+						unsigned s=units.size();
+						damageUnit(j, damages[b.type]*(1 - length(d)/r));
+						if (units.size()<s) --j;
+					}
 				}
+				//			cout<<"collision @ "<<c<<' '<<b.loc<<' '<<length(c-b.loc)<<'\n';
+				DataWriter w;
+				w.writeByte(SRV_HIT);
+				w.writeInt(b.id);
+				w.writeFloat(b.loc.x);
+				w.writeFloat(b.loc.y);
+				sendToAll(w);
+				bullets[i] = bullets.back();
+				bullets.pop_back();
+				--i;
 			}
-//			cout<<"collision @ "<<c<<' '<<b.loc<<' '<<length(c-b.loc)<<'\n';
-			DataWriter w;
-			w.writeByte(SRV_HIT);
-			w.writeInt(b.id);
-			w.writeFloat(b.loc.x);
-			w.writeFloat(b.loc.y);
-			sendToAll(w);
-			bullets[i] = bullets.back();
-			bullets.pop_back();
-			--i;
+		} else {
+			bool ok;
+			vector<int> hits = moveRail(b, &units[0], units.size(), area, t, &ok);
+			if(!ok) {
+				for(unsigned j = 0; j < hits.size(); ++j) {
+					units[hits[j]].health = -1;
+				}
+
+				DataWriter w;
+				w.writeByte(SRV_HIT);
+				w.writeInt(b.id);
+				w.writeFloat(b.loc.x);
+				w.writeFloat(b.loc.y);
+				sendToAll(w);
+				bullets[i] = bullets.back();
+				bullets.pop_back();
+				--i;
+			}
 		}
+	}
+	for(unsigned i=0; i<units.size(); ++i) {
+		damageUnit(i, 0);
 	}
 }
 void Server::updateBases()
@@ -508,12 +531,12 @@ void Server::spawnUnits(double t)
 	}
 }
 
-int firstBases[32] = {0,0,1,2,0,3,15};
-int firstCounts[32] = {0,3,1,1,0,2,1};
-int lastCounts[32] = {0,7,7,4,0,3,1};
-int fItemBases[32] = {0,0,1,3,2,4};
-int fItemCounts[32] = {5,4,6,4,3,2};
-int lItemCounts[32] = {8,10,12,8,6,6};
+int firstBases[32] = {0,0,1,2,0,3,15,0};
+int firstCounts[32] = {0,3,1,1,0,2,1,0};
+int lastCounts[32] = {0,7,7,4,0,3,1,0};
+int fItemBases[32] = {0,0,1,3,2,4,5};
+int fItemCounts[32] = {5,4,6,4,3,2,4};
+int lItemCounts[32] = {8,10,12,8,6,6,8};
 void Server::genSpawnCounts()
 {
 	int n = area.bases.size();

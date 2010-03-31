@@ -24,7 +24,6 @@ struct Server {
 	void pollConnections();
 	void readInputs();
 	void sendState();
-	void sendStats();t
 	void sendToAll(const void* s, int n);
 	void sendToAll(DataWriter& w);
 	void updateBullets(double t);

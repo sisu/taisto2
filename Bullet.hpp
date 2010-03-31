@@ -3,12 +3,13 @@
 
 #include "Vector.hpp"
 
-const int MACHINEGUN=0;
+const int MACHINEGUN = 0;
 const int SHOTGUN = 1;
-const int BOUNCEGUN=2;
+const int BOUNCEGUN = 2;
 const int LIGHTNING = 3;
 const int ROCKET = 4;
-const int GRENADE=5;
+const int GRENADE = 5;
+const int RAILGUN = 6;
 struct Bullet {
     Vec2 origin;
 	Vec2 loc;

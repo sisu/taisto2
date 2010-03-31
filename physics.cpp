@@ -4,6 +4,8 @@
 #include "physics.hpp"
 #include "Bullet.hpp"
 #include "timef.h"
+#include <vector>
+#include <cassert>
 
 static void fix(Vec2& v, double px, double py, double d)
 {
@@ -90,10 +92,37 @@ Vec2 wallHitPoint(Vec2 from, Vec2 to, const Area& a, bool* hitp)
 	return hit?c:to;
 }
 
-static const float bsizes[] = {.4,.1,.1,0,.3,.1,.1,.1};
+static const float bsizes[] = {.4,.1,.1,0,.3,0,.4,.1};
 const double GRENADE_SLOW = .9;
+
+std::vector<int> moveRail(Bullet& b, Unit* us, int n, const Area& a, double t, bool* hitt) {
+	assert(b.type == RAILGUN);
+
+	std::vector<int> ret;
+
+	Vec2 nv = normalize(b.v);
+
+	for(int j=0; j<n; ++j) {
+		Unit& u = us[j];
+		Vec2 w = u.loc-b.loc;
+		if (dot(w,nv)<0) continue;
+		double d = fabs(cross(w, nv)) - bsizes[b.type];
+		if (d>.4) continue;
+
+		ret.push_back(j);
+	}
+
+	Vec2 newLoc = b.loc + b.v * t;	
+
+	wallHitPoint(b.loc, newLoc, a, hitt);
+
+	return ret;
+}
+
 bool moveBullet(Bullet& b, Unit* us, int n, const Area& a, double t, int* hitt)
 {
+	assert(b.type != RAILGUN);
+
 	if (b.type==GRENADE) {
 		*hitt=-1;
 		bool hit;
@@ -120,6 +149,7 @@ bool moveBullet(Bullet& b, Unit* us, int n, const Area& a, double t, int* hitt)
 		double vv = v0 - GRENADE_SLOW*t;
 		return vv > 6;
 	}
+
 	Vec2 l = b.loc + b.v*t;
 	// FIXME: optimize
 	Vec2 nv = normalize(b.v);
@@ -128,10 +158,10 @@ bool moveBullet(Bullet& b, Unit* us, int n, const Area& a, double t, int* hitt)
 		Unit& u = us[j];
 		Vec2 w = u.loc-b.loc;
 		if (dot(w,nv)<0) continue;
-		double d = fabs(cross(w, nv));
+		double d = fabs(cross(w, nv)) - bsizes[b.type];
 		if (d>.4) continue;
 		double dd2 = length2(w) - d*d;
-		if (dd2 + bsizes[b.type]*bsizes[b.type] + 2*dd2*bsizes[b.type] < bdd2) bdd2=dd2, bj=j;
+		if (dd2 < bdd2) bdd2=dd2, bj=j;
 	}
 	//		if (bj>=0) cout<<"asd "<<bj<<' '<<bdd2<<' '<<sqrt(bdd2)<<'\n';
 
