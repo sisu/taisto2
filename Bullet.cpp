@@ -14,5 +14,6 @@ Bullet genBullet(int type, Vec2 l, double d, int id)
 	Vec2 v(cos(d),sin(d));
 	Bullet b(l+.7*v, v * speeds[type], type, id);
 	if (type==GRENADE) b.bounce=3;
+    b.hitt=0;
 	return b;
 }
