@@ -23,16 +23,13 @@ struct Particle {
 		loc = Vec3(wallHitPoint(loc, loc+v*t, a), loc.z+v.z*t);
 		time += t;
 		dist += spd*t;
-		return time<.4 && dist<maxd;
+		return time<maxt && dist<maxd;
 	}
 };
 #define EXPLOSION_P 0
 #define SPARK_P 1
 #define SMOKE_P 2
 
-struct Game;
-void drawSparks(Particle* ps, int n);
-void drawExplosions(Game& g);
-void drawSmoke(Game& g);
+void drawParticles(Particle* ps, int n);
 
 #endif

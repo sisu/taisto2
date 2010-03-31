@@ -38,7 +38,6 @@ void drawSingleType(Particle* ps, int n, int type, GLuint tex, float S)
 	glDisable(GL_LIGHTING);
 	glBindTexture(GL_TEXTURE_2D, tex);
 	glEnable(GL_BLEND);
-	glBlendFunc(GL_SRC_ALPHA,GL_ONE);
 	glDepthMask(0);
 
 	glBegin(GL_QUADS);
@@ -55,14 +54,23 @@ void drawSingleType(Particle* ps, int n, int type, GLuint tex, float S)
 	glEnd();
 	glDepthMask(1);
 }
-void drawExplosions(Game& g)
+void drawExplosions(Particle*ps, int n)
 {
 	glColor3f(1,1,1);
-	drawSingleType(&g.particles[0], g.particles.size(), EXPLOSION_P, explosionTex, .45);
+	glBlendFunc(GL_SRC_ALPHA,GL_ONE);
+	drawSingleType(ps,n, EXPLOSION_P, explosionTex, .45);
 }
 
-void drawSmoke(Game& g)
+void drawSmoke(Particle*ps, int n)
 {
 	glColor3f(1,1,1);
-	drawSingleType(&g.particles[0], g.particles.size(), SMOKE_P, smokeTex, .65);
+	glBlendFunc(GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA);
+	drawSingleType(ps,n, SMOKE_P, smokeTex, .95);
+}
+
+void drawParticles(Particle* ps, int n)
+{
+	drawSmoke(ps,n);
+	drawExplosions(ps,n);
+	drawSparks(ps,n);
 }

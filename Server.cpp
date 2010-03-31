@@ -16,7 +16,7 @@
 #include "SDL.h"
 
 using namespace std;
-static const double shields[]={10,2,2,0.2,2,2};
+static const double shields[]={10,2,2,0.2,2,2,2,2,2,2};
 const int packSizes[] = {0,15,100,50,30,5,5};
 
 Server::Server(): end(0), nextID(1),area(30,900)// area("field.in.1")

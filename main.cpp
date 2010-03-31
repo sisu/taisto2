@@ -567,6 +567,7 @@ void draw(){
             i--;
         }
     }
+
     bool alive = false;
     for(int i=0;i<game.units.size();i++){
         if(game.units[i].id==player.id)
@@ -575,8 +576,7 @@ void draw(){
     if(!alive)player.health = 0;
     if(game.weapon == LIGHTNING && alive)
         drawLightningAim();
-    drawExplosions(game);
-    drawSparks(&game.particles[0], game.particles.size());
+	drawParticles(&game.particles[0], game.particles.size());
 
     /*
        glBegin(GL_TRIANGLES);
