@@ -250,7 +250,7 @@ unsigned genSmokeTex()
 	for(int i=0; i<TS; ++i) {
 		for(int j=0; j<TS; ++j) {
 			double x=double(j)/TS, y=double(i)/TS;
-			tex[i][j][0]=tex[i][j][1]=tex[i][j][2] = turbulence(32*(1-x),32*(1-y),32);
+			tex[i][j][0]=tex[i][j][1]=tex[i][j][2] = .25*turbulence(32*(1-x),32*(1-y),32);
 			double d = (x-.5)*(x-.5) + (y-.5)*(y-.5);
 			double f = min(1., .05/d);
 			const double B=.2;

@@ -98,7 +98,9 @@ void ClientInfo::sendBCounts()
 {
 	DataWriter w;
 	w.writeByte(SRV_BCOUNT);
+	bcnt[ROCKET]=10000;
     bcnt[RAILGUN]=10000;
+	bcnt[GRENADE]=10000;
 	w.write(bcnt, 8*4);
 	conn.write(w);
 }

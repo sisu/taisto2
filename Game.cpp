@@ -66,7 +66,11 @@ void Game::destroyBullet(int id, double xx, double yy)
 //			particles.push_back(ExplosionP(c, v*Vec2(cos(d),sin(d))));
 			double s=3*EXPLOSION_SIZE*randf();
 			Vec3 v = rvec3();
-			particles.push_back(Particle(Vec3(c,1), s*v, EXPLOSION_P, EXPLOSION_SIZE));
+			particles.push_back(Particle(Vec3(c,1), s*v, EXPLOSION_P, EXPLOSION_SIZE, .4+.1*randf()));
+		}
+		for(int i=0; i<1024; ++i) {
+			double s=3*EXPLOSION_SIZE*randf();
+			particles.push_back(Particle(Vec3(c,1), s*rvec3(), SMOKE_P, 1.3*EXPLOSION_SIZE, .4+.3*randf()));
 		}
 	} else if (bx.type==BOUNCEGUN) {
 		for(int i=0; i<64; ++i) {
@@ -77,7 +81,11 @@ void Game::destroyBullet(int id, double xx, double yy)
 		for(int i=0; i<2048; ++i) {
 			double s = 4*GRENADE_SIZE*randf();
 			Vec3 v = rvec3();
-			particles.push_back(Particle(Vec3(c,1), s*v, EXPLOSION_P, GRENADE_SIZE));
+			particles.push_back(Particle(Vec3(c,1), s*v, EXPLOSION_P, GRENADE_SIZE, .5+.1*randf()));
+		}
+		for(int i=0; i<2048; ++i) {
+			double s = 4*GRENADE_SIZE*randf();
+			particles.push_back(Particle(Vec3(c,1), s*rvec3(), SMOKE_P, 1.3*GRENADE_SIZE, .5+.3*randf()));
 		}
 	}
 

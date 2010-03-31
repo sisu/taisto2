@@ -539,8 +539,7 @@ void draw(){
             i--;
         }
     }
-    drawExplosions(game);
-    drawSparks(&game.particles[0], game.particles.size());
+	drawParticles(&game.particles[0], game.particles.size());
 
     /*
        glBegin(GL_TRIANGLES);
