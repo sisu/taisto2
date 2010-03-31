@@ -438,6 +438,35 @@ void setPerspective()
 
     glMatrixMode(GL_MODELVIEW);
 }
+void drawLightningAim()
+{
+    //glDepthMask(0);
+    //glDisable(GL_DEPTH_TEST);
+    glPushMatrix();
+    glDisable(GL_TEXTURE_2D);
+    glDisable(GL_LIGHTING);
+    glEnable(GL_BLEND);
+    glBlendFunc(GL_SRC_ALPHA,GL_ONE);
+    glColor4f(1,1,0,0.5);
+    glTranslatef(player.loc.x,player.loc.y,1.5);
+    glRotatef(player.d*180/M_PI,0,0,1);
+    float lr = LIGHTNING_RAD;
+    glBegin(GL_TRIANGLE_FAN);
+    glVertex3f(0,0,0);
+    for(int x=0;x<=10;x++)
+    {
+        float a = ((x-5)/5.0);
+        glVertex3f(lr*cos(a*LIGHTNING_ANGLE),lr*sin(a*LIGHTNING_ANGLE),0);
+    }
+    glEnd();
+    glDisable(GL_BLEND);
+    glEnable(GL_LIGHTING);
+    glPopMatrix();
+    //glEnable(GL_DEPTH_TEST);
+
+    //glDepthMask(1);
+    
+}
 
 double spin = 0;
 void draw(){
@@ -451,7 +480,6 @@ void draw(){
     //glRotatef(-45,1,0,0);
     glTranslatef(-player.loc.x, -player.loc.y, 0);
     glColor3f(1,1,1);
-
 
     draw_area();
     for(unsigned i=0; i<game.units.size(); ++i) {
@@ -539,6 +567,15 @@ void draw(){
             i--;
         }
     }
+
+    bool alive = false;
+    for(int i=0;i<game.units.size();i++){
+        if(game.units[i].id==player.id)
+            alive=true;
+    }
+    if(!alive)player.health = 0;
+    if(game.weapon == LIGHTNING && alive)
+        drawLightningAim();
 	drawParticles(&game.particles[0], game.particles.size());
 
     /*
@@ -547,6 +584,7 @@ void draw(){
        glVertex3d(1,0,0);
        glVertex3d(1,1,0);
        glEnd();*/
+
     glLoadIdentity();
 
     drawHud(game,displayStats);

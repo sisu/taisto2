@@ -82,7 +82,7 @@ void find_affected(const vector<vector<int> >& graph,
 
 	used[ind] = true;
 	hits.push_back(ind);
-	for(int i = 0; graph[ind].size(); ++i) {
+	for(int i = 0;i<graph[ind].size(); ++i) {
 		if(!used[graph[ind][i]])
 			find_affected(graph,used,hits,graph[ind][i]);
 	}
@@ -197,17 +197,18 @@ void Server::updatePhysics(double t)
 
 				// generate graph
 
-				vector<vector<int> > graph(units.size(),vector<int>(units.size()));
+				vector<vector<int> > graph(units.size());
 
-				for(int a = 0; a < units.size(); ++a) {
-					for(int b = a + 1; b < units.size(); ++b) {
+				for(int a = 0; a < aff.size(); ++a) {
+					for(int b = a + 1; b < aff.size(); ++b) {
 						bool ok = false;
-
-						wallHitPoint(units[a].loc, units[b].loc, area, &ok);
+                        int ia = aff[a];
+                        int ib = aff[b];
+						wallHitPoint(units[ia].loc, units[ib].loc, area, &ok);
 
 						if(!ok) {
-							graph[a].push_back(b);
-							graph[b].push_back(a);
+							graph[ia].push_back(ib);
+							graph[ib].push_back(ia);
 						}
 					}
 				}
@@ -260,6 +261,16 @@ void Server::updatePhysics(double t)
 	}
 
 	defenceTime -= t;
+
+	// delayed lightning damage
+	for(unsigned i=0; i<units.size(); ++i) {
+		//damageUnit(i, 0,2000);
+        if(units[i].health<=0){
+            units[i] = units.back();
+            units.pop_back();
+            i--;
+        }
+	}
 
 //	if (units.size()>1) {Unit& u = units[1]; cout<<"updated physics; "<<u.movex<<' '<<u.movey<<" ; "<<u.loc<<" ; "<<u.shooting<<' '<<u.id<<' '<<clID[u.id]<<'\n';}
 }
@@ -471,7 +482,7 @@ void Server::updateBases()
         spawnTime = 0;
 
 		if (curSpawn == (int)area.bases.size()-2) {
-			defenceTime = DEFENCE_TIME;
+//			defenceTime = DEFENCE_TIME;
 		}
 	}
 }

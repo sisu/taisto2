@@ -46,7 +46,7 @@ void moveUnits(Unit* us, int n, const Area& a,double dt)
 #else
 
 		double s = MOVE_SPEED * dt;
-        //if(u.type==0)s*=2;
+        if(u.type==0)s*=1.5;
 		u.loc.y += u.movey * s;
 		u.loc.x += u.movex * s;
 #endif
