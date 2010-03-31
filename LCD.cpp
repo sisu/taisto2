@@ -43,11 +43,11 @@ void drawString(const char* str, double x, double y, double s)
 {
 	glMatrixMode(GL_PROJECTION);
 	glPushMatrix();
-	glLoadIdentity();
+	//glLoadIdentity();
 	glMatrixMode(GL_MODELVIEW);
 
 	glPushMatrix();
-	glLoadIdentity();
+	//glLoadIdentity();
 	glDisable(GL_LIGHTING);
 	glDisable(GL_TEXTURE_2D);
 	glDisable(GL_BLEND);

@@ -178,7 +178,13 @@ void draw_area()
     glDisable(GL_TEXTURE_2D);
     for(unsigned i=0;i<game.area.bases.size();i++){
         //glEnable(GL_TEXTURE_2D);
-
+        glTranslatef(0,0,4);
+        char nro[10];
+        sprintf(nro,"%i",i);
+        drawString(nro,-3,game.area.bases[i],1);
+        drawString(nro,game.area.w+2,game.area.bases[i],1);
+        
+        glTranslatef(0,0,-4);
         glEnable(GL_BLEND);
         glBlendFunc(GL_SRC_ALPHA,GL_ONE);
 
@@ -489,6 +495,7 @@ void draw(){
        glVertex3d(1,0,0);
        glVertex3d(1,1,0);
        glEnd();*/
+    glLoadIdentity();
 
     drawHud(game);
 }

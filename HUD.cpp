@@ -17,7 +17,11 @@ void drawHud(Game& g)
 {
 //	sprintf(buf, "a%.1f", g.nextSpawn);
 //	drawString("asd",0,0,.1);
-
+    glMatrixMode(GL_PROJECTION);
+    glPushMatrix();
+    glLoadIdentity();
+    glMatrixMode(GL_MODELVIEW);
+    glPushMatrix();
     char buf[100];
     sprintf(buf,"%i",(int)(100*g.player->health));
 	draw(buf,.8,-.8);
@@ -31,4 +35,8 @@ void drawHud(Game& g)
 		sprintf(buf, "%d", g.bcnt[i]);
 		drawString(buf, -.9+.3*i, -.95, .05);
 	}
+    glPopMatrix();
+    glMatrixMode(GL_PROJECTION);
+    glPopMatrix();
+    glMatrixMode(GL_MODELVIEW);
 }
