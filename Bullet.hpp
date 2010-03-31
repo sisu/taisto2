@@ -25,8 +25,8 @@ extern double loadTimes[];
 extern double damages[];
 Bullet genBullet(int type, Vec2 l, double d, int id);
 
-#define EXPLOSION_SIZE (3.0)
-#define LIGHTNING_ANGLE (1.5)
+#define EXPLOSION_SIZE (5.0)
+#define LIGHTNING_ANGLE (1.2)
 #define LIGHTNING_RAD (12.0)
 #define LIGHTNING_TIME (.05)
 #define GRENADE_SIZE (8.0)
