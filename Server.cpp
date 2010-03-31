@@ -19,14 +19,6 @@ using namespace std;
 static const double shields[]={10,2,2,0.2,2,2};
 const int packSizes[] = {0,15,100,50,30,5,5};
 
-struct PQE {
-	int to;
-	double length;
-	bool operator < (const PQE& pqe) const {
-		return pqe.length < length; // notice that this is reversed due to PQ
-	}
-};
-
 Server::Server(): end(0), nextID(1),area(30,900)// area("field.in.1")
 {
 	//for(int i=2; i<area.h; i+=30) area.bases.push_back(i);
