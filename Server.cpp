@@ -376,6 +376,16 @@ void Server::damageUnit(int i, double d)
 	u.health -= d/shields[u.type];
 	if (u.health<0) {
 		if (u.type==0) clients[clID[u.id]]->u=0, clients[clID[u.id]]->spawnTime=3;
+		else if (randf() < .25) {
+			float t = 200. * (5+10*randf())/items_map.vec.size();
+			Item it(u.type-1, u.loc, itemid++, t, u.d);
+			items_map.insert(it);
+
+			DataWriter w;
+			w.writeByte(SRV_ADDITEM);
+			w.write(&it,sizeof(it));
+			sendToAll(w);
+		}
 		units[i] = units.back();
 		units.pop_back();
 	}
