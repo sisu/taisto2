@@ -75,7 +75,7 @@ void Server::loop()
 }
 static int bulletid = 0;
 static int itemid = 0;
-const int packSizes[] = {0,15,50,30,100,5};
+const int packSizes[] = {0,15,100,50,30,5};
 void Server::updatePhysics(double t)
 {
 	//spawnTime -= t;
