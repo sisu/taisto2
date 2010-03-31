@@ -38,7 +38,6 @@ Area& area=game.area;
 Unit player;
 float playerdir;
 int mouseState;
-int weapon=0;
 void handleInput()
 {
     static float lasttime = 0;
@@ -56,7 +55,7 @@ void handleInput()
     if(keyboard[SDLK_d])
         player.movex++;
 
-	for(int i=1; i<10; ++i) if (keyboard['0'+i]) weapon=i-1;
+	for(int i=1; i<10; ++i) if (keyboard['0'+i] && (game.bcnt[i-1] || i==1)) game.weapon=i-1;
 	
 	player.shooting = mouse[0];
 }
@@ -420,12 +419,12 @@ void draw(){
 	}
 	for(unsigned i=0; i<game.bullets.size(); ++i) {
         Bullet b = game.bullets[i];
-		if (b.type==0){
+		if (b.type==MACHINEGUN){
             glColor4f(1.5,0.6,0.0,0.5);
             glBlendFunc (GL_SRC_ALPHA, GL_ONE);
             draw_bullet(b);
         }
-        else if(b.type==1) draw_rocket(b);
+        else if(b.type==ROCKET) draw_rocket(b);
         else if(b.type==SHOTGUN){
             glColor4f(0.5,0.7,1,0.5);
             glBlendFunc (GL_SRC_ALPHA, GL_ONE);
@@ -529,7 +528,6 @@ void mainLoop()
         readInput();
 		if (keyboard[27]) break;
         handleInput();
-		game.weapon = weapon;
 		game.player = &player;
         draw();
 		game.updateNetwork();
