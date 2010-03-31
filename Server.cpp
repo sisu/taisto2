@@ -393,7 +393,6 @@ void Server::updateBullets(double t)
 		int h;
 		if(b.type != RAILGUN) {
 			if (!moveBullet(b, &units[0], units.size(), area, t, &h)) {
-				if (h>=0) damageUnit(h, damages[b.type],b.shooter);
 				if (b.type==ROCKET || b.type==GRENADE) {
 					b.loc -= normalize(b.v) * .05;
 					double r = b.type==ROCKET ? EXPLOSION_SIZE : GRENADE_SIZE;
@@ -409,7 +408,7 @@ void Server::updateBullets(double t)
 						damageUnit(j, damages[b.type]*(1 - length(d)/r),b.shooter);
 						if (units.size()<s) --j;
 					}
-				}
+				} else if (h>=0) damageUnit(h, damages[b.type],b.shooter);
 				//			cout<<"collision @ "<<c<<' '<<b.loc<<' '<<length(c-b.loc)<<'\n';
 				DataWriter w;
 				w.writeByte(SRV_HIT);
