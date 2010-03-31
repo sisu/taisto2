@@ -56,7 +56,7 @@ void Game::destroyBullet(int id, double xx, double yy)
 
     bx.loc = c;
     bx.hitt = timef();
-//    if (bx.type==BOUNCEGUN) lastBullets.push_back(bx);
+    if (bx.type==RAILGUN) lastBullets.push_back(bx);
 
 	c -= .05*normalize(bx.v);
 	if (bx.type==ROCKET) {

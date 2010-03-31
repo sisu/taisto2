@@ -1,6 +1,8 @@
 
 #include<cassert>
 #include "salama.hpp"
+#include "raide_pysty.c"
+#include "raide_vaaka.c"
 #include <SDL/SDL.h>
 #include"Unit.hpp"
 #include "HUD.hpp"
@@ -349,35 +351,77 @@ void draw_bullet(Bullet bu,float scale=1)
     glDepthMask(1);
 }
 
-/*
-void draw_player(float x,float y,float dir,float movey = 0)
+void draw_rail(Bullet bu)
 {
-//	x-=player.loc.x, y-=player.loc.y;
+    Vec2 loc = bu.loc;
     glPushMatrix();
-	glTranslatef(x,y,0);
-    glRotatef(dir*180/M_PI-90,0,0,1);
+    glTranslatef(bu.origin.x,bu.origin.y,1);
+
+    //std::cout<<bu.hitt<<"\n";
+
+    Vec2 ie = bu.loc;
+    if(bu.hitt>=0.1){
+        ie = loc+bu.v*(timef()-bu.hitt);
+    }
+        
+    //glScalef(0.5,0.5,0.5);
+    //glTranslatef(-area.w/2,-area.h/2,0);
+    //glColor4f(0.2,0.8,0.2,0.1);
+    float a = atan2(bu.v.y,bu.v.x);
+    float z = length(bu.loc-bu.origin);//*2.0;
+    float iez = length(ie-bu.origin);
+    //std::cout<<z<<"\n";
+    glRotatef(a*180/M_PI+90,0,0,1);
     glRotatef(90,1,0,0);
-    glRotatef(180,0,1,0);
-    glScalef(0.15,0.1,0.15);
-    glTranslatef(0,4.5,0);
-    glEnable(GL_NORMALIZE);
-    glColor3f(0.1,0.4,0.3);
-    draw_interp_model(&ukko_walk1_model,&ukko_walk2_model,movey*sin(10*timef())*0.5+0.5);
-    glTranslatef(-0.8,0.5,0.4);
-    draw_model(&ase_model);
+
+    glEnable(GL_LIGHTING);
+    double iz = 0;
+    glEnable(GL_BLEND);
+    glBlendFunc(GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA);;
+    while(iz<z){
+        double alpha = 4*iz/iez;
+        if(alpha>1)alpha=1;
+        glColor4f(0.3,0.3,0.3,alpha);
+        draw_model(&raide_pysty_model);
+        glColor4f(0.7,0.5,0.4,alpha);
+        draw_model(&raide_vaaka_model);
+        glTranslatef(0,0,1.5);
+        iz+=1.5;
+    }
+    glDisable(GL_BLEND);
+
     glPopMatrix();
+}
+
+/*
+   void draw_player(float x,float y,float dir,float movey = 0)
+   {
+//	x-=player.loc.x, y-=player.loc.y;
+glPushMatrix();
+glTranslatef(x,y,0);
+glRotatef(dir*180/M_PI-90,0,0,1);
+glRotatef(90,1,0,0);
+glRotatef(180,0,1,0);
+glScalef(0.15,0.1,0.15);
+glTranslatef(0,4.5,0);
+glEnable(GL_NORMALIZE);
+glColor3f(0.1,0.4,0.3);
+draw_interp_model(&ukko_walk1_model,&ukko_walk2_model,movey*sin(10*timef())*0.5+0.5);
+glTranslatef(-0.8,0.5,0.4);
+draw_model(&ase_model);
+glPopMatrix();
 }*/
 
 void setLights()
 {
-	glEnable(GL_COLOR_MATERIAL);
-	glEnable(GL_LIGHTING);
-	glEnable(GL_LIGHT0);
-	float pos[] = {.1,.1,1,0};
-	glLightfv(GL_LIGHT0, GL_POSITION, pos);
-	glEnable(GL_LIGHT1);
-	float pos2[] = {.2,-.3,.8,0};
-	glLightfv(GL_LIGHT1, GL_POSITION, pos2);
+    glEnable(GL_COLOR_MATERIAL);
+    glEnable(GL_LIGHTING);
+    glEnable(GL_LIGHT0);
+    float pos[] = {.1,.1,1,0};
+    glLightfv(GL_LIGHT0, GL_POSITION, pos);
+    glEnable(GL_LIGHT1);
+    float pos2[] = {.2,-.3,.8,0};
+    glLightfv(GL_LIGHT1, GL_POSITION, pos2);
 }
 void setPerspective()
 {
@@ -385,7 +429,7 @@ void setPerspective()
     glDepthFunc(GL_LESS);
     glShadeModel(GL_SMOOTH);
     glMatrixMode(GL_PROJECTION);
-	glLoadIdentity();
+    glLoadIdentity();
     gluPerspective(45,4.0/3.0,0.01,1000);
     glEnable(GL_MULTISAMPLE);
     //glHint(GL_LINE_SMOOTH_HINT,GL_NICEST);
@@ -398,31 +442,31 @@ void setPerspective()
 double spin = 0;
 void draw(){
     setPerspective();
-	setLights();
+    setLights();
     glClear(GL_COLOR_BUFFER_BIT|GL_DEPTH_BUFFER_BIT);
-	glEnable(GL_NORMALIZE);
+    glEnable(GL_NORMALIZE);
     glLoadIdentity();
     glTranslatef(0,0,-50);
     //glTranslatef(0,0,-35);
-	//glRotatef(-45,1,0,0);
-	glTranslatef(-player.loc.x, -player.loc.y, 0);
+    //glRotatef(-45,1,0,0);
+    glTranslatef(-player.loc.x, -player.loc.y, 0);
     glColor3f(1,1,1);
-    
+
 
     draw_area();
-	for(unsigned i=0; i<game.units.size(); ++i) {
-		Unit& u=game.units[i];
+    for(unsigned i=0; i<game.units.size(); ++i) {
+        Unit& u=game.units[i];
         drawPlayer(u);
-		//draw_player(u.loc.x,u.loc.y,u.d,sin(u.d)*u.movey+cos(u.d)*u.movex);
-	}
-	for(unsigned i=0; i<game.items.size(); ++i) {
-		Item& u=game.items[i];
+        //draw_player(u.loc.x,u.loc.y,u.d,sin(u.d)*u.movey+cos(u.d)*u.movex);
+    }
+    for(unsigned i=0; i<game.items.size(); ++i) {
+        Item& u=game.items[i];
         draw_item(u);
-		//draw_player(u.loc.x,u.loc.y,u.d,sin(u.d)*u.movey+cos(u.d)*u.movex);
-	}
-	for(unsigned i=0; i<game.bullets.size(); ++i) {
+        //draw_player(u.loc.x,u.loc.y,u.d,sin(u.d)*u.movey+cos(u.d)*u.movex);
+    }
+    for(unsigned i=0; i<game.bullets.size(); ++i) {
         Bullet b = game.bullets[i];
-		if (b.type==MACHINEGUN){
+        if (b.type==MACHINEGUN){
             glColor4f(1.5,0.6,0.0,0.5);
             glBlendFunc (GL_SRC_ALPHA, GL_ONE);
             draw_bullet(b);
@@ -434,20 +478,22 @@ void draw(){
             glBlendFunc (GL_SRC_ALPHA, GL_ONE);
             draw_bullet(b,.5);
         } else if (b.type==BOUNCEGUN) {
-			glColor4f(1,.2,.2,1);
-			glBlendFunc(GL_SRC_ALPHA, GL_ONE);
-			draw_bullet(b,.2);
-		} else if (b.type==GRENADE) {
-			glColor3f(1,1,0);
-			glBlendFunc(GL_ONE, GL_ONE);
-			draw_bullet(b,.4);
-		}else
+            glColor4f(1,.2,.2,1);
+            glBlendFunc(GL_SRC_ALPHA, GL_ONE);
+            draw_bullet(b,.2);
+        } else if (b.type==GRENADE) {
+            glColor3f(1,1,0);
+            glBlendFunc(GL_ONE, GL_ONE);
+            draw_bullet(b,.4);
+        }else if (b.type==RAILGUN) {
+            draw_rail(b);
+        } else 
         {
             glColor4f(1.5,1.6,1.0,1.5);
             glBlendFunc (GL_SRC_ALPHA, GL_ONE);
             draw_bullet(b);
         }
-	}
+    }
 
     for(int l=0;l<game.lightnings.size();l++)
     {
@@ -462,30 +508,29 @@ void draw(){
                 enemies.size());
     }
 
-#if 0 
-	for(unsigned i=0; i<game.lastBullets.size(); ++i) {
+#if 1 
+    for(unsigned i=0; i<game.lastBullets.size(); ++i) {
         Bullet b = game.lastBullets[i];
-		if (b.type!=0) continue;
-        draw_bullet(b);
-
-        Vec2 target= b.loc;
+        if(b.type==RAILGUN) {
+            draw_rail(b);
+        }
         //std::vector<Vecc2
         /*
-        drawSalama( b.origin.x,
-                    b.origin.y,
-                    b.loc.x,
-                    b.loc.y);
-                    */
-//        drawSalama( b.origin.x, b.origin.y, b.loc.x, b.loc.y);
-	}
+           drawSalama( b.origin.x,
+           b.origin.y,
+           b.loc.x,
+           b.loc.y);
+           */
+        //        drawSalama( b.origin.x, b.origin.y, b.loc.x, b.loc.y);
+    }
 #endif
-	for(unsigned i=0; i<game.lastBullets.size(); ++i) {
-		Bullet b = game.lastBullets[i];
-		if (b.type==BOUNCEGUN) {
-		}
-	}
+    for(unsigned i=0; i<game.lastBullets.size(); ++i) {
+        Bullet b = game.lastBullets[i];
+        if (b.type==BOUNCEGUN) {
+        }
+    }
 
-	for(unsigned i=0; i<game.lastBullets.size(); ++i) {
+    for(unsigned i=0; i<game.lastBullets.size(); ++i) {
         Bullet b = game.lastBullets[i];
         if(b.hitt<timef()-5)
         {
@@ -493,9 +538,9 @@ void draw(){
             game.lastBullets.pop_back();
             i--;
         }
-	}
-	drawExplosions(game);
-	drawSparks(&game.particles[0], game.particles.size());
+    }
+    drawExplosions(game);
+    drawSparks(&game.particles[0], game.particles.size());
 
     /*
        glBegin(GL_TRIANGLES);
@@ -511,17 +556,17 @@ void draw(){
 void mainLoop()
 {
     game.reset();
-	player.loc = Vec2(.5,.5);
+    player.loc = Vec2(.5,.5);
     std::cout<<player.loc.x<<" "<<player.loc.y<<"\n";
 
     int r  = 0;
     double lasttime = 0;
-//	bool res = game.socket.connect("127.0.0.1");
-	bool res = game.socket.connect(curHost.c_str(),nickString.c_str());
-	cout<<"connect res "<<res<<'\n';
-	if (!res) {
-		return;
-	}
+    //	bool res = game.socket.connect("127.0.0.1");
+    bool res = game.socket.connect(curHost.c_str(),nickString.c_str());
+    cout<<"connect res "<<res<<'\n';
+    if (!res) {
+        return;
+    }
     glClear(GL_ACCUM_BUFFER_BIT);
     while(1) {
         double t = timef();
@@ -529,127 +574,127 @@ void mainLoop()
         lasttime=t;
         r++;
         if(r%104==0){
-			cout<<player.loc<<'\n';
-//            std::cout<<"dir = "<<player.d<<"\n";
-//            std::cout<<"dir = "<<dt<<"\n";
-			//std::cout<<"pl "<<player.loc<<'\n';
+            cout<<player.loc<<'\n';
+            //            std::cout<<"dir = "<<player.d<<"\n";
+            //            std::cout<<"dir = "<<dt<<"\n";
+            //std::cout<<"pl "<<player.loc<<'\n';
         }
         readInput();
-		if (keyboard[27]) break;
+        if (keyboard[27]) break;
         handleInput();
-		game.player = &player;
+        game.player = &player;
         draw();
-		game.updateNetwork();
-		game.updateState(dt);
-		for(unsigned i=0; i<game.units.size(); ++i)
+        game.updateNetwork();
+        game.updateState(dt);
+        for(unsigned i=0; i<game.units.size(); ++i)
             if (game.units[i].type==0 && game.units[i].id==game.id)
                 player=game.units[i];
-		int err = glGetError();
-		if (err) {
-			cout<<"GL ERROR: "<<gluErrorString(err)<<'\n';
-		}
+        int err = glGetError();
+        if (err) {
+            cout<<"GL ERROR: "<<gluErrorString(err)<<'\n';
+        }
         SDL_GL_SwapBuffers();
         SDL_Delay(15);
 
 #if 0
-		if (game.area.w && game.area.w!=area.w) {
-			Area& a=game.area;
-			area.w=a.w, area.h=a.h, area.a=a.a;
-		}
+        if (game.area.w && game.area.w!=area.w) {
+            Area& a=game.area;
+            area.w=a.w, area.h=a.h, area.a=a.a;
+        }
 #endif
     }
-	cout<<"returning from main loop\n";
+    cout<<"returning from main loop\n";
 }
 
 Server* server;
 int startServer(void*)
 {
-	server = new Server;
-	server->loop();
-	delete server;
-	server=0;
-	return 0;
+    server = new Server;
+    server->loop();
+    delete server;
+    server=0;
+    return 0;
 }
 void hostGame()
 {
-	SDL_CreateThread(startServer, 0);
-	SDL_Delay(200);
-	mainLoop();
-	cout<<"setting server end\n";
-	server->end=1;
-	SDL_Delay(10);
+    SDL_CreateThread(startServer, 0);
+    SDL_Delay(200);
+    mainLoop();
+    cout<<"setting server end\n";
+    server->end=1;
+    SDL_Delay(10);
 }
 void joinGame()
 {
-	Menu m;
-	m.size = .06;
+    Menu m;
+    m.size = .06;
     game.reset();
-	MenuItem nick={"nick",STRING};
-	nick.str = &nickString;
+    MenuItem nick={"nick",STRING};
+    nick.str = &nickString;
     m.items.push_back(nick);
-	MenuItem host={"hostname",STRING};
-	host.str = &curHost;
-	m.items.push_back(host);
-	MenuItem conn={"connect",PICK};
-	conn.func = mainLoop;
-	m.items.push_back(conn);
-	m.exec();
+    MenuItem host={"hostname",STRING};
+    host.str = &curHost;
+    m.items.push_back(host);
+    MenuItem conn={"connect",PICK};
+    conn.func = mainLoop;
+    m.items.push_back(conn);
+    m.exec();
 }
 bool fullScreen=0;
 void runOptionsMenu()
 {
-	Menu m;
-	m.size = .06;
-	MenuItem fscr={"fullscreen",LIST};
-	fscr.lst.push_back("no");
-	fscr.lst.push_back("yes");
-	fscr.cur = fullScreen;
+    Menu m;
+    m.size = .06;
+    MenuItem fscr={"fullscreen",LIST};
+    fscr.lst.push_back("no");
+    fscr.lst.push_back("yes");
+    fscr.cur = fullScreen;
 
-	m.items.push_back(fscr);
-	MenuItem res={"resolution",LIST};
-	res.cur = 0;
+    m.items.push_back(fscr);
+    MenuItem res={"resolution",LIST};
+    res.cur = 0;
 
-	SDL_Rect** modes = SDL_ListModes(0, SDL_OPENGL | SDL_FULLSCREEN);
-	for(int i=0; modes[i]; ++i) {
-		char buf[64];
-		sprintf(buf, "%dx%d", modes[i]->w, modes[i]->h);
-		res.lst.push_back(string(buf));
-		if (modes[i]->w==screenW && modes[i]->h==screenH) res.cur=i;
-	}
-	m.items.push_back(res);
+    SDL_Rect** modes = SDL_ListModes(0, SDL_OPENGL | SDL_FULLSCREEN);
+    for(int i=0; modes[i]; ++i) {
+        char buf[64];
+        sprintf(buf, "%dx%d", modes[i]->w, modes[i]->h);
+        res.lst.push_back(string(buf));
+        if (modes[i]->w==screenW && modes[i]->h==screenH) res.cur=i;
+    }
+    m.items.push_back(res);
 
-	m.exec();
+    m.exec();
 
-	bool nres=0;
-	if (m.items[0].cur!=fullScreen) nres=1;
-	int r = m.items[1].cur;
-	if (modes[r]->w!=screenW || modes[r]->h!=screenH) nres=1;
+    bool nres=0;
+    if (m.items[0].cur!=fullScreen) nres=1;
+    int r = m.items[1].cur;
+    if (modes[r]->w!=screenW || modes[r]->h!=screenH) nres=1;
 
-	fullScreen = m.items[0].cur;
-	screenW = modes[r]->w, screenH = modes[r]->h;
+    fullScreen = m.items[0].cur;
+    screenW = modes[r]->w, screenH = modes[r]->h;
 
-	if (nres) {
-		fullScreen = m.items[0].cur;
-		Uint32 f = fullScreen ? SDL_FULLSCREEN : 0;
-		SDL_SetVideoMode(screenW, screenH, 0, SDL_OPENGL | f);
-		glViewport(0,0,screenW,screenH);
-	}
+    if (nres) {
+        fullScreen = m.items[0].cur;
+        Uint32 f = fullScreen ? SDL_FULLSCREEN : 0;
+        SDL_SetVideoMode(screenW, screenH, 0, SDL_OPENGL | f);
+        glViewport(0,0,screenW,screenH);
+    }
 }
 Menu createMainMenu()
 {
-	Menu m;
-	m.size = .1;
-	MenuItem host={"host game",PICK};
-	host.func = hostGame;
-	m.items.push_back(host);
-	MenuItem join={"join game",PICK};
-	join.func = joinGame;
-	m.items.push_back(join);
-	MenuItem opt={"options",PICK};
-	opt.func = runOptionsMenu;
-	m.items.push_back(opt);
-	m.items.push_back((MenuItem){"quit", EXIT});
-	return m;
+    Menu m;
+    m.size = .1;
+    MenuItem host={"host game",PICK};
+    host.func = hostGame;
+    m.items.push_back(host);
+    MenuItem join={"join game",PICK};
+    join.func = joinGame;
+    m.items.push_back(join);
+    MenuItem opt={"options",PICK};
+    opt.func = runOptionsMenu;
+    m.items.push_back(opt);
+    m.items.push_back((MenuItem){"quit", EXIT});
+    return m;
 }
 
 int main(int argc, char* argv[])
@@ -657,21 +702,21 @@ int main(int argc, char* argv[])
     nickString = getenv("USER");
     srand(time(0));
     SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO | SDL_INIT_TIMER);
-	atexit(SDL_Quit);
-	if (argc>1) {
-		Server s;
-		s.loop();
-		return 0;
-	}
+    atexit(SDL_Quit);
+    if (argc>1) {
+        Server s;
+        s.loop();
+        return 0;
+    }
     SDL_SetVideoMode(screenW,screenH,0,SDL_OPENGL);
     initTextures();
-	initLCD();
+    initLCD();
 
 #if 0
     mainLoop();
 #else
-	Menu m = createMainMenu();
-	m.exec();
+    Menu m = createMainMenu();
+    m.exec();
     std::cout<<"exit from main\n";
 #endif
 }
