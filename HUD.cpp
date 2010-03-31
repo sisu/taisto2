@@ -38,7 +38,7 @@ void drawHud(Game& g,bool stats)
     glMatrixMode(GL_MODELVIEW);
     glPushMatrix();
     char buf[100];
-    sprintf(buf,"%i",(int)(100*g.player->health));
+    sprintf(buf,"%i",(int)(ceil(100*g.player->health)));
 	draw(buf,.8,-.8);
 #if 0
 	// deprecated?
@@ -56,11 +56,12 @@ void drawHud(Game& g,bool stats)
     drawString("electro",-0.9+ss*3,nameh,s);
     drawString("rocket",-0.9+ss*4,nameh,s);
     drawString("grenade",-0.9+ss*5,nameh,s);
+    drawString("railgun",-0.9+ss*6,nameh,s);
 	drawString("inf", -.9, -.95, s);
 
 
     
-	for(int i=1; i<6; ++i) {
+	for(int i=1; i<7; ++i) {
 		sprintf(buf, "%d", g.bcnt[i]);
 		drawString(buf, -.9+ss*i, -.95, s);
 	}

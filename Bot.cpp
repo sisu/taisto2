@@ -282,7 +282,7 @@ jou:
 			return;
 		}
 
-        if(length2(u.loc-yourInfo->plan.back())>1){
+        if(length2(u.loc-yourInfo->plan.back())>0.5){
             /*
 			u.d = atan2(, yourInfo->plan.back().x - u.loc.x);
 			u.movey = sign((int)(10*sin(u.d)));
