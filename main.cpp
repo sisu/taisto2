@@ -604,8 +604,6 @@ void runOptionsMenu()
 		res.lst.push_back(string(buf));
 		if (modes[i]->w==screenW && modes[i]->h==screenH) res.cur=i;
 	}
-	res.lst.push_back("1024x768");
-	res.lst.push_back("800x600");
 	m.items.push_back(res);
 
 	m.exec();

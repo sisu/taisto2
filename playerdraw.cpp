@@ -84,7 +84,8 @@ const float playerColors[][3] = {
 	{.8,.3,.8},
 	{.1,1,1},
 	{.5,.5,.5},
-	{1,1,0}
+	{1,1,0},
+	{1,1,1}
 };
 void drawPlayer(const Unit& u){
 

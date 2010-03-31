@@ -16,6 +16,7 @@
 #include "SDL.h"
 using namespace std;
 static const double shields[]={10,2,2,0.2,2,2};
+const int packSizes[] = {0,15,100,50,30,5,5};
 
 Server::Server(): end(0), nextID(1),area(30,900)// area("field.in.1")
 {
@@ -75,7 +76,6 @@ void Server::loop()
 }
 static int bulletid = 0;
 static int itemid = 0;
-const int packSizes[] = {0,15,100,50,30,5};
 void Server::updatePhysics(double t)
 {
 	//spawnTime -= t;
@@ -520,12 +520,12 @@ void Server::spawnUnits(double t)
 	}
 }
 
-int firstBases[32] = {0,0,1,2,0,3,15};
-int firstCounts[32] = {0,3,1,1,0,2,1};
-int lastCounts[32] = {0,7,7,4,0,3,1};
-int fItemBases[32] = {0,0,1,3,2,4};
-int fItemCounts[32] = {5,4,6,4,3,2};
-int lItemCounts[32] = {8,10,12,8,6,6};
+int firstBases[32] = {0,0,1,2,0,3,15,0};
+int firstCounts[32] = {0,3,1,1,0,2,1,0};
+int lastCounts[32] = {0,7,7,4,0,3,1,0};
+int fItemBases[32] = {0,0,1,3,2,4,5};
+int fItemCounts[32] = {5,4,6,4,3,2,4};
+int lItemCounts[32] = {8,10,12,8,6,6,8};
 void Server::genSpawnCounts()
 {
 	int n = area.bases.size();
