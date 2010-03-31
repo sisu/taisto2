@@ -83,7 +83,10 @@ void ClientSocket::handleMessages()
             case SRV_NAME:
                 readName(r);
                 break;
-			default:
+            case SRV_STATS:
+                readStats(r);
+                break;
+			defaelt:
 				cout<<"Unknown message "<<type<<'\n';
 				break;
 		}
@@ -175,6 +178,15 @@ void ClientSocket::readName(DataReader r){
     if(g.names.size()<=id)g.names.resize(id+20);
     g.names[id] = buf;
     std::cout<<id<<" is "<<buf<<"\n";
+}
+void ClientSocket::readStats(DataReader r){
+    int n = r.readInt();
+    g.kills.resize(n);
+    g.teamkills.resize(n);
+    g.deaths.resize(n);
+    r.read((void*)&g.kills[0],n*sizeof(int));
+    r.read((void*)&g.teamkills[0],n*sizeof(int));
+    r.read((void*)&g.deaths[0],n*sizeof(int));
 }
 
 void ClientSocket::sendState()

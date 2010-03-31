@@ -39,6 +39,7 @@ Unit player;
 float playerdir;
 string  nickString;
 int mouseState;
+bool displayStats=false;
 void handleInput()
 {
     static float lasttime = 0;
@@ -55,6 +56,7 @@ void handleInput()
         player.movex--;
     if(keyboard[SDLK_d])
         player.movex++;
+    displayStats = keyboard[SDLK_TAB];
 
 	for(int i=1; i<10; ++i) if (keyboard['0'+i] && (game.bcnt[i-1] || i==1)) game.weapon=i-1;
 	
@@ -497,7 +499,7 @@ void draw(){
        glEnd();*/
     glLoadIdentity();
 
-    drawHud(game);
+    drawHud(game,displayStats);
 }
 
 void mainLoop()

@@ -21,6 +21,7 @@ struct ClientSocket {
 	void readBCount(DataReader r);
     void readName(DataReader r);
 
+    void readStats(DataReader r);
 	void sendState();
 	Connection conn;
 };

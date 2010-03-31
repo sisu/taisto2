@@ -32,6 +32,7 @@ struct Game {
     std::vector<std::string> names;
 	ClientSocket socket;
 
+
 	void updateState(double t);
 	void updateNetwork();
 	void destroyBullet(int id, double x, double y);
@@ -53,6 +54,9 @@ struct Game {
 
 	int bcnt[8];
 	float nextSpawn;
+    std::vector<int> kills;
+    std::vector<int> teamkills;
+    std::vector<int> deaths;
 };
 
 #endif
