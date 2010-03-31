@@ -371,12 +371,12 @@ void Server::updateBullets(double t)
 		} else {
 			bool ok;
 			vector<int> hits = moveRail(b, &units[0], units.size(), area, t, &ok);
-			if(!ok) {
-				for(unsigned j = 0; j < hits.size(); ++j) {
-					//units[hits[j]].health = -1;
-                    damageUnit(hits[j],100,b.shooter);
-				}
+            for(unsigned j = 0; j < hits.size(); ++j) {
+                //units[hits[j]].health = -1;
+                damageUnit(hits[j],100,b.shooter);
+            }
 
+			if(ok) {
 				DataWriter w;
 				w.writeByte(SRV_HIT);
 				w.writeInt(b.id);

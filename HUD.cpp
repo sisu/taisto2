@@ -55,7 +55,7 @@ void drawHud(Game& g,bool stats)
     drawString("uzi",-0.9+ss*2,nameh,s);
     drawString("electro",-0.9+ss*3,nameh,s);
     drawString("rocket",-0.9+ss*4,nameh,s);
-    drawString("granade",-0.9+ss*5,nameh,s);
+    drawString("grenade",-0.9+ss*5,nameh,s);
 	drawString("inf", -.9, -.95, s);
 
 

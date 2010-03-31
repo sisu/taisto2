@@ -427,7 +427,8 @@ void draw(){
             glBlendFunc (GL_SRC_ALPHA, GL_ONE);
             draw_bullet(b);
         }
-        else if(b.type==ROCKET) draw_rocket(b);
+        else if(b.type==ROCKET) 
+            draw_rocket(b);
         else if(b.type==SHOTGUN){
             glColor4f(0.5,0.7,1,0.9);
             glBlendFunc (GL_SRC_ALPHA, GL_ONE);
@@ -440,7 +441,12 @@ void draw(){
 			glColor3f(1,1,0);
 			glBlendFunc(GL_ONE, GL_ONE);
 			draw_bullet(b,.4);
-		}
+		}else
+        {
+            glColor4f(1.5,1.6,1.0,1.5);
+            glBlendFunc (GL_SRC_ALPHA, GL_ONE);
+            draw_bullet(b);
+        }
 	}
 
     for(int l=0;l<game.lightnings.size();l++)

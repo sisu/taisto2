@@ -101,27 +101,29 @@ std::vector<int> moveRail(Bullet& b, Unit* us, int n, const Area& a, double t, b
 	std::vector<int> ret;
 
 	Vec2 nv = normalize(b.v);
+	Vec2 newLoc = b.loc + b.v * t;	
 
 	for(int j=0; j<n; ++j) {
 		Unit& u = us[j];
 		Vec2 w = u.loc-b.loc;
 		if (dot(w,nv)<0) continue;
+        if (dot(u.loc-newLoc,-nv)<0) continue;
 		double d = fabs(cross(w, nv)) - bsizes[b.type];
 		if (d>.4) continue;
 
 		ret.push_back(j);
 	}
 
-	Vec2 newLoc = b.loc + b.v * t;	
 
-	wallHitPoint(b.loc, newLoc, a, hitt);
+	b.loc = wallHitPoint(b.loc, newLoc, a, hitt);
+    
 
 	return ret;
 }
 
 bool moveBullet(Bullet& b, Unit* us, int n, const Area& a, double t, int* hitt)
 {
-	assert(b.type != RAILGUN);
+	//assert(b.type != RAILGUN);
 
 	if (b.type==GRENADE) {
 		*hitt=-1;
@@ -148,11 +150,21 @@ bool moveBullet(Bullet& b, Unit* us, int n, const Area& a, double t, int* hitt)
 		}
 		double vv = v0 - GRENADE_SLOW*t;
 		return vv > 6;
-	}
+	}else if(b.type==RAILGUN)
+    {
+        bool hit;
+        b.loc = wallHitPoint(b.loc, b.loc+b.v*t, a, &hit);
+        *hitt=-1;
+        //std::cout<<"fuu "<<hit<<" "<<b.loc.x<<" "<<b.loc.y<<"\n";
+        return true;
+        //return hit;
+        //return false;
+    //    return true;
+    }
 
 	Vec2 l = b.loc + b.v*t;
-	// FIXME: optimize
 	Vec2 nv = normalize(b.v);
+	// FIXME: optimize
 	double bdd2=1e50, bj=-1;
 	for(int j=0; j<n; ++j) {
 		Unit& u = us[j];
