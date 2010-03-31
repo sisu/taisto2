@@ -5,20 +5,17 @@
 #include<GL/glu.h>
 #include <algorithm>
 #include"texgen.hpp"
+#include "timef.h"
 using namespace std;
 
 const int NSIZE = 512;
 double noise[NSIZE][NSIZE];
 
-double rndf()
-{
-	return rand()/double(RAND_MAX);
-}
 void genNoise()
 {
 	for(int i=0; i<NSIZE; ++i)
 		for(int j=0; j<NSIZE; ++j)
-			noise[i][j] = rndf();
+			noise[i][j] = randf();
 }
 double interp(double x,double y,double a)
 {
@@ -139,9 +136,9 @@ GLuint genExplosionTex()
 //			double x=2.*(j-TS/2)/TS;
 //			double y=2.*(i-TS/2)/TS;
 			double x=double(j)/TS, y=double(i)/TS;
-			texture[i][j][0] = .6+.2*rndf();
-			texture[i][j][1] = .3+.5*rndf();
-			texture[i][j][2] = .2*rndf();
+			texture[i][j][0] = .6+.2*randf();
+			texture[i][j][1] = .3+.5*randf();
+			texture[i][j][2] = .2*randf();
 //			texture[i][j][3] = max(0.0, turbulence(x,y,64) + .5);
 			double d = (x-.5)*(x-.5) + (y-.5)*(y-.5);
 			double f = min(1., .05/d);
@@ -289,7 +286,22 @@ GLuint genHealthTex()
     glBindTexture(GL_TEXTURE_2D,0);
     return t;
 }
-#if 0
+unsigned makeFloatTex(void* ptr, int TS)
+{
+	unsigned t;
+	glGenTextures(1, &t);
+	glBindTexture(GL_TEXTURE_2D, t);
+	glTexParameterf( GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER,
+			GL_LINEAR_MIPMAP_NEAREST );
+    glTexParameterf( GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR );
+
+    glTexParameterf( GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT );
+    glTexParameterf( GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT );
+
+    gluBuild2DMipmaps( GL_TEXTURE_2D, 4,TS,TS, GL_RGBA, GL_FLOAT, ptr );
+    glBindTexture(GL_TEXTURE_2D,0);
+	return t;
+}
 unsigned genSmokeTex()
 {
 	const int TS=64;
@@ -299,11 +311,16 @@ unsigned genSmokeTex()
 		for(int j=0; j<TS; ++j) {
 			double x=double(j)/TS, y=double(i)/TS;
 			for(int k=0; k<3; ++k) texture[i][j][k] = .5+.5*randf();
-			texture[i][j][3] = ;
+			double d = (x-.5)*(x-.5) + (y-.5)*(y-.5);
+			double f = min(1., .05/d);
+			const double B=.2;
+			f = min(f, max(0.0, .5/(.5-B) - sqrt(d)/B));
+			const double F=128;
+			texture[i][j][3] = .4*f*(turbulence(F*x,F*y,16)-.1);
 		}
 	}
+	return makeFloatTex(texture, TS);
 }
-#endif
 
 
 Texture ammo;
@@ -323,4 +340,5 @@ void initTextures()
     groundTex = genGroundTex();
     buildingTex = genBuildingTex();
     healthTex = genHealthTex();
+	smokeTex = genSmokeTex();
 }
