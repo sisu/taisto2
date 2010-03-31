@@ -37,7 +37,9 @@ string curHost("127.0.0.1");
 Area& area=game.area;
 Unit player;
 float playerdir;
+string  nickString;
 int mouseState;
+bool displayStats=false;
 void handleInput()
 {
     static float lasttime = 0;
@@ -54,6 +56,7 @@ void handleInput()
         player.movex--;
     if(keyboard[SDLK_d])
         player.movex++;
+    displayStats = keyboard[SDLK_TAB];
 
 	for(int i=1; i<10; ++i) if (keyboard['0'+i] && (game.bcnt[i-1] || i==1)) game.weapon=i-1;
 	
@@ -309,7 +312,7 @@ void draw_bullet(Bullet bu,float scale=1)
 
 		glTexCoord2f(1,1);
         glVertex3f(1,1,1);
-		glTexCoord2f(0,1);
+		glTexCoord2f(1,0);
         glVertex3f(1,-1,1);
 #if 0
 
@@ -385,9 +388,9 @@ void setPerspective()
 	glLoadIdentity();
     gluPerspective(45,4.0/3.0,0.01,1000);
     glEnable(GL_MULTISAMPLE);
-    glHint(GL_LINE_SMOOTH_HINT,GL_NICEST);
+    //glHint(GL_LINE_SMOOTH_HINT,GL_NICEST);
     glHint(GL_POLYGON_SMOOTH_HINT,GL_NICEST);
-    glEnable(GL_LINE_SMOOTH);
+    //glEnable(GL_LINE_SMOOTH);
 
     glMatrixMode(GL_MODELVIEW);
 }
@@ -424,9 +427,10 @@ void draw(){
             glBlendFunc (GL_SRC_ALPHA, GL_ONE);
             draw_bullet(b);
         }
-        else if(b.type==ROCKET) draw_rocket(b);
+        else if(b.type==ROCKET) 
+            draw_rocket(b);
         else if(b.type==SHOTGUN){
-            glColor4f(0.5,0.7,1,0.5);
+            glColor4f(0.5,0.7,1,0.9);
             glBlendFunc (GL_SRC_ALPHA, GL_ONE);
             draw_bullet(b,.5);
         } else if (b.type==BOUNCEGUN) {
@@ -437,7 +441,12 @@ void draw(){
 			glColor3f(1,1,0);
 			glBlendFunc(GL_ONE, GL_ONE);
 			draw_bullet(b,.4);
-		}
+		}else
+        {
+            glColor4f(1.5,1.6,1.0,1.5);
+            glBlendFunc (GL_SRC_ALPHA, GL_ONE);
+            draw_bullet(b);
+        }
 	}
 
     for(int l=0;l<game.lightnings.size();l++)
@@ -496,7 +505,7 @@ void draw(){
        glEnd();*/
     glLoadIdentity();
 
-    drawHud(game);
+    drawHud(game,displayStats);
 }
 
 void mainLoop()
@@ -508,7 +517,7 @@ void mainLoop()
     int r  = 0;
     double lasttime = 0;
 //	bool res = game.socket.connect("127.0.0.1");
-	bool res = game.socket.connect(curHost.c_str());
+	bool res = game.socket.connect(curHost.c_str(),nickString.c_str());
 	cout<<"connect res "<<res<<'\n';
 	if (!res) {
 		return;
@@ -575,6 +584,9 @@ void joinGame()
 	Menu m;
 	m.size = .06;
     game.reset();
+	MenuItem nick={"nick",STRING};
+	nick.str = &nickString;
+    m.items.push_back(nick);
 	MenuItem host={"hostname",STRING};
 	host.str = &curHost;
 	m.items.push_back(host);
@@ -604,8 +616,6 @@ void runOptionsMenu()
 		res.lst.push_back(string(buf));
 		if (modes[i]->w==screenW && modes[i]->h==screenH) res.cur=i;
 	}
-	res.lst.push_back("1024x768");
-	res.lst.push_back("800x600");
 	m.items.push_back(res);
 
 	m.exec();
@@ -644,6 +654,7 @@ Menu createMainMenu()
 
 int main(int argc, char* argv[])
 {
+    nickString = getenv("USER");
     srand(time(0));
     SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO | SDL_INIT_TIMER);
 	atexit(SDL_Quit);

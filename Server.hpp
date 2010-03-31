@@ -3,6 +3,7 @@
 
 #include <vector>
 #include "Unit.hpp"
+#include <string>
 #include "ClientInfo.hpp"
 #include "Item.hpp"
 #include "IDMap.hpp"
@@ -27,10 +28,11 @@ struct Server {
 	void sendToAll(DataWriter& w);
 	void updateBullets(double t);
 	void updateBases();
-	void damageUnit(int i, double d);
+	void damageUnit(int i, double d,int shooter);
 	void spawnUnits(double t);
 	void genSpawnCounts();
 	void spawnClient(ClientInfo& c);
+    void sendStats();
 
 	volatile bool end;
 
@@ -55,6 +57,10 @@ struct Server {
     int enemyCounts[32];
 	double unitMove;
     double flowSpawnTime;
+    std::vector<int> kills;
+    std::vector<int> deaths;
+    std::vector<int> teamkills;
+    std::string name[320];
 };
 
 #endif

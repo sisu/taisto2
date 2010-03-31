@@ -18,6 +18,7 @@
 
 using namespace std;
 static const double shields[]={10,2,2,0.2,2,2};
+const int packSizes[] = {0,15,100,50,30,5,5};
 
 struct PQE {
 	int to;
@@ -79,6 +80,7 @@ void Server::loop()
 			clients[clID[u.id]]->u = &u;
 		}
 		sendState();
+        sendStats();
 		t=nt;
 		SDL_Delay(15);
 	}
@@ -97,7 +99,6 @@ void find_affected(const vector<vector<int> >& graph,
 
 static int bulletid = 0;
 static int itemid = 0;
-const int packSizes[] = {0,15,100,50,30,5};
 void Server::updatePhysics(double t)
 {
 	//spawnTime -= t;
@@ -238,8 +239,15 @@ void Server::updatePhysics(double t)
 				sendToAll(w);
 			} else if (t==SHOTGUN)
             {
-                for(int j=0;j<10;j++){
+                int sn = 5;
+                for(int j=0;j<sn;j++){
                     Bullet b = genBullet(t, u.loc, u.d, bulletid++);
+                    b.shooter = u.id;
+                    double d = u.d;
+                    d+=(sn/2-j)*0.2/(sn/5.0);
+                    Vec2 v(cos(d),sin(d));
+                    v*=30;
+                    b.v=v;
                     bullets.push_back(b);
 
                     DataWriter w;
@@ -250,6 +258,7 @@ void Server::updatePhysics(double t)
             }else{
 				Bullet b = genBullet(t, u.loc, u.d, bulletid++);
 				bullets.push_back(b);
+                b.shooter = u.id;
 
 				DataWriter w;
 				w.writeByte(SRV_SHOOT);
@@ -262,7 +271,10 @@ void Server::updatePhysics(double t)
 
 	// delayed lightning damage
 	for(unsigned i=0; i<units.size(); ++i) {
-		damageUnit(i, 0);
+        if(units[i].health<=0)
+        {
+            
+        }
 	}
 
 //	if (units.size()>1) {Unit& u = units[1]; cout<<"updated physics; "<<u.movex<<' '<<u.movey<<" ; "<<u.loc<<" ; "<<u.shooting<<' '<<u.id<<' '<<clID[u.id]<<'\n';}
@@ -369,6 +381,19 @@ void Server::readInputs()
 		}
 	}
 }
+void Server::sendStats(){
+    DataWriter w;
+    w.writeByte(SRV_STATS);
+    kills.resize(nextID+2);
+    teamkills.resize(nextID+2);
+    deaths.resize(nextID+2);
+    int n = kills.size();
+    w.writeInt(n);
+    w.write((void*)&kills[0],n*sizeof(int));
+    w.write((void*)&teamkills[0],n*sizeof(int));
+    w.write((void*)&deaths[0],n*sizeof(int));
+    sendToAll(w);
+}
 
 void Server::updateBullets(double t)
 {
@@ -377,7 +402,7 @@ void Server::updateBullets(double t)
 		int h;
 		if(b.type != RAILGUN) {
 			if (!moveBullet(b, &units[0], units.size(), area, t, &h)) {
-				if (h>=0) damageUnit(h, damages[b.type]);
+				if (h>=0) damageUnit(h, damages[b.type],b.shooter);
 				if (b.type==ROCKET || b.type==GRENADE) {
 					b.loc -= normalize(b.v) * .05;
 					double r = b.type==ROCKET ? EXPLOSION_SIZE : GRENADE_SIZE;
@@ -390,7 +415,7 @@ void Server::updateBullets(double t)
 						wallHitPoint(b.loc, u.loc, area, &fail);
 						if (fail) continue;
 						unsigned s=units.size();
-						damageUnit(j, damages[b.type]*(1 - length(d)/r));
+						damageUnit(j, damages[b.type]*(1 - length(d)/r),b.shooter);
 						if (units.size()<s) --j;
 					}
 				}
@@ -408,11 +433,12 @@ void Server::updateBullets(double t)
 		} else {
 			bool ok;
 			vector<int> hits = moveRail(b, &units[0], units.size(), area, t, &ok);
-			if(!ok) {
-				for(unsigned j = 0; j < hits.size(); ++j) {
-					units[hits[j]].health = -1;
-				}
+            for(unsigned j = 0; j < hits.size(); ++j) {
+                //units[hits[j]].health = -1;
+                damageUnit(hits[j],100,b.shooter);
+            }
 
+			if(ok) {
 				DataWriter w;
 				w.writeByte(SRV_HIT);
 				w.writeInt(b.id);
@@ -426,7 +452,12 @@ void Server::updateBullets(double t)
 		}
 	}
 	for(unsigned i=0; i<units.size(); ++i) {
-		damageUnit(i, 0);
+		//damageUnit(i, 0,2000);
+        if(units[i].health<=0){
+            units[i] = units.back();
+            units.pop_back();
+            i--;
+        }
 	}
 }
 void Server::updateBases()
@@ -459,13 +490,23 @@ void Server::updateBases()
         spawnTime = 0;
 	}
 }
-void Server::damageUnit(int i, double d)
+void Server::damageUnit(int i, double d,int shooter)
 {
 	Unit& u =units[i];
 	u.health -= d/shields[u.type];
 	if (u.health<0) {
-		if (u.type==0) clients[clID[u.id]]->u=0, clients[clID[u.id]]->spawnTime=3;
-		else if (randf() < .25) {
+        if(u.type>=1)
+        {
+            if(shooter < 256)
+                kills[shooter]++;
+        }
+		if (u.type==0){
+            clients[clID[u.id]]->u=0, clients[clID[u.id]]->spawnTime=3;
+            //if(clients[clID[u.id]]->
+            if(shooter < 256)
+                teamkills[shooter]++;
+            deaths[u.id]++;
+        }else if (randf() < .25) {
 			float t = 200. * (50+10*randf())/items_map.vec.size();
 			Item it(u.type-1, u.loc, itemid++, t, u.d);
 			items_map.insert(it);
@@ -475,8 +516,8 @@ void Server::damageUnit(int i, double d)
 			w.write(&it,sizeof(it));
 			sendToAll(w);
 		}
-		units[i] = units.back();
-		units.pop_back();
+		//units[i] = units.back();
+		//units.pop_back();
 	}
 }
 void Server::spawnUnits(double t)
@@ -513,8 +554,8 @@ void Server::spawnUnits(double t)
 
         }
         flowSpawnTime=1;
-        std::cout<<units.size()<<" units\n";
-        std::cout<<items_map.vec.size()<<" items\n";
+        //std::cout<<units.size()<<" units\n";
+        //std::cout<<items_map.vec.size()<<" items\n";
     }
 	if (spawnTime > 0) return;
 #if 0
@@ -582,12 +623,12 @@ void Server::spawnUnits(double t)
 	}
 }
 
-int firstBases[32] = {0,0,1,2,0,3,15};
-int firstCounts[32] = {0,3,1,1,0,2,1};
-int lastCounts[32] = {0,7,7,4,0,3,1};
-int fItemBases[32] = {0,0,1,3,2,4};
-int fItemCounts[32] = {5,4,6,4,3,2};
-int lItemCounts[32] = {8,10,12,8,6,6};
+int firstBases[32] = {0,0,1,2,0,3,15,0};
+int firstCounts[32] = {0,3,1,1,0,2,1,0};
+int lastCounts[32] = {0,7,7,4,0,3,1,0};
+int fItemBases[32] = {0,0,1,3,2,4,5};
+int fItemCounts[32] = {5,4,6,4,3,2,4};
+int lItemCounts[32] = {8,10,12,8,6,6,8};
 void Server::genSpawnCounts()
 {
 	int n = area.bases.size();

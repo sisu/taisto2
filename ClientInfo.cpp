@@ -35,6 +35,9 @@ bool ClientInfo::handleMessages()
 			case CLI_STATE:
 				readState(r);
 				break;
+            case CLI_NAME:
+                sendName(r);
+                break;
 			default:
 				cout<<"Warning: unknown message type "<<type<<'\n';
                 assert(false);
@@ -95,6 +98,20 @@ void ClientInfo::sendBCounts()
 {
 	DataWriter w;
 	w.writeByte(SRV_BCOUNT);
+    bcnt[RAILGUN]=10000;
 	w.write(bcnt, 8*4);
 	conn.write(w);
+}
+void ClientInfo::sendName(DataReader r)
+{
+    DataWriter w;
+    //int id = r.readInt();
+    char buf[32]={};
+    r.read(buf,32);
+    server.name[id]=buf;
+    w.writeByte(SRV_NAME);
+w.writeInt(id);
+    w.write(buf,32);
+    server.sendToAll(w);
+    std::cout<<buf<<" connected\n";
 }

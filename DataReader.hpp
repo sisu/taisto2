@@ -1,4 +1,4 @@
-#ifndef DAtAREADER_HPP
+#ifndef DATAREADER_HPP
 #define DATAREADER_HPP
 
 #include <cstring>

@@ -18,7 +18,7 @@ ClientSocket::ClientSocket(Game& g): g(g)
 {
 }
 
-bool ClientSocket::connect(const char* host)
+bool ClientSocket::connect(const char* host,const char* nick)
 {
 	hostent* serv = gethostbyname(host);
 	sockaddr_in addr;
@@ -30,7 +30,13 @@ bool ClientSocket::connect(const char* host)
 	if (::connect(sockfd, (sockaddr*)&addr, sizeof(addr))<0) return 0;
 	fcntl(sockfd, F_SETFL, O_NONBLOCK);
 	conn.fd = sockfd;
-
+    
+    DataWriter w;
+    w.writeByte(CLI_NAME);
+    char buf[33]={};
+    memcpy(buf,nick,31);
+    w.write(buf,32);
+    conn.write(w);
 	return 1;
 }
 
@@ -74,7 +80,13 @@ void ClientSocket::handleMessages()
 			case SRV_SPAWNTIME:
 				g.nextSpawn = r.readFloat();
 				break;
-			default:
+            case SRV_NAME:
+                readName(r);
+                break;
+            case SRV_STATS:
+                readStats(r);
+                break;
+			defaelt:
 				cout<<"Unknown message "<<type<<'\n';
 				break;
 		}
@@ -158,6 +170,23 @@ void ClientSocket::readBCount(DataReader r)
 {
 	r.read(g.bcnt, 8*4);
 	while(g.weapon && !g.bcnt[g.weapon]) --g.weapon;
+}
+void ClientSocket::readName(DataReader r){
+    int id = r.readInt();
+    char buf[33];
+    r.read(buf,32);
+    if(g.names.size()<=id)g.names.resize(id+20);
+    g.names[id] = buf;
+    std::cout<<id<<" is "<<buf<<"\n";
+}
+void ClientSocket::readStats(DataReader r){
+    int n = r.readInt();
+    g.kills.resize(n);
+    g.teamkills.resize(n);
+    g.deaths.resize(n);
+    r.read((void*)&g.kills[0],n*sizeof(int));
+    r.read((void*)&g.teamkills[0],n*sizeof(int));
+    r.read((void*)&g.deaths[0],n*sizeof(int));
 }
 
 void ClientSocket::sendState()
