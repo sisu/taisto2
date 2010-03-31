@@ -31,9 +31,10 @@ void drawHud(Game& g)
 	draw(buf,.75,-.65);
 #endif
 
+	drawString("inf", -.9, -.95, .06);
 	for(int i=1; i<6; ++i) {
 		sprintf(buf, "%d", g.bcnt[i]);
-		drawString(buf, -.9+.3*i, -.95, .05);
+		drawString(buf, -.9+.3*i, -.95, .06);
 	}
     glPopMatrix();
     glMatrixMode(GL_PROJECTION);
