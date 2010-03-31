@@ -8,6 +8,7 @@ Game::Game():items(items_map.vec),bullets(bullets_map.vec), socket(*this)
 {
 	weapon=0;
 	//bulletIndex = new int[1<<16];
+	defenceTime=0;
 }
 void Game::updateNetwork()
 {

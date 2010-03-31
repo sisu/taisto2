@@ -108,6 +108,13 @@ void drawHud(Game& g,bool stats)
 
     }
 
+	if (g.curBase==(int)g.area.bases.size()-2) {
+		char buf[128];
+		sprintf(buf, "defence time %.1f", g.defenceTime);
+		glColor3f(1,0,0);
+		drawString(buf, -.8, .8, .1);
+	}
+
     int w = g.weapon;
 
     glEnable(GL_BLEND);
@@ -122,4 +129,5 @@ void drawHud(Game& g,bool stats)
     glPopMatrix();
     glMatrixMode(GL_MODELVIEW);
     glEnable(GL_LIGHTING);
+
 }
