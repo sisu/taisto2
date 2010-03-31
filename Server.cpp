@@ -36,12 +36,14 @@ Server::~Server()
 	close(sockfd);
 }
 
+static double total_time=0;
 void Server::loop()
 {
 	cout<<"starting server loop\n";
 	double t=timef();
 	while(!end) {
 		double nt = SDL_GetTicks()/1e3;
+        //if(nt>15)end=1;
 		pollConnections();
 		for(unsigned i=0; i<units.size(); ++i) {
 			Unit& u = units[i];
@@ -88,7 +90,7 @@ void Server::updatePhysics(double t)
         if (units[i].type!=0) moveBot(*this,units[i],area,units,botinfos[units[i].id]);
 
 	unitMove += t;
-	const double MOVE_STEP = .010;
+	const double MOVE_STEP = .025;
 	while(unitMove >= MOVE_STEP) {
 		moveUnits(&units[0], units.size(), area, MOVE_STEP);
 		unitMove -= MOVE_STEP;
@@ -425,6 +427,7 @@ void Server::spawnUnits(double t)
 
         }
         flowSpawnTime=1;
+        std::cout<<units.size()<<" units\n";
     }
 	if (spawnTime > 0) return;
 #if 0

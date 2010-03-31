@@ -616,5 +616,6 @@ int main(int argc, char* argv[])
 #else
 	Menu m = createMainMenu();
 	m.exec();
+    std::cout<<"exit from main\n";
 #endif
 }
