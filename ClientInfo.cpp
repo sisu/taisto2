@@ -109,7 +109,7 @@ void ClientInfo::sendName(DataReader r)
     r.read(buf,32);
     server.name[id]=buf;
     w.writeByte(SRV_NAME);
-    w.writeInt(id);
+w.writeInt(id);
     w.write(buf,32);
     server.sendToAll(w);
     std::cout<<buf<<" connected\n";
