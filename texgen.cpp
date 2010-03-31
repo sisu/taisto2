@@ -289,7 +289,21 @@ GLuint genHealthTex()
     glBindTexture(GL_TEXTURE_2D,0);
     return t;
 }
-
+#if 0
+unsigned genSmokeTex()
+{
+	const int TS=64;
+	float texture[TS][TS][4];
+	genNoise();
+	for(int i=0; i<TS; ++i) {
+		for(int j=0; j<TS; ++j) {
+			double x=double(j)/TS, y=double(i)/TS;
+			for(int k=0; k<3; ++k) texture[i][j][k] = .5+.5*randf();
+			texture[i][j][3] = ;
+		}
+	}
+}
+#endif
 
 
 Texture ammo;
@@ -299,6 +313,7 @@ unsigned explosionTex;
 unsigned groundTex;
 unsigned buildingTex;
 unsigned healthTex;
+unsigned smokeTex;
 
 void initTextures()
 {
