@@ -573,6 +573,7 @@ void hostGame()
 void joinGame()
 {
 	Menu m;
+	m.size = .06;
     game.reset();
 	MenuItem host={"hostname",STRING};
 	host.str = &curHost;
@@ -582,28 +583,52 @@ void joinGame()
 	m.items.push_back(conn);
 	m.exec();
 }
-Menu createOptionsMenu()
+bool fullScreen=0;
+void runOptionsMenu()
 {
 	Menu m;
+	m.size = .06;
 	MenuItem fscr={"fullscreen",LIST};
-	fscr.lst.push_back("yes");
 	fscr.lst.push_back("no");
+	fscr.lst.push_back("yes");
+	fscr.cur = fullScreen;
 
 	m.items.push_back(fscr);
 	MenuItem res={"resolution",LIST};
+	res.cur = 0;
+
+	SDL_Rect** modes = SDL_ListModes(0, SDL_OPENGL | SDL_FULLSCREEN);
+	for(int i=0; modes[i]; ++i) {
+		char buf[64];
+		sprintf(buf, "%dx%d", modes[i]->w, modes[i]->h);
+		res.lst.push_back(string(buf));
+		if (modes[i]->w==screenW && modes[i]->h==screenH) res.cur=i;
+	}
 	res.lst.push_back("1024x768");
+	res.lst.push_back("800x600");
 	m.items.push_back(res);
 
-	return m;
-}
-void runOptionsMenu()
-{
-	Menu m = createOptionsMenu();
 	m.exec();
+
+	bool nres=0;
+	if (m.items[0].cur!=fullScreen) nres=1;
+	int r = m.items[1].cur;
+	if (modes[r]->w!=screenW || modes[r]->h!=screenH) nres=1;
+
+	fullScreen = m.items[0].cur;
+	screenW = modes[r]->w, screenH = modes[r]->h;
+
+	if (nres) {
+		fullScreen = m.items[0].cur;
+		Uint32 f = fullScreen ? SDL_FULLSCREEN : 0;
+		SDL_SetVideoMode(screenW, screenH, 0, SDL_OPENGL | f);
+		glViewport(0,0,screenW,screenH);
+	}
 }
 Menu createMainMenu()
 {
 	Menu m;
+	m.size = .1;
 	MenuItem host={"host game",PICK};
 	host.func = hostGame;
 	m.items.push_back(host);

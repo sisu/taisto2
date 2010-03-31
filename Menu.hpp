@@ -25,6 +25,8 @@ struct Menu {
 
 	std::vector<MenuItem> items;
 	int cur;
+
+	double size;
 };
 
 #endif

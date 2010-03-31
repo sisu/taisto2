@@ -61,22 +61,33 @@ void Menu::draw()
 	glLineWidth(1);
 	int ii=0;
 	for(unsigned i=0; i<items.size(); ++i, ++ii) {
-		double x=-.7, y=.5-.3*ii;
+		double x=-.8, y=.7-2.5*size*ii;
 		if ((int)i==cur) {
 			glColor3f(.8,.5,1);
 			glLineWidth(3);
-			drawString(items[i].title, x, y, .1);
+			drawString(items[i].title, x, y, size);
 			glLineWidth(1);
 		}
 		glColor3f(1,.3,1);
-		drawString(items[i].title, x, y, .1);
+		drawString(items[i].title, x, y, size);
 
 		MenuItem& c = items[i];
-		if (c.type==STRING) drawString(c.str->c_str(), x+.6, y, .1);
+		if (c.type==STRING) drawString(c.str->c_str(), x+6*size, y, size);
 		else if (c.type==LIST) {
+			int xx=0;
 			for(unsigned j=0; j<c.lst.size(); ++j) {
+				y = .7-2.5*size*ii;
 				const string& s = c.lst[j];
-				drawString(s.c_str(), .2*j, y, .1);
+				double x0=-.3;
+				if (x0 + .6*size*(xx+s.size()) >= .95) {
+					++ii;
+					xx=0;
+					--j;
+					continue;
+				}
+				if ((int)j==c.cur) drawString(s.c_str(), x0+.6*size*xx, y, size, .2, 1, .2, .5, 1, .5);
+				else drawString(s.c_str(), x0+.6*size*xx, y, size, .2, 1, .2);
+				xx += s.size()+1;
 			}
 		}
 	}
