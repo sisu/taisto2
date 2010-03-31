@@ -87,15 +87,15 @@ void moveBot(Server& server,Unit& u, const Area& area, const std::vector<Unit>& 
 	Vec2 curLoc, myLoc;
 	curLoc.x = u.loc.x;
 	curLoc.y = u.loc.y;
-	myLoc.x = enemies?myunits[0].loc.x:(area.w/2);
-	myLoc.y = enemies?myunits[0].loc.y:0;
+	myLoc.x = enemies?myunits[0].loc.x:curLoc.x;
+	myLoc.y = enemies?myunits[0].loc.y:area.bases[server.curSpawn];
 
 	bool ok = false;
 	wallHitPoint(curLoc, myLoc, area, &ok);
     if(!ok && enemies){
-        u.shooting = 1;	
         u.d = atan2(myLoc.y - curLoc.y, myLoc.x - curLoc.x);
         Vec2 tv = myLoc-curLoc;
+        u.shooting = length(tv)<20;	
         if(length(tv)<2)return;
         tv = normalize(tv);
         u.movex = tv.x;
