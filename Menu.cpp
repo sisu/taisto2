@@ -45,6 +45,9 @@ static void setProjection()
 
 void Menu::draw()
 {
+	glMatrixMode(GL_VIEWPORT);
+	glLoadIdentity();
+	glMatrixMode(GL_PROJECTION);
 //	setProjection();
 	glDisable(GL_DEPTH_TEST);
 	glDisable(GL_LIGHTING);
