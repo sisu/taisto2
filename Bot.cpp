@@ -87,21 +87,30 @@ void moveBot(Server& server,Unit& u, const Area& area, const std::vector<Unit>& 
 	Vec2 curLoc, myLoc;
 	curLoc.x = u.loc.x;
 	curLoc.y = u.loc.y;
-	myLoc.x = enemies?myunits[0].loc.x:curLoc.x;
-	myLoc.y = enemies?myunits[0].loc.y:area.bases[server.curSpawn];
+	myLoc.x = curLoc.x;
+	myLoc.y = area.bases[server.curSpawn];
 
 	bool ok = false;
-	wallHitPoint(curLoc, myLoc, area, &ok);
-    if(!ok && enemies){
-        u.d = atan2(myLoc.y - curLoc.y, myLoc.x - curLoc.x);
-        Vec2 tv = myLoc-curLoc;
-        u.shooting = length(tv)<20;	
-        if(length(tv)<2)return;
-        tv = normalize(tv);
-        u.movex = tv.x;
-        u.movey = tv.y;
-        return;
-    }
+
+	for(unsigned i = 0; i < myunits.size(); ++i) {
+		myLoc.x = myunits[i].loc.x;
+		myLoc.y = myunits[i].loc.y;
+
+
+		wallHitPoint(curLoc, myLoc, area, &ok);
+		if(!ok && enemies){
+			u.d = atan2(myLoc.y - curLoc.y, myLoc.x - curLoc.x);
+			Vec2 tv = myLoc-curLoc;
+			u.shooting = length(tv)<20;	
+			if(length(tv)<2)return;
+			tv = normalize(tv);
+			u.movex = tv.x;
+			u.movey = tv.y;
+			return;
+		}
+	}
+	//myLoc.x = curLoc.x;
+	//myLoc.y = area.bases[server.curSpawn];
 
 	if(yourInfo->planTime == 0 || !ok) {
 

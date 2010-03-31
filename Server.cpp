@@ -313,35 +313,58 @@ void Server::updateBullets(double t)
 	for(unsigned i=0; i<bullets.size(); ++i) {
 		Bullet& b = bullets[i];
 		int h;
-		if (!moveBullet(b, &units[0], units.size(), area, t, &h)) {
-			if (h>=0) damageUnit(h, damages[b.type]);
-			if (b.type==ROCKET || b.type==GRENADE) {
-				b.loc -= normalize(b.v) * .05;
-				double r = b.type==ROCKET ? EXPLOSION_SIZE : GRENADE_SIZE;
-				double r2 = r*r;
-				for(unsigned j=0; j<units.size(); ++j) {
-					Unit& u = units[j];
-					Vec2 d = u.loc-b.loc;
-					if (length2(d) > r2) continue;
-					bool fail;
-					wallHitPoint(b.loc, u.loc, area, &fail);
-					if (fail) continue;
-					unsigned s=units.size();
-					damageUnit(j, damages[b.type]*(1 - length(d)/r));
-					if (units.size()<s) --j;
+		if(b.type != RAILGUN) {
+			if (!moveBullet(b, &units[0], units.size(), area, t, &h)) {
+				if (h>=0) damageUnit(h, damages[b.type]);
+				if (b.type==ROCKET || b.type==GRENADE) {
+					b.loc -= normalize(b.v) * .05;
+					double r = b.type==ROCKET ? EXPLOSION_SIZE : GRENADE_SIZE;
+					double r2 = r*r;
+					for(unsigned j=0; j<units.size(); ++j) {
+						Unit& u = units[j];
+						Vec2 d = u.loc-b.loc;
+						if (length2(d) > r2) continue;
+						bool fail;
+						wallHitPoint(b.loc, u.loc, area, &fail);
+						if (fail) continue;
+						unsigned s=units.size();
+						damageUnit(j, damages[b.type]*(1 - length(d)/r));
+						if (units.size()<s) --j;
+					}
 				}
+				//			cout<<"collision @ "<<c<<' '<<b.loc<<' '<<length(c-b.loc)<<'\n';
+				DataWriter w;
+				w.writeByte(SRV_HIT);
+				w.writeInt(b.id);
+				w.writeFloat(b.loc.x);
+				w.writeFloat(b.loc.y);
+				sendToAll(w);
+				bullets[i] = bullets.back();
+				bullets.pop_back();
+				--i;
 			}
-//			cout<<"collision @ "<<c<<' '<<b.loc<<' '<<length(c-b.loc)<<'\n';
-			DataWriter w;
-			w.writeByte(SRV_HIT);
-			w.writeInt(b.id);
-			w.writeFloat(b.loc.x);
-			w.writeFloat(b.loc.y);
-			sendToAll(w);
-			bullets[i] = bullets.back();
-			bullets.pop_back();
-			--i;
+		} else {
+			bool ok;
+			vector<int> hits = moveRail(b, &units[0], units.size(), area, t, &ok);
+			if(!ok) {
+				for(unsigned j = 0; j < hits.size(); ++j) {
+					units[hits[j]].health = -1;
+				}
+
+				DataWriter w;
+				w.writeByte(SRV_HIT);
+				w.writeInt(b.id);
+				w.writeFloat(b.loc.x);
+				w.writeFloat(b.loc.y);
+				sendToAll(w);
+				bullets[i] = bullets.back();
+				bullets.pop_back();
+				--i;
+			}
 		}
+	}
+	for(unsigned i=0; i<units.size(); ++i) {
+		damageUnit(i, 0);
 	}
 }
 void Server::updateBases()
