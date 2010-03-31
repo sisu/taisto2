@@ -38,7 +38,6 @@ Area& area=game.area;
 Unit player;
 float playerdir;
 int mouseState;
-int weapon=0;
 void handleInput()
 {
     static float lasttime = 0;
@@ -56,7 +55,7 @@ void handleInput()
     if(keyboard[SDLK_d])
         player.movex++;
 
-	for(int i=1; i<10; ++i) if (keyboard['0'+i]) weapon=i-1;
+	for(int i=1; i<10; ++i) if (keyboard['0'+i] && (game.bcnt[i-1] || i==1)) game.weapon=i-1;
 	
 	player.shooting = mouse[0];
 }
@@ -529,7 +528,6 @@ void mainLoop()
         readInput();
 		if (keyboard[27]) break;
         handleInput();
-		game.weapon = weapon;
 		game.player = &player;
         draw();
 		game.updateNetwork();

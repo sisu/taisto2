@@ -66,7 +66,7 @@ void ClientSocket::handleMessages()
                 readDestroyItem(r);
 				break;
 			case SRV_BCOUNT:
-				r.read(g.bcnt, 8*4);
+				readBCount(r);
 				break;
 			case SRV_ITEMS:
 				readItems(r);
@@ -153,6 +153,11 @@ void ClientSocket::readItems(DataReader r)
 		r.read(&it, sizeof(it));
 		g.items_map.insert(it);
 	}
+}
+void ClientSocket::readBCount(DataReader r)
+{
+	r.read(g.bcnt, 8*4);
+	while(g.weapon && !g.bcnt[g.weapon]) --g.weapon;
 }
 
 void ClientSocket::sendState()

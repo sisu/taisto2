@@ -143,10 +143,12 @@ void Server::updatePhysics(double t)
 			int t = u.type>0 ? u.type-1 : clients[clID[u.id]]->weapon;
 			if (u.type==0) {
 				ClientInfo& c = *clients[clID[u.id]];
-				if (c.weapon!=0 && !c.bcnt[t]) continue;
-				c.bcnt[t]--;
-				DataWriter w;
-				c.sendBCounts();
+				if (c.weapon) {
+					if (!c.bcnt[t]) continue;
+					c.bcnt[t]--;
+					DataWriter w;
+					c.sendBCounts();
+				}
 			}
 			u.shootTime = loadTimes[t];
 

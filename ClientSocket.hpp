@@ -18,6 +18,7 @@ struct ClientSocket {
     void readAddItem(DataReader r);
     void readDestroyItem(DataReader r);
 	void readItems(DataReader r);
+	void readBCount(DataReader r);
 
 	void sendState();
 
