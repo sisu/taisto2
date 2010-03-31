@@ -259,14 +259,7 @@ void Server::updatePhysics(double t)
 		}
 	}
 
-
-	// delayed lightning damage
-	for(unsigned i=0; i<units.size(); ++i) {
-        if(units[i].health<=0)
-        {
-            
-        }
-	}
+	defenceTime -= t;
 
 //	if (units.size()>1) {Unit& u = units[1]; cout<<"updated physics; "<<u.movex<<' '<<u.movey<<" ; "<<u.loc<<" ; "<<u.shooting<<' '<<u.id<<' '<<clID[u.id]<<'\n';}
 }
@@ -462,22 +455,24 @@ void Server::updateBases()
 		if (abs(u.loc.y-y1)<BASE_SIZE) c1+=a;
 	}
 //	cout<<"zxc "<<curSpawn<<' '<<c1<<' '<<c2<<'\n';
+	int sp=curSpawn;
 	if (c2>0) {
 		++curSpawn;
 		cout<<"updating base "<<curSpawn<<'\n';
-		DataWriter w;
-		w.writeByte(SRV_BASE);
-		w.writeInt(curSpawn);
-		sendToAll(w);
-        spawnTime = 0;
 	}
 	else if (curSpawn && c1<-2) {
 		--curSpawn;
+	}
+	if (curSpawn!=sp) {
 		DataWriter w;
 		w.writeByte(SRV_BASE);
 		w.writeInt(curSpawn);
 		sendToAll(w);
         spawnTime = 0;
+
+		if (curSpawn == (int)area.bases.size()-2) {
+			defenceTime = DEFENCE_TIME;
+		}
 	}
 }
 void Server::damageUnit(int i, double d,int shooter)
