@@ -148,7 +148,7 @@ void Server::updatePhysics(double t)
 			}
 			u.shootTime = loadTimes[t];
 
-			if (t==2) { // lightning
+			if (t==LIGHTNING) { // lightning
 				DataWriter w;
 				w.writeByte(SRV_LIGHTNING);
 				w.writeInt(0);
@@ -492,12 +492,12 @@ void Server::spawnUnits(double t)
 	}
 }
 
-int firstBases[32] = {0,0,3,0,1,2,15};
-int firstCounts[32] = {0,3,2,0,1,1,1};
-int lastCounts[32] = {0,7,3,0,7,4,1};
-int fItemBases[32] = {0,2,3,0,1,4};
-int fItemCounts[32] = {5,3,4,4,6,2};
-int lItemCounts[32] = {8,6,8,10,12,6};
+int firstBases[32] = {0,0,1,2,0,3,15};
+int firstCounts[32] = {0,3,1,1,0,2,1};
+int lastCounts[32] = {0,7,7,4,0,3,1};
+int fItemBases[32] = {0,0,1,3,2,4};
+int fItemCounts[32] = {5,4,6,4,3,2};
+int lItemCounts[32] = {8,10,12,8,6,6};
 void Server::genSpawnCounts()
 {
 	int n = area.bases.size();

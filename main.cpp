@@ -420,12 +420,12 @@ void draw(){
 	}
 	for(unsigned i=0; i<game.bullets.size(); ++i) {
         Bullet b = game.bullets[i];
-		if (b.type==0){
+		if (b.type==MACHINEGUN){
             glColor4f(1.5,0.6,0.0,0.5);
             glBlendFunc (GL_SRC_ALPHA, GL_ONE);
             draw_bullet(b);
         }
-        else if(b.type==1) draw_rocket(b);
+        else if(b.type==ROCKET) draw_rocket(b);
         else if(b.type==SHOTGUN){
             glColor4f(0.5,0.7,1,0.5);
             glBlendFunc (GL_SRC_ALPHA, GL_ONE);
