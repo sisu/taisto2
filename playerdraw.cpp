@@ -77,13 +77,13 @@ static void quad(double w,double h)
     glPopMatrix();
 
 }
-const float playerColors[][3] = {
+float playerColors[][3] = {
 	{.4,.8,.6},
-	{.8,.3,.0},
-	{.5,.5,1},
+	{0.8,.3,.0},
+	{.2,.2,1},
 	{.8,.3,.8},
 	{.1,1,1},
-	{.5,.5,.5},
+	{.3,.3,.3},
 	{1,1,0}
 };
 void drawPlayer(const Unit& u){

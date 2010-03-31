@@ -37,6 +37,7 @@ string curHost("127.0.0.1");
 Area& area=game.area;
 Unit player;
 float playerdir;
+string  nickString;
 int mouseState;
 void handleInput()
 {
@@ -385,9 +386,9 @@ void setPerspective()
 	glLoadIdentity();
     gluPerspective(45,4.0/3.0,0.01,1000);
     glEnable(GL_MULTISAMPLE);
-    glHint(GL_LINE_SMOOTH_HINT,GL_NICEST);
+    //glHint(GL_LINE_SMOOTH_HINT,GL_NICEST);
     glHint(GL_POLYGON_SMOOTH_HINT,GL_NICEST);
-    glEnable(GL_LINE_SMOOTH);
+    //glEnable(GL_LINE_SMOOTH);
 
     glMatrixMode(GL_MODELVIEW);
 }
@@ -426,7 +427,7 @@ void draw(){
         }
         else if(b.type==ROCKET) draw_rocket(b);
         else if(b.type==SHOTGUN){
-            glColor4f(0.5,0.7,1,0.5);
+            glColor4f(0.5,0.7,1,0.9);
             glBlendFunc (GL_SRC_ALPHA, GL_ONE);
             draw_bullet(b,.5);
         } else if (b.type==BOUNCEGUN) {
@@ -508,7 +509,7 @@ void mainLoop()
     int r  = 0;
     double lasttime = 0;
 //	bool res = game.socket.connect("127.0.0.1");
-	bool res = game.socket.connect(curHost.c_str());
+	bool res = game.socket.connect(curHost.c_str(),nickString.c_str());
 	cout<<"connect res "<<res<<'\n';
 	if (!res) {
 		return;
@@ -574,6 +575,9 @@ void joinGame()
 {
 	Menu m;
     game.reset();
+	MenuItem nick={"nick",STRING};
+	nick.str = &nickString;
+    m.items.push_back(nick);
 	MenuItem host={"hostname",STRING};
 	host.str = &curHost;
 	m.items.push_back(host);
@@ -597,6 +601,7 @@ Menu createMainMenu()
 
 int main(int argc, char* argv[])
 {
+    nickString = getenv("USER");
     srand(time(0));
     SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO | SDL_INIT_TIMER);
 	atexit(SDL_Quit);

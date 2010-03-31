@@ -8,7 +8,7 @@ struct DataReader;
 struct ClientSocket {
 	ClientSocket(Game& g);
 	Game& g;
-	bool connect(const char* host);
+	bool connect(const char* host,const char* nick);
 	void handleMessages();
 	void readInit(DataReader r);
 	void readState(DataReader r);
@@ -19,9 +19,9 @@ struct ClientSocket {
     void readDestroyItem(DataReader r);
 	void readItems(DataReader r);
 	void readBCount(DataReader r);
+    void readName(DataReader r);
 
 	void sendState();
-
 	Connection conn;
 };
 

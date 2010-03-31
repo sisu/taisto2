@@ -14,6 +14,7 @@ struct ClientInfo {
 	void sendInit();
 	void readState(DataReader r);
 	void sendBCounts();
+    void sendName(DataReader r);
 
 	Server& server;
 	Unit* u;

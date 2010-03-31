@@ -2,6 +2,7 @@
 #define GAME_HPP
 
 #include "Item.hpp"
+#include <string>
 #include "IDMap.hpp"
 #include "Unit.hpp"
 #include "Area.hpp"
@@ -28,7 +29,7 @@ struct Game {
 	std::vector<Bullet> lastBullets;
 	std::vector<Particle> particles;
 	std::vector<std::pair<double, std::vector<int> > > lightnings;
-
+    std::vector<std::string> names;
 	ClientSocket socket;
 
 	void updateState(double t);

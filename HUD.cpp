@@ -13,6 +13,20 @@ void draw(const char* s, double x, double y)
 	drawString(s,x,y,.1);
 }
 
+static void quad(double w,double h)
+{
+    glPushMatrix();
+    glScalef(w,h,0);
+    glBegin(GL_QUADS);
+        glVertex3f(-1,-1,1);
+        glVertex3f(-1,1,1);
+        glVertex3f(1,1,1);
+        glVertex3f(1,-1,1);
+    glEnd();
+    glPopMatrix();
+
+}
+extern  float playerColors[][3];
 void drawHud(Game& g)
 {
 //	sprintf(buf, "a%.1f", g.nextSpawn);
@@ -31,11 +45,32 @@ void drawHud(Game& g)
 	draw(buf,.75,-.65);
 #endif
 
-	drawString("inf", -.9, -.95, .06);
+    double nameh = -0.8;
+    double s = 0.05;
+    double ss = s*5;
+    glLineWidth(0.00000001);
+    drawString("jam",-0.9,nameh,s);
+    drawString("shotgun",-0.9+ss*1,nameh,s);
+    drawString("uzi",-0.9+ss*2,nameh,s);
+    drawString("electro",-0.9+ss*3,nameh,s);
+    drawString("rocket",-0.9+ss*4,nameh,s);
+    drawString("granade",-0.9+ss*5,nameh,s);
+	drawString("inf", -.9, -.95, s);
+    
 	for(int i=1; i<6; ++i) {
 		sprintf(buf, "%d", g.bcnt[i]);
-		drawString(buf, -.9+.3*i, -.95, .06);
+		drawString(buf, -.9+ss*i, -.95, s);
 	}
+    int w = g.weapon;
+    glEnable(GL_BLEND);
+    glBlendFunc(GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA);
+    glDisable(GL_LIGHTING);
+
+    glColor4f(playerColors[w+1][0],playerColors[w+1][1],playerColors[w+1][2],0.5);
+    glTranslatef(-0.9+ss*w+ss/2-ss/8,nameh-ss/2,0);
+    quad(ss/2,ss);
+    glEnable(GL_LIGHTING);
+    glDisable(GL_BLEND);
     glPopMatrix();
     glMatrixMode(GL_PROJECTION);
     glPopMatrix();

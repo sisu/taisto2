@@ -176,8 +176,14 @@ void Server::updatePhysics(double t)
 				sendToAll(w);
 			} else if (t==SHOTGUN)
             {
-                for(int j=0;j<10;j++){
+                int sn = 5;
+                for(int j=0;j<sn;j++){
                     Bullet b = genBullet(t, u.loc, u.d, bulletid++);
+                    double d = u.d;
+                    d+=(sn/2-j)*0.2/(sn/5.0);
+                    Vec2 v(cos(d),sin(d));
+                    v*=30;
+                    b.v=v;
                     bullets.push_back(b);
 
                     DataWriter w;
@@ -307,6 +313,11 @@ void Server::readInputs()
 		}
 	}
 }
+void Server::sendStats() {
+    DataWriter w;
+    w.writeByte(SRV_STATS);
+    //w.writeB
+}
 
 void Server::updateBullets(double t)
 {
@@ -428,8 +439,8 @@ void Server::spawnUnits(double t)
 
         }
         flowSpawnTime=1;
-        std::cout<<units.size()<<" units\n";
-        std::cout<<items_map.vec.size()<<" items\n";
+        //std::cout<<units.size()<<" units\n";
+        //std::cout<<items_map.vec.size()<<" items\n";
     }
 	if (spawnTime > 0) return;
 #if 0
