@@ -14,6 +14,7 @@
 #include <cstdio>
 #include <iostream>
 #include "SDL.h"
+
 using namespace std;
 static const double shields[]={10,2,2,0.2,2,2};
 const int packSizes[] = {0,15,100,50,30,5,5};
@@ -75,6 +76,18 @@ void Server::loop()
 		SDL_Delay(15);
 	}
 }
+
+void find_affected(const vector<vector<int> >& graph,
+		vector<bool>& used, vector<int>& hits, int ind) {
+
+	used[ind] = true;
+	hits.push_back(ind);
+	for(int i = 0; graph[ind].size(); ++i) {
+		if(!used[graph[ind][i]])
+			find_affected(graph,used,hits,graph[ind][i]);
+	}
+}
+
 static int bulletid = 0;
 static int itemid = 0;
 void Server::updatePhysics(double t)
@@ -160,6 +173,8 @@ void Server::updatePhysics(double t)
 				Vec2 v(cos(u.d),sin(u.d));
 				int cnt=1;
 				w.writeInt(u.id);
+
+				vector<int> aff;
 				for(unsigned j=0; j<units.size(); ++j) {
 					if (j==i) continue;
 					Unit& p =units[j];
@@ -169,10 +184,48 @@ void Server::updatePhysics(double t)
 					double a = acos(dot(v,v2)/l);
 					if (a > LIGHTNING_ANGLE) continue;
 
+					aff.push_back(j);
+
+					/*
 					p.health -= damages[t] / shields[p.type];
 					w.writeInt(p.id);
 					++cnt;
+					*/
 				}
+
+				aff.push_back(i); // add the source
+
+				// generate graph
+
+				vector<vector<int> > graph(units.size(),vector<int>(units.size()));
+
+				for(int a = 0; a < units.size(); ++a) {
+					for(int b = a + 1; b < units.size(); ++b) {
+						bool ok = false;
+
+						wallHitPoint(units[a].loc, units[b].loc, area, &ok);
+
+						if(!ok) {
+							graph[a].push_back(b);
+							graph[b].push_back(a);
+						}
+					}
+				}
+
+				vector<bool> used(units.size());
+				vector<int> hits;
+
+				find_affected(graph,used,hits,i);
+
+				for(int a = 0; a < hits.size(); ++a) {
+					if(hits[a] != i) {
+						Unit& p =units[hits[a]];
+						p.health -= damages[t];
+						w.writeInt(p.id);
+						++cnt;
+					}
+				}
+
 				*(int*)&w.datavec[1] = cnt;
 				sendToAll(w);
 			} else if (t==SHOTGUN)
