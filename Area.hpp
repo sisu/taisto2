@@ -98,10 +98,6 @@ struct Area {
 endloop:;
             }
         }
-        for(int i=0;i<(int)bases.size();i++)
-        {
-            addRect(0,bases[i]-5,w,10,0);
-        }
         ///*
         std::reverse(a,a+w*h);
         removeDeadEnds();
@@ -127,6 +123,12 @@ endloop:;
                     }
                 }
             }
+        }
+        for(int i=0;i<(int)bases.size();i++)
+        {
+            addRect(0,bases[i]-5,w,10,0);
+            int ww = rand()%5;
+            addRect(rand()%(w-ww),bases[i]+4,ww,1);
         }
 
         /*
