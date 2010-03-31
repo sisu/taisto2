@@ -447,7 +447,7 @@ void drawLightningAim()
     glDisable(GL_LIGHTING);
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA,GL_ONE);
-    glColor4f(1,1,0,0.5);
+    glColor4f(1,1,0,0.2);
     glTranslatef(player.loc.x,player.loc.y,1.5);
     glRotatef(player.d*180/M_PI,0,0,1);
     float lr = LIGHTNING_RAD;

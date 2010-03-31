@@ -34,7 +34,8 @@ Server::Server(): end(0), nextID(1),area(30,900)// area("field.in.1")
 Server::~Server()
 {
 	cout<<"destructing server\n";
-	for(unsigned i=0; i<clients.size(); ++i) delete clients[i];
+	for(unsigned i=0; i<clients.size(); ++i)
+        delete clients[i];
 	shutdown(sockfd, SHUT_RDWR);
 	close(sockfd);
 }
@@ -95,6 +96,7 @@ void find_affected(const vector<vector<int> >& graph,
 
 static int bulletid = 0;
 static int itemid = 0;
+
 void Server::updatePhysics(double t)
 {
 	//spawnTime -= t;
@@ -226,7 +228,8 @@ void Server::updatePhysics(double t)
 				for(int a = 0; a < hits.size(); ++a) {
 					if(hits[a] != i) {
 						Unit& p =units[hits[a]];
-						p.health -= damages[t];
+                        damageUnit(hits[a],damages[t],u.id);
+						//p.health -= damages[t];
 						w.writeInt(p.id);
 						++cnt;
 					}
@@ -273,6 +276,11 @@ void Server::updatePhysics(double t)
         if(units[i].health<=0){
             units[i] = units.back();
             units.pop_back();
+            if(units[i].type ==0)
+            {
+                Unit u = units[i];
+                clients[clID[u.id]]->u=0, clients[clID[u.id]]->spawnTime=3;
+            }
             i--;
         }
 	}
@@ -351,7 +359,8 @@ void Server::sendState()
 #endif
 	sendToAll(w);
 }
-void Server::sendToAll(const void* s, int n)
+
+void Server::sendToAll(const void* s,int n)
 {
 	for(unsigned i=0; i<clients.size(); ++i)
 		clients[i]->conn.write(s,n);
@@ -387,11 +396,16 @@ void Server::sendStats(){
     kills.resize(nextID+2);
     teamkills.resize(nextID+2);
     deaths.resize(nextID+2);
-    int n = kills.size();
+    int n = clients.size();//kills.size();
     w.writeInt(n);
-    w.write((void*)&kills[0],n*sizeof(int));
-    w.write((void*)&teamkills[0],n*sizeof(int));
-    w.write((void*)&deaths[0],n*sizeof(int));
+    for(int i=0;i<n;i++)
+    {
+        int id = clients[i]->id;
+        w.writeInt(id);
+        w.writeInt(kills[id]);
+        w.writeInt(teamkills[id]);
+        w.writeInt(deaths[id]);
+    }
     sendToAll(w);
 }
 
@@ -456,6 +470,8 @@ void Server::updateBullets(double t)
             if(units[i].health!=0)
             {
                 std::cout<<"unit "<<units[i].id<<" health is nan\n";
+                Unit u = units[i];
+                clients[clID[u.id]]->u=0, clients[clID[u.id]]->spawnTime=3;
             }
             units[i] = units.back();
             units.pop_back();
@@ -495,12 +511,15 @@ void Server::updateBases()
 		}
 	}
 }
+static const double ultimate_foo = -3.548;
 void Server::damageUnit(int i, double d,int shooter)
 {
 	Unit& u =units[i];
 	u.health -= d/shields[u.type];
     assert(!isnan(u.health));
+    if(u.health == ultimate_foo)return;
 	if (u.health<0) {
+        u.health = ultimate_foo;
         if(u.type>=1)
         {
             if(shooter < 256)

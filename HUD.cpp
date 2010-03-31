@@ -72,17 +72,9 @@ void drawHud(Game& g,bool stats)
         double ss = 0.05;
         drawString("STATS:",-0.9,-0.9,ss);
         int c = 1;
-        for(int i=0;i<g.units.size();i++)
-        {
-            if(g.units[i].type==0){
-                int id = g.units[i].id;
-                char buf[128];
-                //sprintf(buf,"%-32s %8i %8i %8i",g.names[id].c_str(),g.kills[id],g.teamkills[id],g.deaths[id]);
-                //drawString(buf,-0.9,0.9-ss*c,ss);
-                //std::cout<<g.names[id]<<" "<<g.kills[id]<<" "<<g.teamkills[id]<<" "<<g.deaths[id]<<"\n";
-                c++;
-            }
-        }
+        
+        for(int i=0;i<g.kills.size();i++)
+            if(g.kills[i]!=-1) c++;
         glEnable(GL_BLEND);
         glBlendFunc(GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA);
 
@@ -95,20 +87,20 @@ void drawHud(Game& g,bool stats)
         glPopMatrix();
         c=1;
         glColor3f(2,2,2);
-        for(int i=0;i<g.units.size();i++)
+        for(int i=0;i<g.kills.size();i++)
         {
-            if(g.units[i].type==0){
-                if(g.units[i].id == g.player->id){
+            if(g.kills[i]!=-1){
+                if(i == g.player->id){
                     glColor3f(2,2,2);
                 }else
                 {
                     glColor3f(1,1,0);
                 }
-
-                int id = g.units[i].id;
+                
+                int id = i;
                 char buf[128];
                 sprintf(buf,"%-32s %8i %8i %8i",g.names[id].c_str(),g.kills[id],g.teamkills[id],g.deaths[id]);
-                drawString(buf,-0.9,0.9-ss*c,ss*0.90);
+                drawString(buf,-0.9,0.9-ss*c,ss*0.80);
                 //std::cout<<g.names[id]<<" "<<g.kills[id]<<" "<<g.teamkills[id]<<" "<<g.deaths[id]<<"\n";
                 c++;
             }
