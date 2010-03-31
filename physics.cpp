@@ -90,6 +90,7 @@ Vec2 wallHitPoint(Vec2 from, Vec2 to, const Area& a, bool* hitp)
 	return hit?c:to;
 }
 
+static const float bsizes[] = {.4,.1,.1,0,.3,.1,.1,.1};
 const double GRENADE_SLOW = .9;
 bool moveBullet(Bullet& b, Unit* us, int n, const Area& a, double t, int* hitt)
 {
@@ -130,7 +131,7 @@ bool moveBullet(Bullet& b, Unit* us, int n, const Area& a, double t, int* hitt)
 		double d = fabs(cross(w, nv));
 		if (d>.4) continue;
 		double dd2 = length2(w) - d*d;
-		if (dd2 < bdd2) bdd2=dd2, bj=j;
+		if (dd2 + bsizes[b.type]*bsizes[b.type] + 2*dd2*bsizes[b.type] < bdd2) bdd2=dd2, bj=j;
 	}
 	//		if (bj>=0) cout<<"asd "<<bj<<' '<<bdd2<<' '<<sqrt(bdd2)<<'\n';
 

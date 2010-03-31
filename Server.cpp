@@ -416,9 +416,8 @@ void Server::spawnUnits(double t)
             int r = rand()%tot;
             int t=0;
             int s=0;
-            for(t=0;s<r && t<5;t++)s+=f*spawnCounts[t][kk];
+            for(t=0;s<r && t<8;t++)s+=f*spawnCounts[t][kk];
             t--;
-            if(t==3)break;
             if(enemyCounts[t]>=f*3*spawnCounts[t][kk])
                 continue;
             Unit b(area.getSpawn(kk), t, botID++);
