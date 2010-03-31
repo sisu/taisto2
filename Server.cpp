@@ -248,8 +248,8 @@ void Server::updatePhysics(double t)
                 }
             }else{
 				Bullet b = genBullet(t, u.loc, u.d, bulletid++);
-				bullets.push_back(b);
                 b.shooter = u.id;
+				bullets.push_back(b);
 
 				DataWriter w;
 				w.writeByte(SRV_SHOOT);
