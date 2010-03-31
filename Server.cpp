@@ -45,6 +45,10 @@ void Server::loop()
 	double t=timef();
 	while(!end) {
 		double nt = SDL_GetTicks()/1e3;
+		if (nt <= t) {
+			SDL_Delay(10);
+			continue;
+		}
         //if(nt>15)end=1;
 		pollConnections();
 		for(unsigned i=0; i<units.size(); ++i) {
