@@ -2,10 +2,9 @@
 #include "Game.hpp"
 #include "Bullet.hpp"
 #include "timef.h"
+#include "texgen.hpp"
 #include <GL/gl.h>
 #include <GL/glu.h>
-
-extern GLuint explosionTex;
 
 void drawSparks(Particle* ps, int n)
 {
@@ -33,22 +32,19 @@ void drawSparks(Particle* ps, int n)
 	glLineWidth(1);
 }
 
-void drawExplosions(Game& g)
+void drawSingleType(Particle* ps, int n, int type, GLuint tex, float S)
 {
-	if (g.particles.empty()) return;
-//	cout<<"drawing "<<g.eparts.size()<<" particles\n";
 	glEnable(GL_TEXTURE_2D);
-	glBindTexture(GL_TEXTURE_2D, explosionTex);
+	glDisable(GL_LIGHTING);
+	glBindTexture(GL_TEXTURE_2D, tex);
 	glEnable(GL_BLEND);
-	glColor4f(1,1,1,1);
 	glBlendFunc(GL_SRC_ALPHA,GL_ONE);
 	glDepthMask(0);
-	glDisable(GL_LIGHTING);
-	const double S=.45;
+
 	glBegin(GL_QUADS);
-	for(unsigned i=0; i<g.particles.size(); ++i) {
-		Particle& p=g.particles[i];
-		if (p.type!=EXPLOSION_P) continue;
+	for(int i=0; i<n; ++i) {
+		Particle& p=ps[i];
+		if (p.type!=type) continue;
 		Vec3 v=p.loc;
 //		cout<<v<<'\n';
 		glTexCoord2f(0,0), glVertex3f(v.x-S, v.y-S, v.z);
@@ -57,8 +53,16 @@ void drawExplosions(Game& g)
 		glTexCoord2f(0,1), glVertex3f(v.x-S, v.y+S, v.z);
 	}
 	glEnd();
-	glDisable(GL_TEXTURE_2D);
-	glDisable(GL_BLEND);
 	glDepthMask(1);
-	glEnable(GL_LIGHTING);
+}
+void drawExplosions(Game& g)
+{
+	glColor3f(1,1,1);
+	drawSingleType(&g.particles[0], g.particles.size(), EXPLOSION_P, explosionTex, .45);
+}
+
+void drawSmoke(Game& g)
+{
+	glColor3f(1,1,1);
+	drawSingleType(&g.particles[0], g.particles.size(), SMOKE_P, smokeTex, .65);
 }

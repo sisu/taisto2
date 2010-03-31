@@ -28,9 +28,11 @@ struct Particle {
 };
 #define EXPLOSION_P 0
 #define SPARK_P 1
+#define SMOKE_P 2
 
 struct Game;
 void drawSparks(Particle* ps, int n);
 void drawExplosions(Game& g);
+void drawSmoke(Game& g);
 
 #endif
