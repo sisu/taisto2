@@ -64,6 +64,7 @@ void ClientSocket::handleMessages()
 				break;
 			case SRV_BASE:
 				g.curBase = r.readInt();
+				if (g.curBase==g.area.bases.size()-2) g.defenceTime = DEFENCE_TIME;
 				break;
             case SRV_ADDITEM:
                 readAddItem(r);
