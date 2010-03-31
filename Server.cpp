@@ -379,7 +379,7 @@ void Server::damageUnit(int i, double d)
 	if (u.health<0) {
 		if (u.type==0) clients[clID[u.id]]->u=0, clients[clID[u.id]]->spawnTime=3;
 		else if (randf() < .25) {
-			float t = 200. * (5+10*randf())/items_map.vec.size();
+			float t = 200. * (50+10*randf())/items_map.vec.size();
 			Item it(u.type-1, u.loc, itemid++, t, u.d);
 			items_map.insert(it);
 
@@ -428,6 +428,7 @@ void Server::spawnUnits(double t)
         }
         flowSpawnTime=1;
         std::cout<<units.size()<<" units\n";
+        std::cout<<items_map.vec.size()<<" items\n";
     }
 	if (spawnTime > 0) return;
 #if 0
@@ -453,7 +454,7 @@ void Server::spawnUnits(double t)
 	for(int i=0; i<20; ++i) {
 		for(int j=0; j<f*itemSpawns[i][curSpawn]; ++j) {
 			Vec2 s = area.getSpawn(curSpawn) + Vec2(randf()-.5,randf()-.5);
-			float t = 200. * (5+10*randf())/items_map.vec.size();
+			float t = 200. * (50+10*randf())/items_map.vec.size();
 			Item it(i, s, itemid++, t, 360*randf());
 			items_map.insert(it);
 			added.push_back(it);

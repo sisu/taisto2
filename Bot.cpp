@@ -92,6 +92,16 @@ void moveBot(Server& server,Unit& u, const Area& area, const std::vector<Unit>& 
 
 	bool ok = false;
 	wallHitPoint(curLoc, myLoc, area, &ok);
+    if(!ok && enemies){
+        u.shooting = 1;	
+        u.d = atan2(myLoc.y - curLoc.y, myLoc.x - curLoc.x);
+        Vec2 tv = myLoc-curLoc;
+        if(length(tv)<2)return;
+        tv = normalize(tv);
+        u.movex = tv.x;
+        u.movey = tv.y;
+        return;
+    }
 
 	if(yourInfo->planTime == 0 || !ok) {
 
