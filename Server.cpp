@@ -16,6 +16,7 @@
 #include "SDL.h"
 
 using namespace std;
+//static const double buffer[1000];
 static const double shields[]={10,2,2,0.2,2,2,2,2,2,2};
 const int packSizes[] = {0,15,100,50,30,5,5};
 
@@ -451,7 +452,11 @@ void Server::updateBullets(double t)
 	}
 	for(unsigned i=0; i<units.size(); ++i) {
 		//damageUnit(i, 0,2000);
-        if(units[i].health<=0){
+        if(units[i].health<=0 || isnan(units[i].health)){
+            if(units[i].health!=0)
+            {
+                std::cout<<"unit "<<units[i].id<<" health is nan\n";
+            }
             units[i] = units.back();
             units.pop_back();
             i--;
@@ -494,6 +499,7 @@ void Server::damageUnit(int i, double d,int shooter)
 {
 	Unit& u =units[i];
 	u.health -= d/shields[u.type];
+    assert(!isnan(u.health));
 	if (u.health<0) {
         if(u.type>=1)
         {
@@ -507,7 +513,7 @@ void Server::damageUnit(int i, double d,int shooter)
                 teamkills[shooter]++;
             deaths[u.id]++;
         }else if (randf() < .25) {
-			float t = 200. * (50+10*randf())/items_map.vec.size();
+			float t = 200. * (50+10*randf())/(1+items_map.vec.size());
 			Item it(u.type-1, u.loc, itemid++, t, u.d);
 			items_map.insert(it);
 

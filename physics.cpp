@@ -170,8 +170,8 @@ bool moveBullet(Bullet& b, Unit* us, int n, const Area& a, double t, int* hitt)
 		Unit& u = us[j];
 		Vec2 w = u.loc-b.loc;
 		if (dot(w,nv)<0) continue;
-		double d = fabs(cross(w, nv)) - bsizes[b.type];
-		if (d>.4) continue;
+		double d = fabs(cross(w, nv));
+		if (d-bsizes[b.type]>.4) continue;
 		double dd2 = length2(w) - d*d;
 		if (dd2 < bdd2) bdd2=dd2, bj=j;
 	}
@@ -196,6 +196,7 @@ bool moveBullet(Bullet& b, Unit* us, int n, const Area& a, double t, int* hitt)
 		if (hit) b.loc=c, *hitt=-1;
 		else if (bj>=0) b.loc+=normalize(b.v)*sqrt(l2), *hitt=bj;
 		else b.loc=l, *hitt=-1;
+        assert(!isnan(b.loc.x)&&!isnan(b.loc.y));
 		return bj<0 && !hit;
 	}
 }

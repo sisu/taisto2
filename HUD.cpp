@@ -108,7 +108,7 @@ void drawHud(Game& g,bool stats)
                 int id = g.units[i].id;
                 char buf[128];
                 sprintf(buf,"%-32s %8i %8i %8i",g.names[id].c_str(),g.kills[id],g.teamkills[id],g.deaths[id]);
-                drawString(buf,-0.9,0.9-ss*c,ss);
+                drawString(buf,-0.9,0.9-ss*c,ss*0.90);
                 //std::cout<<g.names[id]<<" "<<g.kills[id]<<" "<<g.teamkills[id]<<" "<<g.deaths[id]<<"\n";
                 c++;
             }

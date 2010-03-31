@@ -83,6 +83,17 @@ void ClientInfo::sendInit()
 		conn.write(w);
 	}
 	sendBCounts();
+    for(int i=0;i<server.nextID;i++)
+    {
+        if(server.name[i].size()){
+            w.writeByte(SRV_NAME);
+            w.writeInt(i);
+            char buf[33]={};
+            memcpy(buf,server.name[i].c_str(),server.name[i].size());
+            w.write(buf,32);
+            conn.write(w);
+        }
+    }
 }
 void ClientInfo::readState(DataReader r)
 {
@@ -118,7 +129,7 @@ void ClientInfo::sendName(DataReader r)
     r.read(buf,32);
     server.name[id]=buf;
     w.writeByte(SRV_NAME);
-w.writeInt(id);
+    w.writeInt(id);
     w.write(buf,32);
     server.sendToAll(w);
     std::cout<<buf<<" connected\n";
