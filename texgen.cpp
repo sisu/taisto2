@@ -52,6 +52,22 @@ double turbulence(double x, double y, double size)
 	return value / asize;
 }
 
+unsigned makeTex(void* ptr, int TS, GLenum type)
+{
+	unsigned t;
+	glGenTextures(1, &t);
+	glBindTexture(GL_TEXTURE_2D, t);
+	glTexParameterf( GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER,
+			GL_LINEAR_MIPMAP_NEAREST );
+    glTexParameterf( GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR );
+
+    glTexParameterf( GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT );
+    glTexParameterf( GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT );
+
+    gluBuild2DMipmaps( GL_TEXTURE_2D, 4,TS,TS, GL_RGBA, type, ptr );
+    glBindTexture(GL_TEXTURE_2D,0);
+	return t;
+}
 static Texture getAmmo()
 {
     Texture ret;
@@ -73,17 +89,7 @@ static Texture getAmmo()
             //ret.pix[y*ret.w+x]=-1;//iz|iz<<24|(iz)<<16|iz<<8;
         }
     }
-    unsigned tex;
-    glGenTextures(1,&tex);
-    glBindTexture(GL_TEXTURE_2D,tex);
-        glTexParameterf( GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER,
-                GL_LINEAR_MIPMAP_NEAREST );
-    // when texture area is large, bilinear filter the original
-    glTexParameterf( GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR );
-    std::cout<<"mipmaps = "<<gluBuild2DMipmaps( GL_TEXTURE_2D, 4,ret.w,ret.h,
-            GL_RGBA, GL_UNSIGNED_INT_8_8_8_8, ret.pix )<<'\n';
-    ret.glid = tex;
-    glBindTexture(GL_TEXTURE_2D,0);
+	ret.glid =  makeTex(ret.pix, ret.w, GL_UNSIGNED_INT_8_8_8_8);
     return ret;
 }
 static Texture getSalama()
@@ -109,19 +115,7 @@ static Texture getSalama()
             ret.pix[y*ret.w+x]=(std::max(0,std::min(255,iz*2-80)))|std::min(255,iz/2)<<24|std::min(255,iz/2)<<16|std::min(255,int(sqrt(10000*iz)))<<8;
         }
     }
-    unsigned tex;
-    glGenTextures(1,&tex);
-    glBindTexture(GL_TEXTURE_2D,tex);
-        glTexParameterf( GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER,
-                GL_LINEAR_MIPMAP_NEAREST );
-    // when texture area is large, bilinear filter the original
-    glTexParameterf( GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR );
-    std::cout<<"mipmaps = "<<gluBuild2DMipmaps( GL_TEXTURE_2D, 4,ret.w,ret.h,
-            GL_RGBA, GL_UNSIGNED_INT_8_8_8_8, ret.pix )<<'\n';
-    glTexParameterf( GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT );
-    glTexParameterf( GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT );
-    ret.glid = tex;
-    glBindTexture(GL_TEXTURE_2D,0);
+	ret.glid = makeTex(ret.pix, ret.w, GL_UNSIGNED_INT_8_8_8_8);
     return ret;
 }
 
@@ -149,17 +143,7 @@ GLuint genExplosionTex()
 			texture[i][j][3] = .4*f*(turbulence(F*x,F*y,16)-.1);
 		}
 	}
-	GLuint t;
-	glGenTextures(1, &t);
-	glBindTexture(GL_TEXTURE_2D, t);
-	glTexParameterf( GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER,
-			GL_LINEAR_MIPMAP_NEAREST );
-    // when texture area is large, bilinear filter the original
-    glTexParameterf( GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR );
-    std::cout<<"mipmaps = "<<gluBuild2DMipmaps( GL_TEXTURE_2D, 4,TS,TS,
-            GL_RGBA, GL_FLOAT, texture )<<'\n';
-    glBindTexture(GL_TEXTURE_2D,0);
-    return t;
+	return makeTex(texture, TS, GL_FLOAT);
 }
 GLuint genGroundTex()
 {
@@ -199,21 +183,7 @@ GLuint genGroundTex()
 			texture[i][j][3] =1;
 		}
 	}
-	GLuint t;
-	glGenTextures(1, &t);
-	glBindTexture(GL_TEXTURE_2D, t);
-	glTexParameterf( GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER,
-			GL_LINEAR_MIPMAP_NEAREST );
-    // when texture area is large, bilinear filter the original
-    glTexParameterf( GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR );
-
-    glTexParameterf( GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT );
-    glTexParameterf( GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT );
-
-    std::cout<<"mipmaps = "<<gluBuild2DMipmaps( GL_TEXTURE_2D, 4,TS,TS,
-            GL_RGBA, GL_FLOAT, texture )<<'\n';
-    glBindTexture(GL_TEXTURE_2D,0);
-    return t;
+	return makeTex(texture, TS, GL_FLOAT);
 }
 GLuint genBuildingTex()
 {
@@ -270,56 +240,26 @@ GLuint genHealthTex()
 			texture[i][j][3] =1;
 		}
 	}
-	GLuint t;
-	glGenTextures(1, &t);
-	glBindTexture(GL_TEXTURE_2D, t);
-	glTexParameterf( GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER,
-			GL_LINEAR_MIPMAP_NEAREST );
-    // when texture area is large, bilinear filter the original
-    glTexParameterf( GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR );
-
-    glTexParameterf( GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT );
-    glTexParameterf( GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT );
-
-    std::cout<<"mipmaps = "<<gluBuild2DMipmaps( GL_TEXTURE_2D, 4,TS,TS,
-            GL_RGBA, GL_FLOAT, texture )<<'\n';
-    glBindTexture(GL_TEXTURE_2D,0);
-    return t;
-}
-unsigned makeFloatTex(void* ptr, int TS)
-{
-	unsigned t;
-	glGenTextures(1, &t);
-	glBindTexture(GL_TEXTURE_2D, t);
-	glTexParameterf( GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER,
-			GL_LINEAR_MIPMAP_NEAREST );
-    glTexParameterf( GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR );
-
-    glTexParameterf( GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT );
-    glTexParameterf( GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT );
-
-    gluBuild2DMipmaps( GL_TEXTURE_2D, 4,TS,TS, GL_RGBA, GL_FLOAT, ptr );
-    glBindTexture(GL_TEXTURE_2D,0);
-	return t;
+	return makeTex(texture, TS, GL_FLOAT);
 }
 unsigned genSmokeTex()
 {
 	const int TS=64;
-	float texture[TS][TS][4];
+	float tex[TS][TS][4];
 	genNoise();
 	for(int i=0; i<TS; ++i) {
 		for(int j=0; j<TS; ++j) {
 			double x=double(j)/TS, y=double(i)/TS;
-			for(int k=0; k<3; ++k) texture[i][j][k] = .5+.5*randf();
+			tex[i][j][0]=tex[i][j][1]=tex[i][j][2] = turbulence(32*(1-x),32*(1-y),32);
 			double d = (x-.5)*(x-.5) + (y-.5)*(y-.5);
 			double f = min(1., .05/d);
 			const double B=.2;
 			f = min(f, max(0.0, .5/(.5-B) - sqrt(d)/B));
 			const double F=128;
-			texture[i][j][3] = .4*f*(turbulence(F*x,F*y,16)-.1);
+			tex[i][j][3] = .4*f*(turbulence(F*x,F*y,16)-.1);
 		}
 	}
-	return makeFloatTex(texture, TS);
+	return makeTex(tex, TS, GL_FLOAT);
 }
 
 
