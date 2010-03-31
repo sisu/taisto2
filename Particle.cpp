@@ -44,7 +44,7 @@ void drawExplosions(Game& g)
 	glBlendFunc(GL_SRC_ALPHA,GL_ONE);
 	glDepthMask(0);
 	glDisable(GL_LIGHTING);
-	const double S=.35;
+	const double S=.45;
 	glBegin(GL_QUADS);
 	for(unsigned i=0; i<g.particles.size(); ++i) {
 		Particle& p=g.particles[i];
