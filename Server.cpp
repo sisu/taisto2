@@ -14,7 +14,6 @@
 #include <cstdio>
 #include <iostream>
 #include "SDL.h"
-#include <priority_queue>
 
 using namespace std;
 static const double shields[]={10,2,2,0.2,2,2};
@@ -90,7 +89,7 @@ void find_affected(const vector<vector<int> >& graph,
 		vector<bool>& used, vector<int>& hits, int ind) {
 
 	used[ind] = true;
-	hits.push_back(i);
+	hits.push_back(ind);
 	for(int i = 0; graph[ind].size(); ++i) {
 		if(!used[graph[ind][i]])
 			find_affected(graph,used,hits,graph[ind][i]);
