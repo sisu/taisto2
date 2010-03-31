@@ -12,6 +12,7 @@
 #include "BotInformation.hpp"
 
 const int SERVER_PORT = 56125;
+const double DEFENCE_TIME = 60;
 
 struct DataWriter;
 struct Server {
@@ -52,6 +53,7 @@ struct Server {
 
 	int curSpawn;
 	int botID;
+	bool win;
 
 	int spawnCounts[32][64]; // [type][base]
 	int itemSpawns[32][64];

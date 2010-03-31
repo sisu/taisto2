@@ -30,6 +30,8 @@ Server::Server(): end(0), nextID(1),area(30,900)// area("field.in.1")
 	initSocket();
 	genSpawnCounts();
 	unitMove = 0;
+	defenceTime=0;
+	win=0;
 }
 Server::~Server()
 {
@@ -69,6 +71,16 @@ void Server::loop()
 		}
 		readInputs();
 		updatePhysics(nt-t);
+
+		if (curSpawn==area.bases.size()-2 && defenceTime<=0) {
+			// voitto
+			win=1;
+			for(unsigned i=0; i<units.size(); ) {
+				if (units[i].type==0) ++i;
+				else units[i]=units.back(),units.pop_back();
+			}
+		}
+
 		updateBases();
 		for(unsigned i=0; i<units.size(); ++i) {
 			Unit& u = units[i];
@@ -491,7 +503,7 @@ void Server::updateBases()
         spawnTime = 0;
 
 		if (curSpawn == (int)area.bases.size()-2) {
-//			defenceTime = DEFENCE_TIME;
+			defenceTime = DEFENCE_TIME;
 		}
 	}
 }
@@ -536,7 +548,7 @@ void Server::spawnUnits(double t)
     {
         enemyCounts[units[i].type]++;
     }
-    if(flowSpawnTime<0){
+    if(!win && flowSpawnTime<0){
         for(int i=0;i<curSpawn+1;i++)
         for(int k=curSpawn+2; k<curSpawn+3; ++k) {
             int kk = min(k, (int)area.bases.size()-1);
