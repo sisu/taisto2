@@ -699,6 +699,7 @@ void runOptionsMenu()
         if (modes[i]->w==screenW && modes[i]->h==screenH) res.cur=i;
     }
     m.items.push_back(res);
+	m.items.push_back((MenuItem){"done",EXIT});
 
     m.exec();
 
