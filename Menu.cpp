@@ -24,12 +24,16 @@ bool Menu::handleInput()
 		if (m.type==EXIT) return 0;
 		if (m.type==PICK) m.func();
 	}
-	if (items[cur].type==STRING) {
-		string& str = *items[cur].str;
+	MenuItem& i = items[cur];
+	if (i.type==STRING) {
+		string& str = *i.str;
 		if (press('\b') && !str.empty()) str.erase(str.end()-1);
 		for(int i=32; i<123; ++i) {
 			if (press(i)) str.push_back(i);
 		}
+	} else if (i.type==LIST) {
+		if (press(SDLK_LEFT)) i.cur=(i.cur+i.lst.size()-1)%i.lst.size();
+		if (press(SDLK_RIGHT)) i.cur=(i.cur+1)%i.lst.size();
 	}
 	return 1;
 }
@@ -55,8 +59,9 @@ void Menu::draw()
 	glLoadIdentity();
 	
 	glLineWidth(1);
-	for(unsigned i=0; i<items.size(); ++i) {
-		double x=-.5, y=.5-.3*i;
+	int ii=0;
+	for(unsigned i=0; i<items.size(); ++i, ++ii) {
+		double x=-.7, y=.5-.3*ii;
 		if ((int)i==cur) {
 			glColor3f(.8,.5,1);
 			glLineWidth(3);
@@ -66,7 +71,14 @@ void Menu::draw()
 		glColor3f(1,.3,1);
 		drawString(items[i].title, x, y, .1);
 
-		if (items[i].type==STRING) drawString(items[i].str->c_str(), x+.6, y, .1);
+		MenuItem& c = items[i];
+		if (c.type==STRING) drawString(c.str->c_str(), x+.6, y, .1);
+		else if (c.type==LIST) {
+			for(unsigned j=0; j<c.lst.size(); ++j) {
+				const string& s = c.lst[j];
+				drawString(s.c_str(), .2*j, y, .1);
+			}
+		}
 	}
 }
 

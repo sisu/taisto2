@@ -582,6 +582,25 @@ void joinGame()
 	m.items.push_back(conn);
 	m.exec();
 }
+Menu createOptionsMenu()
+{
+	Menu m;
+	MenuItem fscr={"fullscreen",LIST};
+	fscr.lst.push_back("yes");
+	fscr.lst.push_back("no");
+
+	m.items.push_back(fscr);
+	MenuItem res={"resolution",LIST};
+	res.lst.push_back("1024x768");
+	m.items.push_back(res);
+
+	return m;
+}
+void runOptionsMenu()
+{
+	Menu m = createOptionsMenu();
+	m.exec();
+}
 Menu createMainMenu()
 {
 	Menu m;
@@ -591,6 +610,9 @@ Menu createMainMenu()
 	MenuItem join={"join game",PICK};
 	join.func = joinGame;
 	m.items.push_back(join);
+	MenuItem opt={"options",PICK};
+	opt.func = runOptionsMenu;
+	m.items.push_back(opt);
 	m.items.push_back((MenuItem){"quit", EXIT});
 	return m;
 }

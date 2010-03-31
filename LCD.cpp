@@ -68,3 +68,17 @@ void drawString(const char* str, double x, double y, double s)
 	glPopMatrix();
 	glMatrixMode(GL_MODELVIEW);
 }
+void drawString(const char* str, double x, double y, double s, double r, double g, double b)
+{
+	glColor3f(r,g,b);
+	drawString(str,x,y,s);
+}
+void drawString(const char* str, double x, double y, double s, double r, double g, double b, double r2, double g2, double b2)
+{
+	glLineWidth(3);
+	glColor3f(r,g,b);
+	drawString(str,x,y,s);
+	glLineWidth(1);
+	glColor3f(r2,g2,b2);
+	drawString(str,x,y,s);
+}

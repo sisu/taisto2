@@ -5,7 +5,7 @@
 #include <string>
 
 enum ItemType {
-	PICK,EXIT,STRING
+	PICK,EXIT,STRING,LIST
 };
 
 struct MenuItem {
@@ -13,6 +13,8 @@ struct MenuItem {
 	ItemType type;
 	void(*func)();
 	std::string* str;
+	std::vector<std::string> lst;
+	int cur;
 };
 
 struct Menu {
