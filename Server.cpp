@@ -47,6 +47,10 @@ void Server::loop()
 {
 	cout<<"starting server loop\n";
 	double t=timef();
+    for(int i=0;i<30;i++){
+        //spawnUnits(1);
+        updatePhysics(1);
+    }
 	while(!end) {
 		double nt = SDL_GetTicks()/1e3;
 		if (nt <= t) {

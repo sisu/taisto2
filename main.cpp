@@ -105,7 +105,7 @@ int fixH(int h)
 	if (h<=0) return 0;
 	return 2+2*h;
 }
-void draw_area()
+void draw_area(Area& area = ::area)
 {
     glPushMatrix();
 //    glScalef(0.5,0.5,0.5);
@@ -431,7 +431,7 @@ void setPerspective()
     glShadeModel(GL_SMOOTH);
     glMatrixMode(GL_PROJECTION);
     glLoadIdentity();
-    gluPerspective(45,4.0/3.0,0.01,1000);
+    gluPerspective(45,float(screenW)/screenH,0.01,1000);
     glEnable(GL_MULTISAMPLE);
     //glHint(GL_LINE_SMOOTH_HINT,GL_NICEST);
     glHint(GL_POLYGON_SMOOTH_HINT,GL_NICEST);
@@ -497,6 +497,7 @@ void draw(){
         Bullet b = game.bullets[i];
         if (b.type==MACHINEGUN){
             glColor4f(1.5,0.6,0.0,0.5);
+            //glColor4f(1,1,1,0.5);
             glBlendFunc (GL_SRC_ALPHA, GL_ONE);
             draw_bullet(b);
         }
@@ -699,6 +700,7 @@ void runOptionsMenu()
         res.lst.push_back(string(buf));
         if (modes[i]->w==screenW && modes[i]->h==screenH) res.cur=i;
     }
+
     m.items.push_back(res);
 	m.items.push_back((MenuItem){"done",EXIT});
 
@@ -734,6 +736,49 @@ Menu createMainMenu()
     m.items.push_back(opt);
     m.items.push_back((MenuItem){"quit", EXIT});
     return m;
+}
+Area backArea(100,100);
+void menuBackDraw()
+{
+    setPerspective();
+    setLights();
+    glClear(GL_COLOR_BUFFER_BIT|GL_DEPTH_BUFFER_BIT);
+    glEnable(GL_NORMALIZE);
+    glLoadIdentity();
+    glTranslatef(-0,0,-5);
+    //glTranslatef(0,0,-35);
+    glRotatef(-45,1,0,0);
+    Unit u(Vec2(0,0),0,0);
+    u.d = sin(timef())*0.5;
+    u.movex=1;
+    u.movey=0;
+    u.shooting=1;
+    player.loc.x=10+fmod(timef(),80);
+    player.loc.y=10;
+    drawPlayer(u,false);
+    float f = fmod(timef()*2,400);
+
+    glEnable(GL_TEXTURE_2D);
+    glBindTexture(GL_TEXTURE_2D,groundTex);
+    glColor3f(1,1,1);
+
+    glTranslatef(-f,0,0);
+    glBegin(GL_QUADS);
+		glNormal3f(0,0,1);
+        glTexCoord2f(0,0);
+        glVertex3f(-1000,-1000,0);
+        glTexCoord2f(200,0);
+        glVertex3f(1000,-1000,0);
+        glTexCoord2f(200,200);
+        glVertex3f(1000,1000,0);
+        glTexCoord2f(0,200);
+        glVertex3f(-1000,1000,0);
+    glEnd();
+    //glRotatef(-45,0,0,1);
+    glTranslatef(0,0.5,0.1);
+    glDisable(GL_TEXTURE_2D);
+    //draw_area(backArea);
+
 }
 
 int main(int argc, char* argv[])
