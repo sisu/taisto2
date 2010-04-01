@@ -536,7 +536,16 @@ static const double ultimate_foo = -3.548;
 void Server::damageUnit(int i, double d,int shooter)
 {
 	Unit& u =units[i];
-	u.health -= d/shields[u.type];
+	double lol = 1;
+
+	if(clients.size() == 1) {
+		lol = 0.25;
+	} else if(clients.size() == 2) {
+		lol = 0.75;
+	}
+	if (u.type==0) lol=1;
+
+	u.health -= d/(lol * shields[u.type]);
     assert(!isnan(u.health));
     if(u.health == ultimate_foo)return;
 	if (u.health<0) {
