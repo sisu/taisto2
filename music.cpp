@@ -3,13 +3,11 @@
 #include <algorithm>
 #include <iostream>
 #include "SDL.h"
+#include "music.hpp"
+#include "timef.h"
 using namespace std;
 
 namespace {
-inline float rndf()
-{
-	return (float)rand()/RAND_MAX;
-}
 
 static int ilog2(int n)
 {
@@ -72,8 +70,9 @@ void fft(float* rdst, float* idst, const float* rsrc, const float* isrc, int n)
 {
 	calc_fft(rdst,idst,rsrc,isrc,n,2*M_PI);
 }
-void ifft(float* rdst, float* idst, const float* rsrc, const float* isrc, int n)
+void ifft(float* rdst, float* idst, float* rsrc, float* isrc, int n)
 {
+	for(int i=0; i<n/2; ++i) rsrc[n-1-i]=-rsrc[i], isrc[n-1-i]=-isrc[i];
 	calc_fft(rdst,idst,rsrc,isrc,n,-2*M_PI);
 	float r = 1.f/n;
 	for(int i=0; i<n; ++i) {
@@ -107,10 +106,10 @@ void genWT(float* out, const float* amps, const float* freqs, int n, float fundf
 		}
 	}
 	for(int i=0; i<WTS/2; ++i) {
-		float p = 2*M_PI*rndf();
+		float p = 2*M_PI*randf();
 		float a = sintable[i];
-		sintable[WTS-1-i]=-(sintable[i] = a*sin(p));
-		costable[WTS-1-i]=-(costable[i] = a*cos(p));
+		sintable[i] = a*sin(p);
+		costable[i] = a*cos(p);
 	}
 
 	ifft(out, nulltable, costable, sintable, WTS);
@@ -160,17 +159,10 @@ float volume(const Envelope& e, float t)
 const float BEAT_FREQ = 1500;
 const float BEAT_SLOW = 200;
 
-void callback(void* udata, Uint8* stream, int l)
+bool playMusic=0, playSounds=0;
+
+void genMusic(float* buf, int l)
 {
-	Uint16* s = (Uint16*)stream;
-	l /= 2;
-#if 0
-	for(int i=0; i<l; ++i) {
-		int k=curS+i;
-		s[i] = wtables[0][k%WTS]*25000;
-	}
-#endif
-	float buf[SAMPLES]={};
 	for(int k=0; k<2; ++k) {
 		int cur0 = (curS-k*SPB)/SPB;
 		int cur = (cur0+NLEN) % NLEN;
@@ -197,8 +189,34 @@ void callback(void* udata, Uint8* stream, int l)
 		}
 #endif
 	}
-	// TODO: normalize buf?
-	for(int i=0; i<l; ++i) s[i] = buf[i]*20000;
+}
+
+float stables[NSOUNDS][WTS];
+
+void genExplosion(float* out)
+{
+	for(int i=0; i<WTS/2; ++i) {
+		sintable[i]=randf();
+		costable[i]=randf();
+	}
+	ifft(out, nulltable, sintable, costable, WTS);
+}
+
+vector<Sound> sounds;
+void genSounds(float* buf, int l)
+{
+}
+
+void callback(void* udata, Uint8* stream, int l)
+{
+	Uint16* s = (Uint16*)stream;
+	l /= 2;
+	float buf[SAMPLES]={};
+	if (playMusic) genMusic(buf, l);
+	float buf2[SAMPLES]={};
+	if (playSounds) genSounds(buf2, l);
+	// TODO: normalize bufs?
+	for(int i=0; i<l; ++i) s[i] = buf[i]*20000 + buf2[i]*10000;
 	curS += l;
 }
 
@@ -222,7 +240,7 @@ void initInstruments()
 #if 0
 	for(int i=0; i<WTS/2; ++i) {
 #if 1
-		float d=2*M_PI*rndf();
+		float d=2*M_PI*randf();
 		float a = cos(i*.01);;
 		sintable[WTS-1-i]=sintable[i]=a*sin(d);
 		costable[WTS-1-i]=costable[i]=a*cos(d);
@@ -234,7 +252,7 @@ void initInstruments()
 	ifft(wtables[2], nulltable, costable, sintable, WTS);
 	normalize(wtables[2], WTS);
 #else
-	for(int i=0; i<WTS; ++i) wtables[2][i] = 2*rndf()-1;
+	for(int i=0; i<WTS; ++i) wtables[2][i] = 2*randf()-1;
 #endif
 }
 
