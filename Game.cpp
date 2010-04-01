@@ -3,6 +3,7 @@
 #include "timef.h"
 #include "Bullet.hpp"
 #include "Vector.hpp"
+#include "music.hpp"
 
 Game::Game():items(items_map.vec),bullets(bullets_map.vec), socket(*this)
 {
@@ -88,6 +89,10 @@ void Game::destroyBullet(int id, double xx, double yy)
 			double s = 4*GRENADE_SIZE*randf();
 			particles.push_back(Particle(Vec3(c,1), s*rvec3(), SMOKE_P, 1.3*GRENADE_SIZE, .5+.3*randf()));
 		}
+	}
+
+	if (bx.type==ROCKET) {
+		sounds.push_back(Sound(EXPLOSION, .5));
 	}
 
 //	cout<<"asd "<<bx.origin<<' '<<g.player->loc<<' '<<bx.loc<<' '<<bx.v<<'\n';

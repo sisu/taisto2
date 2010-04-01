@@ -1,8 +1,11 @@
 #include "music.hpp"
 #include "SDL.h"
 
+extern bool playMusic;
+
 int main()
 {
+	playMusic=1;
 	initMusic();
 	SDL_PauseAudio(0);
 	bool done=0;
