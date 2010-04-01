@@ -7,6 +7,7 @@
 #include<fstream>
 #include <vector>
 #include "Vector.hpp"
+#include<cassert>
 
 struct Area {
     private:
@@ -127,8 +128,10 @@ endloop:;
         for(int i=0;i<(int)bases.size();i++)
         {
             addRect(0,bases[i]-5,w,10,0);
-            int ww = rand()%5;
-            addRect(rand()%(w-ww),bases[i]+4,ww,1);
+            int ww = rand()%5+5;
+            addRect(rand()%(w/2-ww),bases[i]+4,ww,1);
+            ww = rand()%5+5;
+            addRect(w/2+rand()%(w/2-ww),bases[i]+4,ww,1);
         }
 
         /*
@@ -201,7 +204,8 @@ endloop:;
 		int x,y;
 		do {
 			x = rand()%w, y=y0 + rand()%6-3;
-		} while(blocked(x,y));
+		} while(blocked(x,y)||!(blocked(x,y+1)||blocked(x,y+2)||blocked(x,y+3)));
+        //assert(blocked(x,y+1));
 		return Vec2(x+.5,y+.5);
 	}
 /*

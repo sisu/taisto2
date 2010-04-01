@@ -87,7 +87,7 @@ float playerColors[][3] = {
 	{1,1,0},
 	{1,1,1}
 };
-void drawPlayer(const Unit& u){
+void drawPlayer(const Unit& u,bool healthbar=1){
 
     //drawPlayer_real(u);
     //return;
@@ -99,16 +99,18 @@ void drawPlayer(const Unit& u){
     glTranslatef(u.loc.x,u.loc.y,1);
 
     //helabaari
-    glPushMatrix();
-    glTranslatef(1.0,0.0,0);
-    glColor3f(0,0,0);
-    glRotatef(90,0,0,1);
-    quad(1,0.1);
+    if(healthbar){
+        glPushMatrix();
+        glTranslatef(1.0,0.0,0);
+        glColor3f(0,0,0);
+        glRotatef(90,0,0,1);
+        quad(1,0.1);
 
-    glColor3f(1,0,0);
-    glTranslatef(0,0,0.1);
-    quad(1*u.health,0.05);
-    glPopMatrix();
+        glColor3f(1,0,0);
+        glTranslatef(0,0,0.1);
+        quad(1*u.health,0.05);
+        glPopMatrix();
+    }
 
     glColor3f(0,0,0);
 

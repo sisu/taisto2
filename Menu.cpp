@@ -37,6 +37,7 @@ bool Menu::handleInput()
 	}
 	return 1;
 }
+extern void menuBackDraw();
 
 #if 0
 static void setProjection()
@@ -49,13 +50,14 @@ static void setProjection()
 
 void Menu::draw()
 {
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    menuBackDraw();
 	glMatrixMode(GL_PROJECTION);
 	glLoadIdentity();
 	glMatrixMode(GL_MODELVIEW);
 //	setProjection();
 	glDisable(GL_DEPTH_TEST);
 	glDisable(GL_LIGHTING);
-	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	glLoadIdentity();
 	
 	glLineWidth(1);
