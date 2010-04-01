@@ -493,6 +493,19 @@ void draw(){
         draw_item(u);
         //draw_player(u.loc.x,u.loc.y,u.d,sin(u.d)*u.movey+cos(u.d)*u.movex);
     }
+    for(unsigned i=0; i<game.deadUnits.size(); ++i) {
+        Unit u = game.deadUnits[i];
+        //std::cout<<"dead "<<u.loc.x<<" "<<u.loc.y<<"\n";
+        if(u.shootTime+10<timef()){
+            game.deadUnits[i]=game.deadUnits.back();
+            game.deadUnits.pop_back();
+            i--;
+        }else
+        {
+            drawDeadPlayer(u,timef()-u.shootTime);
+        }
+        
+    }
     for(unsigned i=0; i<game.bullets.size(); ++i) {
         Bullet b = game.bullets[i];
         if (b.type==MACHINEGUN){
@@ -554,11 +567,6 @@ void draw(){
         //        drawSalama( b.origin.x, b.origin.y, b.loc.x, b.loc.y);
     }
 #endif
-    for(unsigned i=0; i<game.lastBullets.size(); ++i) {
-        Bullet b = game.lastBullets[i];
-        if (b.type==BOUNCEGUN) {
-        }
-    }
 
     for(unsigned i=0; i<game.lastBullets.size(); ++i) {
         Bullet b = game.lastBullets[i];

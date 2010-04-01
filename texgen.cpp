@@ -177,9 +177,9 @@ GLuint genGroundTex()
             FF;
             if((int(s*20)%2))is=1;
 
-            texture[i][j][0] = z*0.5+is*0.01;
-            texture[i][j][1] = z*0.2+is*0.1;
-            texture[i][j][2] = z*0.3+is*0.1;
+            texture[i][j][0] = z*0.0+is*0.01;
+            texture[i][j][1] = z*0.4+is*0.1;
+            texture[i][j][2] = z*0.8+is*0.1;
 			texture[i][j][3] =1;
 		}
 	}

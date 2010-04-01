@@ -87,6 +87,9 @@ void ClientSocket::handleMessages()
             case SRV_STATS:
                 readStats(r);
                 break;
+            case SRV_DEAD:
+                readDead(r);
+                break;
 			defaelt:
 				cout<<"Unknown message "<<type<<'\n';
 				break;
@@ -195,6 +198,16 @@ void ClientSocket::readStats(DataReader r){
         g.kills[id]=r.readInt();
         g.teamkills[id]=r.readInt();
         g.deaths[id]=r.readInt();
+    }
+}
+void ClientSocket::readDead(DataReader r){
+    int n = r.readInt();
+    for(int i=0;i<n;i++)
+    {
+        Unit u;
+        r.read(&u,sizeof(Unit));
+        u.shootTime = timef();
+        g.deadUnits.push_back(u);
     }
 }
 

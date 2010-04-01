@@ -29,7 +29,7 @@ struct Server {
 	void sendToAll(DataWriter& w);
 	void updateBullets(double t);
 	void updateBases();
-	void damageUnit(int i, double d,int shooter);
+	void damageUnit(int i, double d,int shooter,Bullet b);
 	void spawnUnits(double t);
 	void genSpawnCounts();
 	void spawnClient(ClientInfo& c);
@@ -64,6 +64,7 @@ struct Server {
     std::vector<int> deaths;
     std::vector<int> teamkills;
     std::string name[320];
+    std::vector<int> unitID;
 };
 
 #endif

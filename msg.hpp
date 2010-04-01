@@ -17,7 +17,8 @@ const unsigned char
 	SRV_ITEMS=10,
 	SRV_SPAWNTIME=11,
     SRV_NAME=12,
-    SRV_STATS=13
+    SRV_STATS=13,
+    SRV_DEAD=14
     ;
 
 #endif

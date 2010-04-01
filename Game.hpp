@@ -57,6 +57,7 @@ struct Game {
     std::vector<int> kills;
     std::vector<int> teamkills;
     std::vector<int> deaths;
+    std::vector<Unit> deadUnits;
 	double defenceTime;
 };
 

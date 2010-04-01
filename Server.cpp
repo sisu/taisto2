@@ -24,6 +24,7 @@ Server::Server(): end(0), nextID(1),area(30,900)// area("field.in.1")
 {
 	//for(int i=2; i<area.h; i+=30) area.bases.push_back(i);
 	clID = new int[1<<16];
+    unitID.resize(1<<16);
 	spawnTime = 0;
 	curSpawn=0;
 	botID=256;
@@ -244,7 +245,8 @@ void Server::updatePhysics(double t)
 				for(int a = 0; a < hits.size(); ++a) {
 					if(hits[a] != i) {
 						Unit& p =units[hits[a]];
-                        damageUnit(hits[a],damages[t],u.id);
+                        Bullet b = genBullet(LIGHTNING,Vec2(0,0),randf()*3.14,-1);
+                        damageUnit(hits[a],damages[t],u.id,b);
 						//p.health -= damages[t];
 						w.writeInt(p.id);
 						++cnt;
@@ -444,10 +446,10 @@ void Server::updateBullets(double t)
 						wallHitPoint(b.loc, u.loc, area, &fail);
 						if (fail) continue;
 						unsigned s=units.size();
-						damageUnit(j, damages[b.type]*(1 - length(d)/r),b.shooter);
+						damageUnit(j, damages[b.type]*(1 - length(d)/r),b.shooter,b);
 						if (units.size()<s) --j;
 					}
-				} else if (h>=0) damageUnit(h, damages[b.type],b.shooter);
+				} else if (h>=0) damageUnit(h, damages[b.type],b.shooter,b);
 				//			cout<<"collision @ "<<c<<' '<<b.loc<<' '<<length(c-b.loc)<<'\n';
 				DataWriter w;
 				w.writeByte(SRV_HIT);
@@ -464,7 +466,7 @@ void Server::updateBullets(double t)
 			vector<int> hits = moveRail(b, &units[0], units.size(), area, t, &ok);
             for(unsigned j = 0; j < hits.size(); ++j) {
                 //units[hits[j]].health = -1;
-                damageUnit(hits[j],100,b.shooter);
+                damageUnit(hits[j],10,b.shooter,b);
             }
 
 			if(ok) {
@@ -532,15 +534,27 @@ void Server::updateBases()
 		}
 	}
 }
-static const double ultimate_foo = -3.548;
-void Server::damageUnit(int i, double d,int shooter)
+static const double ultimate_foo = -32;
+void Server::damageUnit(int i, double d,int shooter,Bullet b)
 {
-	Unit& u =units[i];
+	Unit& u = units[i];
+    //Unit& attacker =  units[clID[shooter]];
 	u.health -= d/shields[u.type];
     assert(!isnan(u.health));
-    if(u.health == ultimate_foo)return;
+    if(u.health < ultimate_foo+2)
+        return;
 	if (u.health<0) {
         u.health = ultimate_foo;
+        DataWriter w;
+        u.lastShotAngle = atan2(b.v.y,b.v.x);
+        if(b.type==GRENADE || b.type==ROCKET)
+        {
+            u.lastShotAngle = atan2(u.loc.y-b.loc.y,u.loc.x-b.loc.x);
+        }
+        w.writeByte(SRV_DEAD);
+        w.writeInt(1);// one unit. hieman outo
+        w.write(&u,sizeof(Unit));
+        sendToAll(w);
         if(u.type>=1)
         {
             if(shooter < 256)

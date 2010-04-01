@@ -14,9 +14,10 @@ struct Unit {
 	int type,id;
 	bool shooting;
 	double shootTime;
+    double lastShotAngle;
 
 	Unit() {}
-	Unit(Vec2 l, int t, int i): loc(l), d(0), movex(0), movey(0), health(1), type(t), id(i), shooting(0), shootTime(0) {}
+	Unit(Vec2 l, int t, int i): loc(l), d(0), movex(0), movey(0), health(1), type(t), id(i), shooting(0), shootTime(0),lastShotAngle(0){}
 };
 #pragma pack(pop)
 

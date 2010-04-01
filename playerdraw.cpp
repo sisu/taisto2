@@ -149,3 +149,89 @@ void drawPlayer(const Unit& u,bool healthbar=1){
     glDepthFunc(GL_LESS);
     glPopMatrix();
 }
+
+
+void drawDeadPlayer(Unit u,float timeDead)
+{
+    
+    //std::cout<<"draw\n";
+    u.movex = u.movey=0;
+    glPushMatrix();
+    glEnable(GL_BLEND);
+    glEnable(GL_LIGHTING);
+    //glDisable(GL_DEPTH_TEST);
+    glColor4f(playerColors[u.type][0],playerColors[u.type][1],playerColors[u.type][2],5-timeDead);
+
+    timeDead*=4;
+    if(timeDead>1)
+        timeDead=1;
+    glTranslatef(u.loc.x,u.loc.y,1);
+    {
+        glPushMatrix();
+        
+        double a = u.d*180/M_PI;
+        glPushMatrix();
+        glRotatef(u.lastShotAngle*180/M_PI+90,0,0,1);
+        glTranslatef(0,-2*timeDead,0);
+        glRotatef(timeDead*90,1,0,0);
+        glRotatef(-u.lastShotAngle*180/M_PI-90,0,0,1);
+        //glRotatef(-timeDead*90,1,0,0);
+        glTranslatef(0,0,0.5);
+        glRotatef(a+90,0,0,1);
+        glRotatef(-45,0,0,1);
+        glRotatef(90,1,0,0);
+        glScalef(0.4,0.4,0.4);
+        draw_model(&vartalo_model,GL_TRIANGLES);
+        glPopMatrix();
+        if(u.movex==0 && u.movey==0)
+        {
+            glRotatef(a-90,0,0,1);
+            glRotatef(90,1,0,0);
+            //glTranslatef(0,0,-1.5*timeDead);
+            glRotatef(180,0,1,0);
+            glScalef(0.5,0.5,0.5);
+            glTranslatef(1,-2,0);
+            draw_model(&jalka_model);
+            glTranslatef(-2,0,0);
+            draw_model(&jalka_model);
+        }else
+        {
+            float d = atan2(-u.movex,u.movey)*180/M_PI;
+            int dir = 1;
+            d-=90;
+            float dm = std::min(fmod(360+a-d,360),fmod(360+d-a,360));
+            d+=90;
+            if(u.type==0)
+                if(dm<90)
+                {
+                    d-=180;
+                    dir=-1;
+                }
+            glRotatef(d,0,0,1);
+            glRotatef(90,1,0,0);
+            //glTranslatef(0,0,-1.5*timeDead);
+            glRotatef(180,0,1,0);
+            glScalef(0.5,0.5,0.5);
+            float t = dir*timef()*length(Vec2(u.movex,u.movey))*4.5*4;
+            float h = sin(t);
+            float x = cos(t);
+
+            glPushMatrix();
+            glTranslatef(1,-2,0);
+            glTranslatef(0,std::max(0.0f,x)/2,h/2);
+            draw_model(&jalka_model);
+            glPopMatrix();
+            h = sin(t+180);
+            x = cos(t+180);
+
+            glPushMatrix();
+            glTranslatef(-1,-2,0);
+            glTranslatef(0,std::max(0.0f,x)/2,h/2);
+            draw_model(&jalka_model);
+            glPopMatrix();
+        }
+
+        glPopMatrix();
+    }
+    glPopMatrix();
+}

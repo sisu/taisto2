@@ -20,6 +20,7 @@ struct ClientSocket {
 	void readItems(DataReader r);
 	void readBCount(DataReader r);
     void readName(DataReader r);
+    void readDead(DataReader r);
 
     void readStats(DataReader r);
 	void sendState();
