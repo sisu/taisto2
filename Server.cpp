@@ -537,9 +537,17 @@ void Server::updateBases()
 static const double ultimate_foo = -32;
 void Server::damageUnit(int i, double d,int shooter,Bullet b)
 {
-	Unit& u = units[i];
-    //Unit& attacker =  units[clID[shooter]];
-	u.health -= d/shields[u.type];
+	Unit& u =units[i];
+	double lol = 1;
+
+	if(clients.size() == 1) {
+		lol = 0.25;
+	} else if(clients.size() == 2) {
+		lol = 0.75;
+	}
+	if (u.type==0) lol=1;
+
+	u.health -= d/(lol * shields[u.type]);
     assert(!isnan(u.health));
     if(u.health < ultimate_foo+2)
         return;

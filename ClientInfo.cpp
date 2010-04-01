@@ -48,7 +48,7 @@ bool ClientInfo::handleMessages()
 	return 1;
 }
 
-volatile bool haxAllWeapons = true;
+volatile bool haxAllWeapons = false;
 
 void ClientInfo::sendInit()
 {
