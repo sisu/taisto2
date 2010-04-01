@@ -182,12 +182,20 @@ void ClientSocket::readName(DataReader r){
 }
 void ClientSocket::readStats(DataReader r){
     int n = r.readInt();
-    g.kills.resize(n);
-    g.teamkills.resize(n);
-    g.deaths.resize(n);
-    r.read((void*)&g.kills[0],n*sizeof(int));
-    r.read((void*)&g.teamkills[0],n*sizeof(int));
-    r.read((void*)&g.deaths[0],n*sizeof(int));
+    g.kills.clear();
+    g.teamkills.clear();
+    g.deaths.clear();
+
+    g.kills.resize(2000,-1);
+    g.teamkills.resize(2000,-1);
+    g.deaths.resize(2000,-1);
+    for(int i=0;i<n;i++)
+    {
+        int id = r.readInt();
+        g.kills[id]=r.readInt();
+        g.teamkills[id]=r.readInt();
+        g.deaths[id]=r.readInt();
+    }
 }
 
 void ClientSocket::sendState()
