@@ -295,7 +295,7 @@ void Server::updatePhysics(double t)
             if(units[i].type ==0)
             {
                 Unit u = units[i];
-                clients[clID[u.id]]->u=0, clients[clID[u.id]]->spawnTime=3;
+                clients[clID[u.id]]->u=0, clients[clID[u.id]]->spawnTime=std::min(clients[clID[u.id]]->spawnTime,3.0);
             }
             i--;
         }
@@ -483,11 +483,16 @@ void Server::updateBullets(double t)
 	for(unsigned i=0; i<units.size(); ++i) {
 		//damageUnit(i, 0,2000);
         if(units[i].health<=0 || isnan(units[i].health)){
-            if(units[i].health!=0)
+            if(isnan(units[i].health))
             {
                 std::cout<<"unit "<<units[i].id<<" health is nan\n";
                 Unit u = units[i];
                 clients[clID[u.id]]->u=0, clients[clID[u.id]]->spawnTime=3;
+            }
+            if(units[i].type == 0)
+            {
+                Unit u = units[i];
+                clients[clID[u.id]]->u=0, clients[clID[u.id]]->spawnTime=std::min(clients[clID[u.id]]->spawnTime,3.0);
             }
             units[i] = units.back();
             units.pop_back();

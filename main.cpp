@@ -746,7 +746,8 @@ void menuBackDraw()
     glLoadIdentity();
     glTranslatef(-0,0,-5);
     //glTranslatef(0,0,-35);
-    glRotatef(-45,1,0,0);
+    glRotatef(-55+sin(timef()*.3+3)*25,1,0,0);
+    glRotatef(timef()*23+3,0,0,1);
     Unit u(Vec2(0,0),0,0);
     u.d = sin(timef())*0.5;
     u.movex=1;
