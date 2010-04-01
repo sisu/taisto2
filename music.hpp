@@ -7,6 +7,9 @@ void initMusic();
 
 enum SoundType {
 	EXPLOSION,
+    SHOTGUNSOUND,
+    MACHINEGUNSOUND,
+    FLAMESOUND,
 	NSOUNDS
 };
 struct Sound {
@@ -19,5 +22,8 @@ struct Sound {
 };
 
 extern std::vector<Sound> sounds;
+
+extern double distvol(double d);
+
 
 #endif

@@ -7,6 +7,7 @@
 #include "timef.h"
 using namespace std;
 
+
 vector<Sound> sounds;
 bool playMusic=0, playSounds=1;
 namespace {
@@ -107,6 +108,8 @@ float sintable[WTS], costable[WTS], nulltable[WTS];
 
 void genWT(float* out, const float* amps, const float* freqs, int n, float fundfreq, float fundbw, float bwscale)
 {
+    memset(sintable,0,sizeof(sintable));
+    memset(costable,0,sizeof(sintable));
 	float bw0 = fundfreq*(exp2(fundbw/1200)-1);
 	for(int i=0; i<n; ++i) {
 		float bwz = bw0*pow(freqs[i], bwscale);
@@ -216,7 +219,7 @@ void lowpass(float* a, int n, double a0, double a1)
 }
 
 float stables[NSOUNDS][WTS];
-double stimes[] = {.5};
+double stimes[] = {.5,.5,.3,.5,.5};
 
 void genWallHitSound()
 {
@@ -243,51 +246,153 @@ void genWallHitSound()
 		out[i] *= 5 * volume(env, double(i)/FREQ);
 	}
 }
-void genExplosion()
+void genMachinegun()
 {
-	float* out = stables[EXPLOSION];
-#if 0
-	int s = FREQ * stimes[EXPLOSION] + 1;
-//	int s = WTS;
-	memset(sintable,0,sizeof(sintable));
-	memset(costable,0,sizeof(costable));
-	memset(out,0,4*WTS);
-#if 0
-	for(int i=0; i<s; ++i) {
-		double z = (double)i/s;
-//		double f = max(0.0, 1 - 10*z*z);
-		double f = 1/(z*z);
-		sintable[i]=1;
-		costable[i]=1;
+	float* out = stables[MACHINEGUNSOUND];
+    static float extraout[WTS];
+    memset(out,0,sizeof(out));
+    memset(extraout,0,sizeof(extraout));
+	const int n=64;
+	float amps[n]={};
+	float freqs[n]={};
+    srand(0);
+	for(int i=0; i<n; ++i) {
+		freqs[i] = 5+i+randf();;
+		amps[i] = (n*n-i*i)/(float(n*n));
 	}
-#else
-//	sintable[1] = 1000;
-#endif
-	ifft(out, nulltable, sintable, costable, s);
-//	normalize(out, s);
+	genWT(out, amps, freqs, n, 44, 6000, 0.1);
+	genWT(extraout, amps, freqs, n, 12, 10.0, 0.5);
+	//normalize2(out, WTS);
+    normalize2(out,WTS);
+    normalize2(extraout,WTS);
+    for(int i=0;i<WTS;i++)
+    {
+        float r = randf();
+        float s = 0.85;
+        out[i]=out[i]*s+(1-s)*extraout[i];
+    }
+    for(int i=0;i<10;i++){
+        //lowpass(out,WTS,1.0/FREQ,1.1);
+    }
+    normalize2(out,WTS);
 
-//	for(int i=0; i<1; ++i) lowpass(out, s, .3, .7);
-	normalize2(out, s);
-#else
+	Envelope env = {.00,.35,.15,.15,.0};
+	for(int i=0; i<WTS; ++i) {
+		//out[i] *= 10 * (WTS-float(i))/WTS;
+        out[i] *= 1* volume(env, double(i)/FREQ);
+	}
+}
+void genShotgun()
+{
+    std::cout<<"SHOTGUNGEN\n";
+	float* out = stables[SHOTGUNSOUND];
+    static float extraout[WTS];
+    memset(out,0,sizeof(out));
+    memset(extraout,0,sizeof(extraout));
+	const int n=64;
+	float amps[n]={};
+	float freqs[n]={};
+    srand(0);
+	for(int i=0; i<n; ++i) {
+		freqs[i] = 5+i+randf();;
+		amps[i] = (n*n-i*i)/(float(n*n));
+	}
+	genWT(out, amps, freqs, n, 44, 6000, 0.1);
+	genWT(extraout, amps, freqs, n, 12, 10.0, 0.5);
+	//normalize2(out, WTS);
+    normalize2(out,WTS);
+    normalize2(extraout,WTS);
+    for(int i=0;i<WTS;i++)
+    {
+        float r = randf();
+        float s = 0.35;
+        out[i]=out[i]*s+(1-s)*extraout[i];
+    }
+    for(int i=0;i<10;i++){
+        //lowpass(out,WTS,1.0/FREQ,1.1);
+    }
+    normalize2(out,WTS);
+
+	Envelope env = {.00,.35,.15,.15,.0};
+	for(int i=0; i<WTS; ++i) {
+		//out[i] *= 10 * (WTS-float(i))/WTS;
+        out[i] *= 0.5* volume(env, double(i)/FREQ);
+	}
+}
+void genFlame()
+{
+	float* out = stables[FLAMESOUND];
+    static float extraout[WTS];
 	const int n=64;
 	float amps[n];
 	float freqs[n];
 	for(int i=0; i<n; ++i) {
-		freqs[i] = 1+i;
-		amps[i] = 1./(1+i);
+		freqs[i] = 1+i;//+i+randf();
+		amps[i] = 1.f/(1+i);//(n*n-i*i)/(float(n*n));
 	}
-	genWT(out, amps, freqs, n, 220, 50, .95);
-//	normalize2(out, WTS);
-#endif
+	//genWT(out, amps, freqs, n, 22, 200.5, .1);
+	genWT(out, amps, freqs, n, 220, 300, 4);
+	genWT(extraout, amps, freqs, n, 12, 10.0, 0.5);
+	//normalize2(out, WTS);
+    normalize2(out,WTS);
+    normalize2(extraout,WTS);
+    for(int i=0;i<WTS;i++)
+    {
+        float r = randf();
+        float s = 0.7;
+        out[i]=out[i]*s+(1-s)*extraout[i];
+    }
+    for(int i=0;i<10;i++){
+        lowpass(out,WTS,1.0/FREQ,1.1);
+    }
+    normalize2(out,WTS);
 
-	Envelope env = {.13,.14,.5,.15,.1};
+	Envelope env = {.15,.35,.15,.15,.05};
 	for(int i=0; i<WTS; ++i) {
-		out[i] *= 5 * volume(env, double(i)/FREQ);
+		//out[i] *= 10 * (WTS-float(i))/WTS;
+        out[i] *= 0.4* volume(env, double(i)/FREQ);
+        //out[i]*=0.1;
+	}
+}
+void genExplosion()
+{
+	float* out = stables[EXPLOSION];
+    static float extraout[WTS];
+	const int n=64;
+	float amps[n];
+	float freqs[n];
+	for(int i=0; i<n; ++i) {
+		freqs[i] = 5+i+randf();
+		amps[i] = (n*n-i*i)/(float(n*n));
+	}
+	genWT(out, amps, freqs, n, 44, 6000, .1);
+	genWT(extraout, amps, freqs, n, 12, 10.0, 0.5);
+	//normalize2(out, WTS);
+    normalize2(out,WTS);
+    normalize2(extraout,WTS);
+    for(int i=0;i<WTS;i++)
+    {
+        float r = randf();
+        float s = 0.3;
+        out[i]=out[i]*s+(1-s)*extraout[i];
+    }
+    for(int i=0;i<10;i++){
+        //lowpass(out,WTS,1.0/FREQ,1.1);
+    }
+    normalize2(out,WTS);
+
+	Envelope env = {.00,.35,.15,.15,.0};
+	for(int i=0; i<WTS; ++i) {
+		//out[i] *= 10 * (WTS-float(i))/WTS;
+        out[i] *= 5* volume(env, double(i)/FREQ);
 	}
 }
 void initSounds()
 {
+	genShotgun();
+	genMachinegun();
 	genExplosion();
+    genFlame();
 }
 
 void genSounds(float* buf, int l)
@@ -302,7 +407,7 @@ void genSounds(float* buf, int l)
 		} else sounds[i]=sounds.back(), sounds.pop_back();
 	}
 }
-
+#include<limits.h>
 void callback(void* udata, Uint8* stream, int l)
 {
 	Uint16* s = (Uint16*)stream;
@@ -313,7 +418,12 @@ void callback(void* udata, Uint8* stream, int l)
 	if (playSounds) genSounds(buf2, l);
 	else sounds.clear();
 	// TODO: normalize bufs?
-	for(int i=0; i<l; ++i) s[i] = buf[i]*20000 + buf2[i]*10000;
+	for(int i=0; i<l; ++i){
+        int v =buf[i]*20000 + buf2[i]*10000; 
+        if(v>SHRT_MAX)v = SHRT_MAX;
+        if(v<SHRT_MIN)v = SHRT_MIN;
+        s[i] = v;
+    }
 	curS += l;
 }
 
@@ -334,7 +444,7 @@ void initInstruments()
 	}
 
 	// drums
-#if 0
+#if 1
 	for(int i=0; i<WTS/2; ++i) {
 #if 1
 		float d=2*M_PI*randf();
@@ -374,4 +484,10 @@ void initMusic()
 	if (SDL_OpenAudio(&spec, 0)<0) {
 		cout<<"Opening audio device failed: "<<SDL_GetError()<<'\n';
 	} else cout<<"Audio open succesful\n";
+}
+
+double distvol(double d)
+{
+    double z = 5;
+    return z/(z+d);
 }

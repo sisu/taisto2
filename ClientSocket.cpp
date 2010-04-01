@@ -4,6 +4,7 @@
 #include "msg.hpp"
 #include "Game.hpp"
 #include "Unit.hpp"
+#include "music.hpp"
 #include "DataWriter.hpp"
 #include <sys/types.h>
 #include <sys/socket.h>
@@ -127,9 +128,27 @@ void ClientSocket::readState(DataReader r)
 	}
 //	Unit& u = g.units[0]; cout<<"jee "<<u.loc<<'\n';
 }
+static double lastFlame=0;
 void ClientSocket::readBullet(DataReader r)
 {
-    g.bullets_map.insert(*(Bullet*)r.cur);
+    Bullet b;
+    r.read(&b,sizeof(Bullet));
+    double vol = distvol(length(g.player->loc-b.origin));;
+	if (b.type==ROCKET) {
+	}else if (b.type==SHOTGUN)
+    {
+		sounds.push_back(Sound(SHOTGUNSOUND, vol));
+    }else if(b.type==BOUNCEGUN)
+    {
+		sounds.push_back(Sound(MACHINEGUNSOUND,vol));
+    }else if(b.type==MACHINEGUN)//MACHINEGUN == FLAMEGUN
+    {
+        //if(-lastFlame+timef()>0.4){
+            sounds.push_back(Sound(FLAMESOUND,vol));
+            //lastFlame=timef();
+        //}
+    }
+    g.bullets_map.insert(b);
 	//g.bullets.push_back(*(Bullet*)r.cur);
 	//g.bulletIndex[g.bullets.back().id] = g.bullets.size()-1;
 }

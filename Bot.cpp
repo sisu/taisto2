@@ -248,7 +248,7 @@ void moveBot(Server& server,Unit& u, const Area& area, const std::vector<Unit>& 
 			//std::cout<<"MOVEX: "<<u.movex<<std::endl;
 
 			if(!ok && !fail) {
-				u.shooting = 1;	
+				u.shooting = 0;	
 				u.d = atan2(myLoc.y - curLoc.y, myLoc.x - curLoc.x);
 				if (u.type==BOUNCEGUN) u.d+=.4*(2*randf()-1);
 			} else if(!ok) {
@@ -295,10 +295,10 @@ jou:
             ay/=len;
             //if(abs(ax)<0.1)ax=0;
             //if(abs(ay)<0.1)ay=0;
-            u.movex = ax;
-            u.movey = ay;
-			//u.movey =0.5*u.movey+0.5*ay;
-			//u.movex =0.5*u.movex+0.5*ax;
+            //u.movex = ax;
+            //u.movey = ay;
+			u.movey =0.5*u.movey+0.5*ay;
+			u.movex =0.5*u.movex+0.5*ax;
             #if 0
             u.movex = u.movey=0;
             

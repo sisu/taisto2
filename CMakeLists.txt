@@ -11,8 +11,8 @@ include_directories(${SDL_INCLUDE_DIR})
 
 #add_definitions("-Wall -g")
 #add_definitions("-Wall -O2")
-add_definitions("-Wall -g -Wno-unused-result ")
-#add_definitions("-Wall -O2")
+#add_definitions("-Wall -g -Wno-unused-result ")
+add_definitions("-Wall -O2")
 #add_definitions("-Wall -g -Wno-unused-result")
 #add_definitions("-Wall -Wno-unused-result -Os -fomit-frame-pointer -ffast-math")
 
@@ -25,3 +25,4 @@ set(sources main.cpp physics.cpp Server.cpp Game.cpp ClientSocket.cpp
 
 add_executable(taisto2 ${sources})
 add_executable(mtest mtest.cpp music.cpp)
+add_executable(soundtest soundtest.cpp music.cpp)

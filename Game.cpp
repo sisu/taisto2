@@ -93,7 +93,8 @@ void Game::destroyBullet(int id, double xx, double yy)
 	}
 
 	if (bx.type==ROCKET) {
-		sounds.push_back(Sound(EXPLOSION, .5));
+		sounds.push_back(Sound(EXPLOSION,
+                    distvol(length(bx.loc-player->loc))));
 	}
 
 //	cout<<"asd "<<bx.origin<<' '<<g.player->loc<<' '<<bx.loc<<' '<<bx.v<<'\n';

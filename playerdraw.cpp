@@ -120,7 +120,8 @@ void drawPlayer(const Unit& u,bool healthbar=1){
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA);
     glDepthFunc(GL_LEQUAL);
-    glLineWidth(3);
+    extern int screenW;
+    glLineWidth(screenW/500);
     drawPlayer_real(u);
 
 
