@@ -26,6 +26,7 @@
 #include "input.hpp"
 #include "Menu.hpp"
 #include "playerdraw.cpp"
+#include "music.hpp"
 using namespace std;
 
 Game game;
@@ -795,6 +796,9 @@ int main(int argc, char* argv[])
     SDL_SetVideoMode(screenW,screenH,0,SDL_OPENGL);
     initTextures();
     initLCD();
+
+	initMusic();
+	SDL_PauseAudio(0);
 
 #if 0
     mainLoop();

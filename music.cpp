@@ -7,6 +7,8 @@
 #include "timef.h"
 using namespace std;
 
+vector<Sound> sounds;
+bool playMusic=0, playSounds=1;
 namespace {
 
 static int ilog2(int n)
@@ -72,7 +74,7 @@ void fft(float* rdst, float* idst, const float* rsrc, const float* isrc, int n)
 }
 void ifft(float* rdst, float* idst, float* rsrc, float* isrc, int n)
 {
-	for(int i=0; i<n/2; ++i) rsrc[n-1-i]=-rsrc[i], isrc[n-1-i]=-isrc[i];
+	for(int i=0; i<n/2; ++i) rsrc[n-1-i]=rsrc[i], isrc[n-1-i]=-isrc[i];
 	calc_fft(rdst,idst,rsrc,isrc,n,-2*M_PI);
 	float r = 1.f/n;
 	for(int i=0; i<n; ++i) {
@@ -83,8 +85,19 @@ void ifft(float* rdst, float* idst, float* rsrc, float* isrc, int n)
 void normalize(float* a, int n)
 {
 	float b=0;
+#if 1
 	for(int i=0; i<n; ++i) b=max(b,fabs(a[i]));
+#else
+	for(int i=0; i<n; ++i) b+=a[i]*a[i]; b = sqrt(b);
+#endif
 	for(int i=0; i<n; ++i) a[i]/=b;
+}
+void normalize2(float* a, int n)
+{
+	float s=0;
+	for(int i=0; i<n; ++i) s+=fabs(a[i]);
+	s /= n;
+	for(int i=0; i<n; ++i) a[i] /= 2*s;
 }
 
 const int WTS=1<<16;
@@ -159,8 +172,6 @@ float volume(const Envelope& e, float t)
 const float BEAT_FREQ = 1500;
 const float BEAT_SLOW = 200;
 
-bool playMusic=0, playSounds=0;
-
 void genMusic(float* buf, int l)
 {
 	for(int k=0; k<2; ++k) {
@@ -170,6 +181,8 @@ void genMusic(float* buf, int l)
 
 #if 1
 		for(int i=0; i<NWT; ++i) {
+			if (i==2) continue;
+			if (i==1) continue;
 			int n = notes[i][cur];
 			if (n==OFF) continue;
 			float f = exp2(n/12.);
@@ -191,20 +204,103 @@ void genMusic(float* buf, int l)
 	}
 }
 
-float stables[NSOUNDS][WTS];
-
-void genExplosion(float* out)
+void lowpass(float* a, int n, double a0, double a1)
 {
-	for(int i=0; i<WTS/2; ++i) {
-		sintable[i]=randf();
-		costable[i]=randf();
+	float p=0,pp=0;
+	for(int i=0; i<n; ++i) {
+		float q=a[i];
+		a[i] = a0*a[i] + a1*p + a0*pp;
+		pp=p;
+		p=q;
 	}
-	ifft(out, nulltable, sintable, costable, WTS);
 }
 
-vector<Sound> sounds;
+float stables[NSOUNDS][WTS];
+double stimes[] = {.5};
+
+void genWallHitSound()
+{
+	float* out = stables[EXPLOSION];
+	int s = FREQ * stimes[EXPLOSION] + 1;
+	memset(sintable,0,sizeof(sintable));
+	memset(costable,0,sizeof(costable));
+	memset(out,0,4*WTS);
+	for(int i=0; i<s/2; ++i) {
+		double z = (double)i/s;
+//		double f = max(0.0, 1 - 10*z*z);
+		double f = 1/(z*z);
+		sintable[i]=1;
+		costable[i]=1;
+	}
+	ifft(out, nulltable, sintable, costable, s);
+//	normalize(out, s);
+
+//	for(int i=0; i<5; ++i) lowpass(out, s, .2, .5);
+	normalize2(out, s);
+
+	Envelope env = {.03,.04,.5,.05,.1};
+	for(int i=0; i<s; ++i) {
+		out[i] *= 5 * volume(env, double(i)/FREQ);
+	}
+}
+void genExplosion()
+{
+	float* out = stables[EXPLOSION];
+#if 0
+	int s = FREQ * stimes[EXPLOSION] + 1;
+//	int s = WTS;
+	memset(sintable,0,sizeof(sintable));
+	memset(costable,0,sizeof(costable));
+	memset(out,0,4*WTS);
+#if 0
+	for(int i=0; i<s; ++i) {
+		double z = (double)i/s;
+//		double f = max(0.0, 1 - 10*z*z);
+		double f = 1/(z*z);
+		sintable[i]=1;
+		costable[i]=1;
+	}
+#else
+//	sintable[1] = 1000;
+#endif
+	ifft(out, nulltable, sintable, costable, s);
+//	normalize(out, s);
+
+//	for(int i=0; i<1; ++i) lowpass(out, s, .3, .7);
+	normalize2(out, s);
+#else
+	const int n=64;
+	float amps[n];
+	float freqs[n];
+	for(int i=0; i<n; ++i) {
+		freqs[i] = 1+i;
+		amps[i] = 1./(1+i);
+	}
+	genWT(out, amps, freqs, n, 220, 50, .95);
+//	normalize2(out, WTS);
+#endif
+
+	Envelope env = {.13,.14,.5,.15,.1};
+	for(int i=0; i<WTS; ++i) {
+		out[i] *= 5 * volume(env, double(i)/FREQ);
+	}
+}
+void initSounds()
+{
+	genExplosion();
+}
+
 void genSounds(float* buf, int l)
 {
+	double dt = (double)l / FREQ;
+	for(unsigned i=0; i<sounds.size(); ) {
+		Sound& s = sounds[i];
+		if (s.pos+l < FREQ*stimes[s.type]) {
+			for(int j=0; j<l; ++j) buf[j] += s.vol * stables[s.type][j+s.pos];
+			s.pos+=l;
+			++i;
+		} else sounds[i]=sounds.back(), sounds.pop_back();
+	}
 }
 
 void callback(void* udata, Uint8* stream, int l)
@@ -215,6 +311,7 @@ void callback(void* udata, Uint8* stream, int l)
 	if (playMusic) genMusic(buf, l);
 	float buf2[SAMPLES]={};
 	if (playSounds) genSounds(buf2, l);
+	else sounds.clear();
 	// TODO: normalize bufs?
 	for(int i=0; i<l; ++i) s[i] = buf[i]*20000 + buf2[i]*10000;
 	curS += l;
@@ -272,6 +369,7 @@ SDL_AudioSpec spec = {
 void initMusic()
 {
 	initInstruments();
+	initSounds();
 	cout<<"wavetables gen done\n";
 	if (SDL_OpenAudio(&spec, 0)<0) {
 		cout<<"Opening audio device failed: "<<SDL_GetError()<<'\n';
