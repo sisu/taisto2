@@ -468,6 +468,16 @@ void drawLightningAim()
     //glDepthMask(1);
     
 }
+const float bulletColors[][4] = {
+	{1,.6,0,.5},
+    {0.5,0.7,1,0.9},
+	{1,.2,.2,1},
+	{0,0,0,0},
+	{0,0,0,0},
+	{1,1,0,1},
+	{0,0,0,0}
+};
+const float bulletSizes[] = {1,.5,.3,0,0,.4,0};
 
 double spin = 0;
 void draw(){
@@ -508,34 +518,13 @@ void draw(){
     }
     for(unsigned i=0; i<game.bullets.size(); ++i) {
         Bullet b = game.bullets[i];
-        if (b.type==MACHINEGUN){
-            glColor4f(1.5,0.6,0.0,0.5);
-            //glColor4f(1,1,1,0.5);
-            glBlendFunc (GL_SRC_ALPHA, GL_ONE);
-            draw_bullet(b);
-        }
-        else if(b.type==ROCKET) 
-            draw_rocket(b);
-        else if(b.type==SHOTGUN){
-            glColor4f(0.5,0.7,1,0.9);
-            glBlendFunc (GL_SRC_ALPHA, GL_ONE);
-            draw_bullet(b,.5);
-        } else if (b.type==BOUNCEGUN) {
-            glColor4f(1,.2,.2,1);
-            glBlendFunc(GL_SRC_ALPHA, GL_ONE);
-            draw_bullet(b,.2);
-        } else if (b.type==GRENADE) {
-            glColor3f(1,1,0);
-            glBlendFunc(GL_ONE, GL_ONE);
-            draw_bullet(b,.4);
-        }else if (b.type==RAILGUN) {
-            draw_rail(b);
-        } else 
-        {
-            glColor4f(1.5,1.6,1.0,1.5);
-            glBlendFunc (GL_SRC_ALPHA, GL_ONE);
-            draw_bullet(b);
-        }
+		if (b.type==ROCKET) draw_rocket(b);
+		else if (b.type==RAILGUN) draw_rail(b);
+		else {
+			glColor4fv(bulletColors[b.type]);
+			glBlendFunc(GL_SRC_ALPHA,GL_ONE);
+			draw_bullet(b, bulletSizes[b.type]);
+		}
     }
 
     for(int l=0;l<game.lightnings.size();l++)
