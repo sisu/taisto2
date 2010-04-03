@@ -20,7 +20,7 @@ using namespace std;
 static const double shields[]={10,2,2,0.2,2,2,2,2,2,2};
 const int packSizes[] = {0,15,100,50,30,5,5};
 
-Server::Server(): end(0), nextID(1),area(30,900)// area("field.in.1")
+Server::Server(): end(0),nextID(1),area(30,900)// area("field.in.1")
 {
 	//for(int i=2; i<area.h; i+=30) area.bases.push_back(i);
 	clID = new int[1<<16];
@@ -46,12 +46,13 @@ Server::~Server()
 static double total_time=0;
 void Server::loop()
 {
-	cout<<"starting server loop\n";
+	cout<<"starting server loop "<<timef()<<'\n';;
 	double t=timef();
     for(int i=0;i<30;i++){
         //spawnUnits(1);
         updatePhysics(1);
     }
+	cout<<"really starting server loop "<<timef()<<'\n';
 	while(!end) {
 		double nt = SDL_GetTicks()/1e3;
 		if (nt <= t) {
@@ -96,6 +97,7 @@ void Server::loop()
 		sendState();
         sendStats();
 		t=nt;
+		for(unsigned i=0; i<clients.size(); ++i) clients[i]->conn.flush();
 		SDL_Delay(15);
 	}
 }

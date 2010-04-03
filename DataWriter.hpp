@@ -1,4 +1,4 @@
-#ifndef DAtAWRITER_HPP
+#ifndef DATAWRITER_HPP
 #define DATAWRITER_HPP
 #include<cassert>
 

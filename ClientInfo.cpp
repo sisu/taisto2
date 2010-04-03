@@ -100,6 +100,7 @@ void ClientInfo::sendInit()
             std::cout<<"sending name "<<buf<<" to "<<server.name[id]<<"\n";
         }
     }
+	conn.flush();
 }
 void ClientInfo::readState(DataReader r)
 {

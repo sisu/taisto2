@@ -35,18 +35,25 @@ bool Connection::read()
 
 void Connection::write(const void* s, int n)
 {
-//	cout<<"writing len "<<n<<'\n';
-//	for(int i=0; i<n; ++i) cout<<hex<<(int)((char*)s)[i]<<' '; cout<<'\n';
+#if 1
+	char* np = (char*)&n;
+	obuf.insert(obuf.end(), np, np+4);
+	char* ss = (char*)s;
+	obuf.insert(obuf.end(), ss, ss+n);
+#else
 	::write(fd, &n, 4);
 	::write(fd, s, n);
+#endif
 }
 void Connection::write(DataWriter& w)
 {
-//	fcntl(fd, F_SETFL, 0);
-    char buf[4];
-    *(int*)buf = w.len();
-    ::write(fd,buf,4);
-	int sent = ::write(fd, w.data(),w.len());
-//    assert(sent==w.len());
-//	fcntl(fd, F_SETFL, O_NONBLOCK);
+	write(w.data(), w.len());
+}
+void Connection::flush()
+{
+	if (obuf.size()) {
+//		cout<<"sending "<<obuf.size()<<" bytes\n";
+		::write(fd, &obuf[0], obuf.size());
+		obuf.clear();
+	}
 }

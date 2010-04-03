@@ -21,6 +21,7 @@ void Game::updateNetwork()
             unitIndex.resize(units[i].id+20);
         unitIndex[units[i].id]=i;
     }
+	socket.conn.flush();
 }
 void Game::updateState(double t)
 {

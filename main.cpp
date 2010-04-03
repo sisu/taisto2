@@ -654,9 +654,11 @@ void mainLoop()
 }
 
 Server* server;
+int serverStart;
 int startServer(void*)
 {
     server = new Server;
+	serverStart++;
     server->loop();
     delete server;
     server=0;
@@ -664,8 +666,10 @@ int startServer(void*)
 }
 void hostGame()
 {
+	int ss=serverStart;
     SDL_CreateThread(startServer, 0);
-    SDL_Delay(200);
+	while(serverStart==ss) SDL_Delay(50);
+	SDL_Delay(200);
     mainLoop();
     cout<<"setting server end\n";
     server->end=1;
@@ -805,8 +809,8 @@ int main(int argc, char* argv[])
     initTextures();
     initLCD();
 
-	initMusic();
-	SDL_PauseAudio(0);
+//	initMusic();
+//	SDL_PauseAudio(0);
 
 #if 0
     mainLoop();
