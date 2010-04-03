@@ -630,7 +630,7 @@ void mainLoop()
         if (keyboard[27]) break;
         handleInput();
         game.player = &player;
-//        draw();
+        draw();
         game.updateNetwork();
         game.updateState(dt);
         for(unsigned i=0; i<game.units.size(); ++i)
