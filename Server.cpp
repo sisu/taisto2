@@ -33,6 +33,7 @@ Server::Server(): end(0),nextID(1),area(30,900)// area("field.in.1")
 	unitMove = 0;
 	defenceTime=0;
 	win=0;
+	flowSpawnTime=0;
 }
 Server::~Server()
 {
@@ -132,7 +133,7 @@ void Server::updatePhysics(double t)
 	unitMove += t;
 	const double MOVE_STEP = .025;
 	while(unitMove >= MOVE_STEP) {
-		moveUnits(&units[0], units.size(), area, MOVE_STEP);
+		moveUnits(&units[0], units.size(), area, MOVE_STEP, pc);
 		unitMove -= MOVE_STEP;
 	}
 
@@ -435,7 +436,7 @@ void Server::updateBullets(double t)
 		Bullet& b = bullets[i];
 		int h;
 		if(b.type != RAILGUN) {
-			if (!moveBullet(b, &units[0], units.size(), area, t, &h)) {
+			if (!moveBullet(b, &units[0], units.size(), area, t, &h, pc)) {
 				if (b.type==ROCKET || b.type==GRENADE) {
 					b.loc -= normalize(b.v) * .05;
 					double r = b.type==ROCKET ? EXPLOSION_SIZE : GRENADE_SIZE;
@@ -614,6 +615,7 @@ void Server::spawnUnits(double t)
             int s=0;
             for(t=0;s<r && t<8;t++)s+=f*spawnCounts[t][kk];
             t--;
+			if (t<0) continue;
             if(enemyCounts[t]>=f*3*spawnCounts[t][kk])
                 continue;
             Unit b(area.getSpawn(kk), t, botID++);

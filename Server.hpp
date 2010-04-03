@@ -10,6 +10,7 @@
 #include "Area.hpp"
 #include "Bullet.hpp"
 #include "BotInformation.hpp"
+#include "physics.hpp"
 
 const int SERVER_PORT = 56125;
 const double DEFENCE_TIME = 60;
@@ -65,6 +66,8 @@ struct Server {
     std::vector<int> teamkills;
     std::string name[320];
     std::vector<int> unitID;
+
+	PhysicsContext pc;
 };
 
 #endif

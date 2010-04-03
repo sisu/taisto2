@@ -6,10 +6,13 @@
 #include "timef.h"
 #include <vector>
 #include <cassert>
+using namespace std;
 
-static void fix(Vec2& v, double px, double py, double d)
+static const int dx[] = {0,0,1,1,1,0,-1,-1,-1};
+static const int dy[] = {0,1,1,0,-1,-1,-1,0,1};
+
+static void fix(Vec2& v, const Vec2& p, double d)
 {
-	Vec2 p(px,py);
 	Vec2 dv = v-p;
 	if (length2(dv)<1e-3) {
 		v += .5*Vec2(2*randf()-1,2*randf()-1);
@@ -17,12 +20,16 @@ static void fix(Vec2& v, double px, double py, double d)
 	}
 	if (length2(dv) < d*d) v = p+d*normalize(dv);
 }
+static void fix(Vec2& v, double px, double py, double d)
+{
+	fix(v, Vec2(px,py), d);
+}
 static void handleWalls(Unit& u, const Area& a)
 {
 	Vec2& v=u.loc;
 	double x=v.x, y=v.y;
 	int ix=x, iy=y;
-	double d=.4;
+	double d=UNIT_RAD;
 
 	if (a.blocked(ix-1,iy)) fix(v, ix, y, d);
 	if (a.blocked(ix+1,iy)) fix(v, ix+1, y, d);
@@ -34,8 +41,16 @@ static void handleWalls(Unit& u, const Area& a)
 	if (a.blocked(ix-1,iy+1)) fix(v, ix,iy+1, d);
 }
 
-void moveUnits(Unit* us, int n, const Area& a,double dt)
+typedef PhysicsContext PC;
+void moveUnits(Unit* us, int n, const Area& a,double dt, PC& p)
 {
+	++p.curTick;
+	if ((int)p.cellUnits.size()!=a.w*a.h) {
+		cout<<"resizing "<<a.w<<' '<<a.h<<'\n';
+		p.cellUnits.resize(a.w*a.h);
+		p.cellTimes.resize(a.w*a.h);
+	}
+
 	for(int i=0; i<n; ++i) {
 		Unit& u = us[i];
 #if 0
@@ -50,10 +65,40 @@ void moveUnits(Unit* us, int n, const Area& a,double dt)
 		u.loc.y += u.movey * s;
 		u.loc.x += u.movex * s;
 #endif
+
+#if 0
 		for(int j=0; j<n; ++j) {
 			if (j==i) continue;
-			fix(us[i].loc, us[j].loc.x, us[j].loc.y, .8);
+			fix(us[i].loc, us[j].loc.x, us[j].loc.y, 2*UNIT_RAD);
 		}
+#else
+		handleWalls(u, a);
+		int c = a.w*int(u.loc.y)+int(u.loc.x);
+		if (u.loc.x>=0 && u.loc.y>=0 && u.loc.x<a.w && u.loc.y<a.h && p.cellTimes[c]==p.curTick) {
+			assert(c>=0);
+			assert(c<p.cellUnits.size());
+			for(unsigned i=0; i<p.cellUnits[c].size(); ++i) {
+				Unit& t = *p.cellUnits[c][i];
+				if (t.id != u.id) fix(u.loc, t.loc, 2*UNIT_RAD);
+			}
+		}
+		for(int j=0; j<9; ++j) {
+			int x=u.loc.x+UNIT_RAD*dx[j], y=u.loc.y+UNIT_RAD*dy[j];
+			if (x<0||y<0||x>=a.w||y>=a.h) continue;
+			if (j && x==(int)u.loc.x && y==(int)u.loc.y) continue;
+			int z = y*a.w+x;
+//			cout<<i<<' '<<cellUnits.size()<<'\n';
+			assert(z >= 0);
+			assert(z < p.cellUnits.size());
+			if (p.cellTimes[z]!=p.curTick) {
+				p.cellUnits[z].clear();
+				p.cellTimes[z]=p.curTick;
+//				cout<<"lol\n";
+			}
+//			cout<<x<<' '<<y<<' '<<z<<" ; "<<a.w<<' '<<a.h<<" ; "<<cellUnits.size()<<'\n';
+			p.cellUnits[z].push_back(&u);
+		}
+#endif
 
 		handleWalls(u, a);
 	}
@@ -109,7 +154,7 @@ std::vector<int> moveRail(Bullet& b, Unit* us, int n, const Area& a, double t, b
 		if (dot(w,nv)<0) continue;
         if (dot(u.loc-newLoc,-nv)<0) continue;
 		double d = fabs(cross(w, nv)) - bsizes[b.type];
-		if (d>.4) continue;
+		if (d>UNIT_RAD) continue;
 
 		ret.push_back(j);
 	}
@@ -121,7 +166,7 @@ std::vector<int> moveRail(Bullet& b, Unit* us, int n, const Area& a, double t, b
 	return ret;
 }
 
-bool moveBullet(Bullet& b, Unit* us, int n, const Area& a, double t, int* hitt)
+bool moveBullet(Bullet& b, Unit* us, int n, const Area& a, double t, int* hitt, PC& p)
 {
 	//assert(b.type != RAILGUN);
 
@@ -143,7 +188,7 @@ bool moveBullet(Bullet& b, Unit* us, int n, const Area& a, double t, int* hitt)
 			double tt = (sqrt(v0*v0 - 2*GRENADE_SLOW*l)-v0)/GRENADE_SLOW;
 			b.v *= 1-GRENADE_SLOW*tt;
 			--b.bounce;
-			return moveBullet(b, us, n, a, t-tt, hitt);
+			return moveBullet(b, us, n, a, t-tt, hitt, p);
 		} else {
 			b.loc=c;
 			b.v *= 1-GRENADE_SLOW*t;
@@ -162,6 +207,7 @@ bool moveBullet(Bullet& b, Unit* us, int n, const Area& a, double t, int* hitt)
     //    return true;
     }
 
+#if 1
 	Vec2 l = b.loc + b.v*t;
 	Vec2 nv = normalize(b.v);
 	// FIXME: optimize
@@ -171,7 +217,7 @@ bool moveBullet(Bullet& b, Unit* us, int n, const Area& a, double t, int* hitt)
 		Vec2 w = u.loc-b.loc;
 		if (dot(w,nv)<0) continue;
 		double d = fabs(cross(w, nv));
-		if (d-bsizes[b.type]>.4) continue;
+		if (d-bsizes[b.type]>UNIT_RAD) continue;
 		double dd2 = length2(w) - d*d;
 		if (dd2 < bdd2) bdd2=dd2, bj=j;
 	}
@@ -199,4 +245,56 @@ bool moveBullet(Bullet& b, Unit* us, int n, const Area& a, double t, int* hitt)
         assert(!isnan(b.loc.x)&&!isnan(b.loc.y));
 		return bj<0 && !hit;
 	}
+#else
+	Vec2 to = b.loc + b.v*t;
+	double l2 = length2(b.v*t);
+	int dx=b.v.x>0?1:-1, dy=b.v.y>0?1:-1;
+	Vec2 c = b.loc;
+	int ix=c.x, iy=c.y;
+	int iix=dx>0?ix+1:ix, iiy=dy>0?iy+1:iy;
+	double ryx = fabs(b.v.y/b.v.x), rxy = fabs(b.v.x/b.v.y);
+	bool hit=0;
+	Vec2 nv = normalize(b.v);
+	while(length2(c-b.loc) < l2) {
+		if (a.blocked(ix,iy)) {
+			hit=1;
+			b.loc = c;
+			break;
+		}
+		int z = iy*a.w + ix;
+		if (p.cellTimes[z]==p.curTick) {
+			double bdd2=1e100;
+			Unit* bu=0;
+			for(unsigned i=0; i<p.cellUnits[z].size(); ++i) {
+				Unit& u = *p.cellUnits[z][i];
+				if (u.id == b.shooter) continue;
+				Vec2 w = u.loc-b.loc;
+				if (dot(w,nv)<0) continue;
+				double d = fabs(cross(w, nv));
+				if (d>UNIT_RAD+bsizes[b.type]) continue;
+				double dd2 = length2(w) - d*d;
+				if (dd2 < bdd2) bdd2=dd2, bu=&u;
+			}
+			if (bu) {
+				if (hitt) *hitt = bu-us;
+				hit=1;
+				b.loc += nv*sqrt(bdd2);
+				break;
+			}
+		}
+		double xx = fabs(iix-c.x);
+		double yy = fabs(iiy-c.y);
+		if (fabs(b.v.x)*yy > fabs(b.v.y)*xx) {
+			c.y += dy * xx * ryx;
+			c.x = iix;
+			ix+=dx,iix+=dx;
+		} else {
+			c.x += dx * yy * rxy;
+			c.y = iiy;
+			iy+=dy, iiy+=dy;
+		}
+	}
+	if (!hit) b.loc = to;
+	return !hit;
+#endif
 }

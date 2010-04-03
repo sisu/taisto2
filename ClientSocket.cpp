@@ -35,7 +35,7 @@ bool ClientSocket::connect(const char* host,const char* nick)
     DataWriter w;
     w.writeByte(CLI_NAME);
     char buf[33]={};
-    memcpy(buf,nick,31);
+    strncpy(buf,nick,31);
     w.write(buf,32);
     conn.write(w);
 	return 1;

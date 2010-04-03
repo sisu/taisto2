@@ -9,6 +9,7 @@
 #include "ClientSocket.hpp"
 #include "Bullet.hpp"
 #include "Particle.hpp"
+#include "physics.hpp"
 #include <vector>
 #include <utility>
 struct Game {
@@ -59,6 +60,8 @@ struct Game {
     std::vector<int> deaths;
     std::vector<Unit> deadUnits;
 	double defenceTime;
+
+	PhysicsContext pc;
 };
 
 #endif

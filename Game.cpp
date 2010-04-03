@@ -25,11 +25,11 @@ void Game::updateNetwork()
 }
 void Game::updateState(double t)
 {
-	moveUnits(&units[0], units.size(), area, t);
+	moveUnits(&units[0], units.size(), area, t, pc);
 //	moveBullets(&bullets[0], bullets.size(), &units[0], units.size(), area, t);
 	for(unsigned i=0; i<bullets.size(); ) {
 		int tmp;
-		if (moveBullet(bullets[i], &units[0], units.size(), area, t, &tmp)) ++i;
+		if (moveBullet(bullets[i], &units[0], units.size(), area, t, &tmp, pc)) ++i;
 		else destroyBullet(bullets[i].id, bullets[i].loc.x, bullets[i].loc.y);
 	}
 	for(unsigned i=0; i<particles.size(); ) {
