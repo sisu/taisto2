@@ -7,16 +7,10 @@
 #include <cmath>
 #include <algorithm>
 #include <vector>
-#include <set>
 #include <iostream>
 #include <cstdio>
 #include "BotInformation.hpp"
-
-double distance(const Unit& u, const Unit& another) {
-	double xd = u.loc.x - another.loc.x;
-	double yd = u.loc.y - another.loc.y;
-	return sqrt(xd*xd + yd*yd);
-}
+using namespace std;
 
 struct Cmp {
 	Unit* u;
@@ -26,7 +20,7 @@ struct Cmp {
 	}
 
 	bool operator () (const Unit& u1, const Unit& u2) {
-		return distance(*u,u1) < distance(*u,u2);
+		return length2(u->loc-u1.loc) < length2(u->loc-u2.loc);
 	}
 };
 
@@ -40,6 +34,8 @@ struct bfsnode {
 		return x < bn.x;
 	}
 };
+vector<int> used;
+static int curT;
 
 struct square {
 	int x, y;
@@ -97,12 +93,13 @@ void moveBot(Server& server,Unit& u, const Area& area, const std::vector<Unit>& 
 		myLoc.y = myunits[i].loc.y;
 
 
-		wallHitPoint(curLoc, myLoc, area, &ok);
-		if(!ok && enemies){
+		if(enemies){
 			u.d = atan2(myLoc.y - curLoc.y, myLoc.x - curLoc.x);
 			Vec2 tv = myLoc-curLoc;
-			u.shooting = length(tv)<20;	
-			if(length(tv)<2)return;
+			u.shooting = length2(tv)<20*20;	
+			if(length2(tv)<2*2)return;
+			wallHitPoint(curLoc, myLoc, area, &ok);
+			if (ok) continue;
 			tv = normalize(tv);
 			u.movex = tv.x;
 			u.movey = tv.y;
@@ -134,8 +131,9 @@ void moveBot(Server& server,Unit& u, const Area& area, const std::vector<Unit>& 
 		int index = 0;
 		bool fail = true;
 
-		std::set<bfsnode> used;
-		used.insert(bn);
+		++curT;
+		used.resize(area.w*area.h);
+		used[bn.y*area.w+bn.x] = curT;
 
 		while(index < int(Q.size())) {
 			bfsnode cur = Q[index];
@@ -152,9 +150,9 @@ void moveBot(Server& server,Unit& u, const Area& area, const std::vector<Unit>& 
 			for(int i = 0; i < 8; ++i) {
 				if(!area.blocked(cur.x + dx[i], cur.y + dy[i])) {
 					bfsnode nbn = (bfsnode){cur.x + dx[i], cur.y + dy[i], index, cur.len + 1};
-					if(!used.count(nbn)) {
+					if (used[nbn.y*area.w+nbn.x]!=curT) {
 						Q.push_back(nbn);
-						used.insert(nbn);
+						used[nbn.y*area.w+nbn.x]=curT;
 					}
 				}
 			}
@@ -195,7 +193,7 @@ void moveBot(Server& server,Unit& u, const Area& area, const std::vector<Unit>& 
 
 			yourInfo->planTime = 30*(3+rand()%4);
 			yourInfo->plan.resize(0);
-			for(int i = 0; i < SQ.size() - 1; ++i) {
+			for(unsigned i = 0; i < SQ.size() - 1; ++i) {
 				Vec2 vc;
 				vc.x = SQ[i].x + 0.5;
 				vc.y = SQ[i].y + 0.5;
@@ -274,7 +272,7 @@ void moveBot(Server& server,Unit& u, const Area& area, const std::vector<Unit>& 
 		--yourInfo->planTime;
 
 
-		int x = u.loc.x, y = u.loc.y;
+//		int x = u.loc.x, y = u.loc.y;
 jou:
 
 		if(yourInfo->plan.size() == 0) {
