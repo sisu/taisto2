@@ -31,7 +31,7 @@ using namespace std;
 
 Game game;
 
-int screenW=1024, screenH=768;
+int screenW=800, screenH=600;
 string curHost("127.0.0.1");
 
 //double ay=0;
@@ -691,7 +691,7 @@ void joinGame()
     m.items.push_back(conn);
     m.exec();
 }
-bool fullScreen=0;
+bool fullScreen=1;
 void runOptionsMenu()
 {
     Menu m;
@@ -805,7 +805,13 @@ int main(int argc, char* argv[])
         s.loop();
         return 0;
     }
-    SDL_SetVideoMode(screenW,screenH,0,SDL_OPENGL);
+    SDL_Rect** modes = SDL_ListModes(0, SDL_OPENGL | SDL_FULLSCREEN);
+    for(int i=0; modes[i]; ++i) {
+		int w=modes[i]->w, h=modes[i]->h;
+		if (w*h > screenW*screenH) screenW=w, screenH=h;
+    }
+
+    SDL_SetVideoMode(screenW,screenH,0,SDL_OPENGL | SDL_FULLSCREEN);
     initTextures();
     initLCD();
 
