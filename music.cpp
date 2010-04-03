@@ -2,6 +2,8 @@
 #include <cstdlib>
 #include <algorithm>
 #include <iostream>
+#include <cassert>
+#include <fftw3.h>
 #include "SDL.h"
 #include "music.hpp"
 #include "timef.h"
@@ -75,12 +77,11 @@ void fft(float* rdst, float* idst, const float* rsrc, const float* isrc, int n)
 }
 void ifft(float* rdst, float* idst, float* rsrc, float* isrc, int n)
 {
-	for(int i=0; i<n/2; ++i) rsrc[n-1-i]=rsrc[i], isrc[n-1-i]=-isrc[i];
+	for(int i=0; i<n/2; ++i) rsrc[n-1-i]=rsrc[i], isrc[n-1-i]=isrc[i];
 	calc_fft(rdst,idst,rsrc,isrc,n,-2*M_PI);
-	float r = 1.f/n;
 	for(int i=0; i<n; ++i) {
-		rdst[i] *= r;
-		idst[i] *= r;
+		rdst[i] /= n;
+		idst[i] /= n;
 	}
 }
 void normalize(float* a, int n)
@@ -100,11 +101,47 @@ void normalize2(float* a, int n)
 	s /= n;
 	for(int i=0; i<n; ++i) a[i] /= 2*s;
 }
+void normalize3(float* a, int n)
+{
+	const int K=1<<12;
+	assert(n%K==0);
+	float p=0;
+	for(int i=n-K; i<n; ++i) p+=a[i];
+	p /= K;
+	for(int i=0; i<n; i+=K) {
+		float s=0;
+		for(int j=0; j<K; ++j) s+=a[i+j];
+		s /= K;
+		for(int j=0; j<K; ++j) {
+			float f = float(j)/K;
+			a[i+j] *= .5*(f/s + (1-f)/p);
+		}
+		p=s;
+	}
+}
 
 const int WTS=1<<16;
 const int FREQ = 44100;
 
 float sintable[WTS], costable[WTS], nulltable[WTS];
+void ifftw(float* out, float* st, float* ct, int n)
+{
+	fftw_complex *in,*outt;
+	in=(fftw_complex*)fftw_malloc(sizeof(fftw_complex)*n);
+	outt=(fftw_complex*)fftw_malloc(sizeof(fftw_complex)*n);
+	fftw_plan p = fftw_plan_dft_1d(n, in, outt, FFTW_BACKWARD, FFTW_ESTIMATE);
+	for(int i=0; i<n/2; ++i) {
+		in[i][0] = ct[i];
+		in[i][1] = st[i];
+	}
+//	for(int i=0; i<100; ++i) cout<<out[i]<<'\n';
+	for(int i=0; i<n/2; ++i) {
+		in[WTS-1-i][0] = in[i][0];
+		in[WTS-1-i][1] = in[i][1];
+	}
+	fftw_execute(p);
+	for(int i=0; i<WTS; ++i) out[i]=outt[i][0];
+}
 
 void genWT(float* out, const float* amps, const float* freqs, int n, float fundfreq, float fundbw, float bwscale)
 {
@@ -129,13 +166,14 @@ void genWT(float* out, const float* amps, const float* freqs, int n, float fundf
 	}
 
 	ifft(out, nulltable, costable, sintable, WTS);
+//	ifftw(out, costable, sintable, WTS);
 
-	normalize(out,WTS);
+	normalize2(out,WTS);
 }
 
 
 const int SAMPLES = 4096;
-const int NWT=3;
+const int NWT=4;
 float wtables[NWT][WTS];
 
 const int BPM = 140;
@@ -146,8 +184,10 @@ int curS=0;
 const int NLEN = 8;
 const short OFF=(1<<15)-1;
 short notes[NWT+1][NLEN] = {
-	{1,OFF,0,OFF,2,3,OFF,OFF},
+//	{1,OFF,0,OFF,2,3,OFF,OFF},
+	{0,1,0,2,3,0,4,2},
 	{OFF,1,2,3,OFF,OFF,0,5},
+	{0,OFF,1,OFF,2,OFF,3,OFF},
 	{0,OFF,0,OFF,0,OFF,0,OFF},
 	{OFF,0,OFF,0,OFF,0,OFF,0}
 };
@@ -158,6 +198,7 @@ struct Envelope {
 Envelope envelopes[NWT+1] = {
 	{.2,.2,.3,.1,.3},
 	{.05,.07,.4,.1,.5},
+	{.2,.2,.9,.1,1.5},
 	{.05,.05,.1,.01,.003},
 	{.05,.1,.7,.05,.3}
 };
@@ -175,6 +216,10 @@ float volume(const Envelope& e, float t)
 const float BEAT_FREQ = 1500;
 const float BEAT_SLOW = 200;
 
+const float flangMid[]={0,0,.015};
+const float flangSize[]={0,0,.2};
+const float flangSpeed[]={0,0,1};
+
 void genMusic(float* buf, int l)
 {
 	for(int k=0; k<2; ++k) {
@@ -183,17 +228,17 @@ void genMusic(float* buf, int l)
 		int start= cur0*SPB;
 
 #if 1
-		for(int i=0; i<NWT; ++i) {
-			if (i==2) continue;
-			if (i==1) continue;
+		for(int i=2; i<3; ++i) {
 			int n = notes[i][cur];
 			if (n==OFF) continue;
 			float f = exp2(n/12.);
+			cout<<"playing note "<<cur<<' '<<n<<'\n';
 			for(int j=0; j<l; ++j) {
 				int k = curS+j;
 				float t = (k - start)/(float)FREQ;
 				k *= f;
-				buf[j] += wtables[i][k%WTS] * volume(envelopes[i], t);
+				int kk = f*FREQ*(t+flangMid[i]*(1+flangSize[i]*sin(2*M_PI*flangSpeed[i]*t)));
+				buf[j] += (wtables[i][k%WTS] + wtables[i][(kk+WTS)%WTS]) * volume(envelopes[i], t);
 			}
 		}
 #else
@@ -229,9 +274,6 @@ void genWallHitSound()
 	memset(costable,0,sizeof(costable));
 	memset(out,0,4*WTS);
 	for(int i=0; i<s/2; ++i) {
-		double z = (double)i/s;
-//		double f = max(0.0, 1 - 10*z*z);
-		double f = 1/(z*z);
 		sintable[i]=1;
 		costable[i]=1;
 	}
@@ -267,7 +309,6 @@ void genMachinegun()
     normalize2(extraout,WTS);
     for(int i=0;i<WTS;i++)
     {
-        float r = randf();
         float s = 0.85;
         out[i]=out[i]*s+(1-s)*extraout[i];
     }
@@ -304,7 +345,6 @@ void genShotgun()
     normalize2(extraout,WTS);
     for(int i=0;i<WTS;i++)
     {
-        float r = randf();
         float s = 0.35;
         out[i]=out[i]*s+(1-s)*extraout[i];
     }
@@ -338,7 +378,6 @@ void genFlame()
     normalize2(extraout,WTS);
     for(int i=0;i<WTS;i++)
     {
-        float r = randf();
         float s = 0.7;
         out[i]=out[i]*s+(1-s)*extraout[i];
     }
@@ -372,7 +411,6 @@ void genExplosion()
     normalize2(extraout,WTS);
     for(int i=0;i<WTS;i++)
     {
-        float r = randf();
         float s = 0.3;
         out[i]=out[i]*s+(1-s)*extraout[i];
     }
@@ -397,7 +435,6 @@ void initSounds()
 
 void genSounds(float* buf, int l)
 {
-	double dt = (double)l / FREQ;
 	for(unsigned i=0; i<sounds.size(); ) {
 		Sound& s = sounds[i];
 		if (s.pos+l < FREQ*stimes[s.type]) {
@@ -431,15 +468,23 @@ const int NHARM=64;
 float hfreqs[NWT][NHARM];
 float hamps[NWT][NHARM];
 
-const float fundFreqs[NWT]={220,440};
-const float fundBws[NWT]={50,20};
-const float bwScales[NWT]={.95,.6};
+const float fundFreqs[NWT]={220,440,880};
+const float fundBws[NWT]={2,20,60};
+const float bwScales[NWT]={.95,.6,1};
 
 void initInstruments()
 {
 	for(int i=0; i<NHARM; ++i) hamps[0][i]=1./(1+i), hfreqs[0][i]=1+i;
 	for(int i=0; i<NHARM; ++i) hamps[1][i]=1./(1+i)*(i&1?2:1), hfreqs[1][i]=1+i*(1+.1*i);
-	for(int i=0; i<2; ++i) {
+	for(int i=0; i<NHARM; ++i) {
+		float f1 = 8;
+		hamps[2][i] = exp(-pow((i*f1-600.0)/150.0,2.0))+exp(-pow((i*f1-900.0)/250.0,2.0))+exp(-pow((i*f1-2200.0)/200.0,2.0))+exp(-pow((i*f1-2600.0)/250.0,2.0))+exp(-pow((i*f1)/3000.0,2.0))*0.1;
+//		hamps[2][i] = 1./(1+i);
+
+		hfreqs[2][i]=1+i;
+	}
+
+	for(int i=0; i<3; ++i) {
 		genWT(wtables[i], hamps[i], hfreqs[i], NHARM, fundFreqs[i], fundBws[i], bwScales[i]);
 	}
 
@@ -456,10 +501,11 @@ void initInstruments()
 		costable[WTS-1-i]=costable[i]=1;
 #endif
 	}
-	ifft(wtables[2], nulltable, costable, sintable, WTS);
-	normalize(wtables[2], WTS);
+	const int HIHAT = 3;
+	ifft(wtables[HIHAT], nulltable, costable, sintable, WTS);
+	normalize(wtables[HIHAT], WTS);
 #else
-	for(int i=0; i<WTS; ++i) wtables[2][i] = 2*randf()-1;
+	for(int i=0; i<WTS; ++i) wtables[HIHAT][i] = 2*randf()-1;
 #endif
 }
 
@@ -479,7 +525,7 @@ SDL_AudioSpec spec = {
 void initMusic()
 {
 	initInstruments();
-	initSounds();
+//	initSounds();
 	cout<<"wavetables gen done\n";
 	if (SDL_OpenAudio(&spec, 0)<0) {
 		cout<<"Opening audio device failed: "<<SDL_GetError()<<'\n';
