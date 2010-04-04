@@ -164,8 +164,8 @@ void drawSalama(Game& game,Vec2 orig,Vec2* targets,int n){
         Vec2 v(0,0);
         float tot = 0;
         if(n!=0)
-            std::random_shuffle(tar.begin()+1,tar.begin()+1+n);
-        for(int j=0;j<n+1;j++)
+            std::random_shuffle(tar.begin()+1,tar.end());
+        for(int j=0;j<tar.size();j++)
         {
             float r = fmod(1*fuaa(curtime*1+23*j+53*i),1);//fuaa(curtime*1000+23*j);//fuaa(curtime*100+23);//randf();//fuaa(curtime*10+23);
             assert(r>=0);
