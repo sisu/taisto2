@@ -4,6 +4,8 @@
 #include "Bullet.hpp"
 #include "Vector.hpp"
 #include "music.hpp"
+#include <iostream>
+using namespace std;
 
 Game::Game():items(items_map.vec),bullets(bullets_map.vec), socket(*this)
 {
@@ -21,6 +23,7 @@ void Game::updateNetwork()
             unitIndex.resize(units[i].id+20);
         unitIndex[units[i].id]=i;
     }
+    cout<<"flushing client ; "<<socket.conn.obuf.size()<<'\n';
 	socket.conn.flush();
 }
 void Game::updateState(double t)

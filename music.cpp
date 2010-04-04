@@ -3,7 +3,7 @@
 #include <algorithm>
 #include <iostream>
 #include <cassert>
-#include <fftw3.h>
+//#include <fftw3.h>
 #include "SDL.h"
 #include "music.hpp"
 #include "timef.h"
@@ -124,6 +124,7 @@ const int WTS=1<<16;
 const int FREQ = 44100;
 
 float sintable[WTS], costable[WTS], nulltable[WTS];
+#if 0
 void ifftw(float* out, float* st, float* ct, int n)
 {
 	fftw_complex *in,*outt;
@@ -142,6 +143,7 @@ void ifftw(float* out, float* st, float* ct, int n)
 	fftw_execute(p);
 	for(int i=0; i<WTS; ++i) out[i]=outt[i][0];
 }
+#endif
 
 void genWT(float* out, const float* amps, const float* freqs, int n, float fundfreq, float fundbw, float bwscale)
 {
@@ -320,7 +322,7 @@ void genMachinegun()
 	Envelope env = {.00,.35,.15,.15,.0};
 	for(int i=0; i<WTS; ++i) {
 		//out[i] *= 10 * (WTS-float(i))/WTS;
-        out[i] *= 1* volume(env, double(i)/FREQ);
+        out[i] *= .8* volume(env, double(i)/FREQ);
 	}
 }
 void genShotgun()
@@ -449,6 +451,7 @@ void callback(void* udata, Uint8* stream, int l)
 {
 	Uint16* s = (Uint16*)stream;
 	l /= 2;
+
 	float buf[SAMPLES]={};
 	if (playMusic) genMusic(buf, l);
 	float buf2[SAMPLES]={};
@@ -456,7 +459,7 @@ void callback(void* udata, Uint8* stream, int l)
 	else sounds.clear();
 	// TODO: normalize bufs?
 	for(int i=0; i<l; ++i){
-        int v =buf[i]*20000 + buf2[i]*10000; 
+        int v =buf[i]*20000 + buf2[i]*10000;
         if(v>SHRT_MAX)v = SHRT_MAX;
         if(v<SHRT_MIN)v = SHRT_MIN;
         s[i] = v;
@@ -524,8 +527,8 @@ SDL_AudioSpec spec = {
 
 void initMusic()
 {
-	initInstruments();
-//	initSounds();
+//	initInstruments();
+	initSounds();
 	cout<<"wavetables gen done\n";
 	if (SDL_OpenAudio(&spec, 0)<0) {
 		cout<<"Opening audio device failed: "<<SDL_GetError()<<'\n';

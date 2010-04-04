@@ -2,6 +2,7 @@
 #define TIMEF_H
 
 #include <SDL/SDL.h>
+#include <cstdlib>
 inline static float timef()
 {
     int t = SDL_GetTicks();

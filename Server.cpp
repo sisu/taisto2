@@ -5,9 +5,13 @@
 #include "Area.hpp"
 #include "Bot.hpp"
 #include "timef.h"
-#include <sys/types.h> 
+#include <sys/types.h>
+#ifndef WIN32
 #include <sys/socket.h>
 #include <netinet/in.h>
+#else
+#include <winsock.h>
+#endif
 #include <fcntl.h>
 #include <cstring>
 #include <cstdlib>
@@ -40,7 +44,9 @@ Server::~Server()
 	cout<<"destructing server\n";
 	for(unsigned i=0; i<clients.size(); ++i)
         delete clients[i];
+#ifndef WIN32
 	shutdown(sockfd, SHUT_RDWR);
+#endif
 	close(sockfd);
 }
 
@@ -55,6 +61,7 @@ void Server::loop()
     }
 	cout<<"really starting server loop "<<timef()<<'\n';
 	while(!end) {
+		cout<<"murr olen serveri\n";
 		double nt = SDL_GetTicks()/1e3;
 		if (nt <= t) {
 			SDL_Delay(10);
@@ -98,7 +105,11 @@ void Server::loop()
 		sendState();
         sendStats();
 		t=nt;
-		for(unsigned i=0; i<clients.size(); ++i) clients[i]->conn.flush();
+		cout<<"updating clients; "<<clients.size()<<'\n';
+		for(unsigned i=0; i<clients.size(); ++i) {
+			cout<<"flushing server ; "<<i<<' '<<clients[i]->conn.obuf.size()<<'\n';
+			clients[i]->conn.flush();
+		}
 		SDL_Delay(15);
 	}
 }
@@ -127,7 +138,7 @@ void Server::updatePhysics(double t)
 	}
 
 	spawnUnits(t);
-	for(unsigned i=0; i<units.size(); ++i) 
+	for(unsigned i=0; i<units.size(); ++i)
         if (units[i].type!=0) moveBot(*this,units[i],area,units,botinfos[units[i].id]);
 
 	unitMove += t;
@@ -314,47 +325,79 @@ void Server::initSocket()
 	struct sockaddr_in serv_addr;
 	sockfd = socket(AF_INET, SOCK_STREAM, 0);
 
-	bzero((char *) &serv_addr, sizeof(serv_addr));
+//  bzero((char *) &serv_addr, sizeof(serv_addr));
+    memset(&serv_addr, 0, sizeof(serv_addr));
 	serv_addr.sin_family = AF_INET;
 	serv_addr.sin_addr.s_addr = INADDR_ANY;
 	serv_addr.sin_port = htons(SERVER_PORT);
+#ifndef WIN32
 	int yes=1;
+#else
+    char yes=1;
+#endif
 	if (setsockopt(sockfd, SOL_SOCKET, SO_REUSEADDR, &yes, sizeof(yes)) < 0) {
 		perror("setsockopt fail");
-		exit(2);
+		exit(3);
 	}
 	if (bind(sockfd, (struct sockaddr *) &serv_addr, sizeof(serv_addr)) < 0) {
 		perror("ERROR on binding");
 		exit(1);
 	}
-	listen(sockfd,5);
+	if (listen(sockfd,5)) {
+		perror("Error on calling listen");
+		exit(5);
+	}
+#ifndef WIN32
 	fcntl(sockfd, F_SETFL, O_NONBLOCK);
+#else
+    unsigned long x=1;
+    ioctlsocket(sockfd, FIONBIO, &x);
+    char flag=1;
+    if (setsockopt(sockfd, IPPROTO_TCP, TCP_NODELAY, &flag, sizeof(flag))<0) {
+    	perror("setsockopt TCP_NODELAY");
+    	exit(17);
+    }
+#endif
 }
 
 void Server::pollConnections()
 {
+	cout<<"polling"<<endl;
 	while(true) {
+		cout<<"polling for connections\n";
 		sockaddr_in cli_addr;
-		int clilen=0;
+		int clilen=sizeof cli_addr;
+#ifndef WIN32
 		int newsockfd = accept(sockfd, (struct sockaddr *) &cli_addr, (socklen_t *) &clilen);
+#else
+		int newsockfd = accept(sockfd, (struct sockaddr *) &cli_addr, &clilen);
+#endif
 		if (newsockfd < 0) break;
 		cout<<"Newsockfd: "<<newsockfd<<endl;
 		cout<<"Adding socket"<<endl;
 
 		ClientInfo* cl = new ClientInfo(*this, newsockfd);
 		clients.push_back(cl);
+		cout<<"jee clients "<<clients.size()<<'\n';
 		cl->sendInit();
-		spawnClient(*cl);
 		clID[cl->id] = clients.size()-1;
+		cout<<"sendInit done\n";
+		spawnClient(*cl);
 //		sockets[sockets_used] = newsockfd;
 //		++sockets_used;
 
+#ifndef WIN32
 		fcntl(newsockfd, F_SETFL, O_NONBLOCK);
-        
-        
+#else
+    unsigned long x=1;
+    ioctlsocket(sockfd, FIONBIO, &x);
+#endif
+
+		cout<<"jou\n";
 //		const char* message = "Connection established";
 //		n = write(newsockfd,message,strlen(message));
 	}
+	cout<<"polling done\n";
 }
 void Server::spawnClient(ClientInfo& c)
 {
@@ -397,6 +440,7 @@ void Server::readInputs()
 	for(unsigned i=0; i<clients.size(); ) {
 		if (clients[i]->handleMessages()) ++i;
 		else {
+			cout<<"dropping client "<<i<<'\n';
 			Unit* u = clients[i]->u;
 			if (u) {
 				int x = u-&units[0];
@@ -632,7 +676,7 @@ void Server::spawnUnits(double t)
 	if (spawnTime > 0) return;
 #if 0
     for(int i=0;i<10;i++)
-    { 
+    {
         Vec2 s = area.getSpawn(curSpawn)+Vec2(randf()-0.5,randf()-0.5);;
         Item it;
         it.id = itemid;
