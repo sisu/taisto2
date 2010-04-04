@@ -33,6 +33,7 @@ Game game;
 
 int screenW=800, screenH=600;
 string curHost("127.0.0.1");
+extern bool playSounds;
 
 //double ay=0;
 
@@ -701,8 +702,13 @@ void runOptionsMenu()
         res.lst.push_back(string(buf));
         if (modes[i]->w==screenW && modes[i]->h==screenH) res.cur=i;
     }
-
     m.items.push_back(res);
+
+	MenuItem snd = fscr;
+	snd.title = "sounds";
+	snd.cur = playSounds;
+	m.items.push_back(snd);
+
 	m.items.push_back((MenuItem){"done",EXIT});
 
     m.exec();
@@ -721,6 +727,15 @@ void runOptionsMenu()
         SDL_SetVideoMode(screenW, screenH, 0, SDL_OPENGL | f);
         glViewport(0,0,screenW,screenH);
     }
+	bool sound = m.items[2].cur;
+	if (sound != playSounds) {
+		playSounds=sound;
+		SDL_LockAudio();
+		sounds.clear();
+		SDL_PauseAudio(!playSounds);
+		SDL_UnlockAudio();
+		cout<<"setting sounds to "<<playSounds<<'\n';
+	}
 }
 Menu createMainMenu()
 {
@@ -804,8 +819,8 @@ int main(int argc, char* argv[])
     initTextures();
     initLCD();
 
-//	initMusic();
-//	SDL_PauseAudio(0);
+	initMusic();
+	if (playSounds) SDL_PauseAudio(0);
 
 #if 0
     mainLoop();

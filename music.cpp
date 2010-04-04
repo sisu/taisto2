@@ -216,10 +216,6 @@ float volume(const Envelope& e, float t)
 const float BEAT_FREQ = 1500;
 const float BEAT_SLOW = 200;
 
-const float flangMid[]={0,0,.015};
-const float flangSize[]={0,0,.2};
-const float flangSpeed[]={0,0,1};
-
 void genMusic(float* buf, int l)
 {
 	for(int k=0; k<2; ++k) {
@@ -237,8 +233,7 @@ void genMusic(float* buf, int l)
 				int k = curS+j;
 				float t = (k - start)/(float)FREQ;
 				k *= f;
-				int kk = f*FREQ*(t+flangMid[i]*(1+flangSize[i]*sin(2*M_PI*flangSpeed[i]*t)));
-				buf[j] += (wtables[i][k%WTS] + wtables[i][(kk+WTS)%WTS]) * volume(envelopes[i], t);
+				buf[j] += wtables[i][k%WTS] * volume(envelopes[i], t);
 			}
 		}
 #else
@@ -524,8 +519,8 @@ SDL_AudioSpec spec = {
 
 void initMusic()
 {
-	initInstruments();
-//	initSounds();
+//	initInstruments();
+	initSounds();
 	cout<<"wavetables gen done\n";
 	if (SDL_OpenAudio(&spec, 0)<0) {
 		cout<<"Opening audio device failed: "<<SDL_GetError()<<'\n';
