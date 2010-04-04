@@ -11,7 +11,8 @@ int main(int argc, char* argv[])
     //sounds.push_back(Sound(EXPLOSION, .5));
     //sounds.push_back(Sound(SHOTGUNSOUND, .5));
     //sounds.push_back(Sound(MACHINEGUNSOUND, .5));
-    sounds.push_back(Sound(FLAMESOUND, .5));
+    //sounds.push_back(Sound(FLAMESOUND, .5));
+	sounds.push_back(Sound(ELECTROSOUND, .5));
 	bool done=0;
     int time = 0;
 	while(!done) {

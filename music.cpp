@@ -185,24 +185,25 @@ int curS=0;
 
 const int NLEN = 8;
 const short OFF=(1<<15)-1;
-short notes[NWT+1][NLEN] = {
-//	{1,OFF,0,OFF,2,3,OFF,OFF},
+short notes[NWT+2][NLEN] = {
 	{0,1,0,2,3,0,4,2},
 	{OFF,1,2,3,OFF,OFF,0,5},
 	{0,OFF,1,OFF,2,OFF,3,OFF},
 	{0,OFF,0,OFF,0,OFF,0,OFF},
-	{OFF,0,OFF,0,OFF,0,OFF,0}
+	{OFF,0,OFF,0,OFF,0,OFF,0},
+	{0,2,4,2,4,3,1,2}
 };
 struct Envelope {
 	float a,d,s,r;
 	float z;
 };
-Envelope envelopes[NWT+1] = {
+Envelope envelopes[NWT+2] = {
 	{.2,.2,.3,.1,.3},
 	{.05,.07,.4,.1,.5},
 	{.2,.2,.9,.1,1.5},
 	{.05,.05,.1,.01,.003},
-	{.05,.1,.7,.05,.3}
+	{.05,.1,.7,.05,.3},
+	{.1,.1,.3,.1,.2}
 };
 float volume(const Envelope& e, float t)
 {
@@ -226,11 +227,14 @@ void genMusic(float* buf, int l)
 		int start= cur0*SPB;
 
 #if 1
-		for(int i=2; i<3; ++i) {
+		for(int i=5; i<6; ++i) {
 			int n = notes[i][cur];
 			if (n==OFF) continue;
 			float f = exp2(n/12.);
 			cout<<"playing note "<<cur<<' '<<n<<'\n';
+			if (i==5) {
+				continue;
+			}
 			for(int j=0; j<l; ++j) {
 				int k = curS+j;
 				float t = (k - start)/(float)FREQ;
@@ -238,13 +242,14 @@ void genMusic(float* buf, int l)
 				buf[j] += wtables[i][k%WTS] * volume(envelopes[i], t);
 			}
 		}
-#else
+#elif 0
 		if (notes[3][cur]==OFF) continue;
 		for(int i=0; i<l; ++i) {
 			int k = curS+i;
 			float t = (k-start)/(float)FREQ;
 			buf[i] += sin(BEAT_FREQ*t/(1+t*BEAT_SLOW)) * volume(envelopes[3], t);
 		}
+#else
 #endif
 	}
 }
@@ -422,12 +427,46 @@ void genExplosion()
         out[i] *= 5* volume(env, double(i)/FREQ);
 	}
 }
+void genElectro()
+{
+	float* out = stables[ELECTROSOUND];
+    static float extraout[WTS];
+	const int n=64;
+	float amps[n];
+	float freqs[n];
+	for(int i=0; i<n; ++i) {
+		freqs[i] = 1+i;//+i+randf();
+		amps[i] = 1.f/(1+i);//(n*n-i*i)/(float(n*n));
+	}
+	//genWT(out, amps, freqs, n, 22, 200.5, .1);
+	genWT(out, amps, freqs, n, 330, 100, 4);
+	genWT(extraout, amps, freqs, n, 150, 10.0, 0.5);
+    normalize2(out,WTS);
+    normalize2(extraout,WTS);
+    for(int i=0;i<WTS;i++)
+    {
+        float s = 0.8;
+        out[i]=s*out[i]+(1-s)*extraout[i];
+    }
+    for(int i=0;i<10;i++){
+        lowpass(out,WTS,1.0/FREQ,1.1);
+    }
+    normalize2(out,WTS);
+
+	Envelope env = {.15,.35,.15,.15,.05};
+	for(int i=0; i<WTS; ++i) {
+		//out[i] *= 10 * (WTS-float(i))/WTS;
+        out[i] *= 0.4* volume(env, double(i)/FREQ);
+        //out[i]*=0.1;
+	}
+}
 void initSounds()
 {
 	genShotgun();
 	genMachinegun();
 	genExplosion();
     genFlame();
+	genElectro();
 }
 
 void genSounds(float* buf, int l)

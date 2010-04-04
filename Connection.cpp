@@ -21,7 +21,7 @@ int get(int fd, void* buf, int n)
 		int rr = WSAGetLastError();
 		if (rr==WSAEWOULDBLOCK) errno=EAGAIN;
 		else cout<<"rect error: "<<rr<<endl;
-	} else cout<<"got data "<<r<<'\n';
+	} //else cout<<"got data "<<r<<'\n';
 	return r;
 }
 #else
@@ -74,7 +74,7 @@ void Connection::write(DataWriter& w)
 void Connection::flush()
 {
 	if (obuf.size()) {
-		cout<<"sending "<<obuf.size()<<" bytes\n";
+//		cout<<"sending "<<obuf.size()<<" bytes\n";
 		#ifdef WIN32
 		int r = send(fd, &obuf[0], obuf.size(), 0);
 		if (r != obuf.size()) {

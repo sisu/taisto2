@@ -10,6 +10,7 @@ enum SoundType {
     SHOTGUNSOUND,
     MACHINEGUNSOUND,
     FLAMESOUND,
+	ELECTROSOUND,
 	NSOUNDS
 };
 struct Sound {

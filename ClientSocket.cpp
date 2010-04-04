@@ -85,7 +85,7 @@ void ClientSocket::handleMessages()
 	while(conn.read()) {
 		DataReader r(conn.buf+4);
 		int type=r.readByte();
-		cout<<"got message from server "<<type<<'\n';
+//		cout<<"got message from server "<<type<<'\n';
 		switch(type) {
 			case SRV_INIT:
 				readInit(r);
@@ -130,7 +130,7 @@ void ClientSocket::handleMessages()
             case SRV_DEAD:
                 readDead(r);
                 break;
-			defaelt:
+			default:
 				cout<<"Unknown message "<<type<<'\n';
 				break;
 		}
@@ -217,6 +217,8 @@ void ClientSocket::readLightning(DataReader r)
 	int cnt = r.readInt();
 	vector<int> ids((int*)r.cur, ((int*)r.cur)+cnt);
 	g.lightnings.push_back(make_pair(0.0, ids));
+	double l = length(g.units[g.unitIndex[ids[0]]].loc - g.player->loc);
+	sounds.push_back(Sound(ELECTROSOUND, distvol(l)));
 //	cout<<"adding lightning "<<cnt<<'\n';
 }
 void ClientSocket::readItems(DataReader r)

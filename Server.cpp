@@ -61,7 +61,6 @@ void Server::loop()
     }
 	cout<<"really starting server loop "<<timef()<<'\n';
 	while(!end) {
-		cout<<"murr olen serveri\n";
 		double nt = SDL_GetTicks()/1e3;
 		if (nt <= t) {
 			SDL_Delay(10);
@@ -105,9 +104,7 @@ void Server::loop()
 		sendState();
         sendStats();
 		t=nt;
-		cout<<"updating clients; "<<clients.size()<<'\n';
 		for(unsigned i=0; i<clients.size(); ++i) {
-			cout<<"flushing server ; "<<i<<' '<<clients[i]->conn.obuf.size()<<'\n';
 			clients[i]->conn.flush();
 		}
 		SDL_Delay(15);
@@ -362,9 +359,7 @@ void Server::initSocket()
 
 void Server::pollConnections()
 {
-	cout<<"polling"<<endl;
 	while(true) {
-		cout<<"polling for connections\n";
 		sockaddr_in cli_addr;
 		int clilen=sizeof cli_addr;
 #ifndef WIN32
@@ -378,10 +373,8 @@ void Server::pollConnections()
 
 		ClientInfo* cl = new ClientInfo(*this, newsockfd);
 		clients.push_back(cl);
-		cout<<"jee clients "<<clients.size()<<'\n';
 		cl->sendInit();
 		clID[cl->id] = clients.size()-1;
-		cout<<"sendInit done\n";
 		spawnClient(*cl);
 //		sockets[sockets_used] = newsockfd;
 //		++sockets_used;
@@ -393,11 +386,9 @@ void Server::pollConnections()
     ioctlsocket(sockfd, FIONBIO, &x);
 #endif
 
-		cout<<"jou\n";
 //		const char* message = "Connection established";
 //		n = write(newsockfd,message,strlen(message));
 	}
-	cout<<"polling done\n";
 }
 void Server::spawnClient(ClientInfo& c)
 {

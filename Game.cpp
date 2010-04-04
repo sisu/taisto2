@@ -23,7 +23,6 @@ void Game::updateNetwork()
             unitIndex.resize(units[i].id+20);
         unitIndex[units[i].id]=i;
     }
-    cout<<"flushing client ; "<<socket.conn.obuf.size()<<'\n';
 	socket.conn.flush();
 }
 void Game::updateState(double t)

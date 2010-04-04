@@ -30,7 +30,7 @@ bool ClientInfo::handleMessages()
 	while(conn.read()) {
 		DataReader r(conn.buf+4);
 		int type=r.readByte();
-		cout<<"got message from client "<<type<<'\n';
+//		cout<<"got message from client "<<type<<'\n';
 		switch(type) {
 			case CLI_STATE:
 				readState(r);
