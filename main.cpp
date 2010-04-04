@@ -121,7 +121,7 @@ void draw_area(Area& area = ::area)
 //    glTranslatef(-player.loc.x+0.5,-player.loc.y+0.5,0);
     //glTranslatef(-area.w/2,-area.h/2,0);
 
-    int w = 60;
+    int w = 80;
     int h = 60;
     int sx = player.loc.x-w/2;
     int sy = player.loc.y-h/2;

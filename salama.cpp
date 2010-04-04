@@ -154,8 +154,10 @@ void drawSalama(Game& game,Vec2 orig,Vec2* targets,int n){
     std::vector<Vec2> tar;
     tar.push_back(orig);
     memset(last,-1,sizeof(last));
-    for(int i=0;i<n;i++)
+    for(int i=0;i<n;i++){
+        if(length(targets[i]-orig)>40)continue;
         tar.push_back(targets[i]);
+    }
     int tz = tar.size();
     for(int i=0;i<50;i++)
     {
