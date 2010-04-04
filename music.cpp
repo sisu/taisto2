@@ -266,7 +266,7 @@ void lowpass(float* a, int n, double a0, double a1)
 }
 
 float stables[NSOUNDS][WTS];
-double stimes[] = {.5,.5,.3,.5,.5};
+double stimes[] = {.5,.5,.3,.5,.5,1.4,.8};
 
 void genWallHitSound()
 {
@@ -460,6 +460,40 @@ void genElectro()
         //out[i]*=0.1;
 	}
 }
+void genRailSound()
+{
+	float* out = stables[RAILSOUND];
+    static float extraout[WTS];
+	const int n=64;
+	float amps[n];
+	float freqs[n];
+	for(int i=0; i<n; ++i) {
+		freqs[i] = 1+i;//+i+randf();
+		amps[i] = 1.f/(1+i);//(n*n-i*i)/(float(n*n));
+	}
+	//genWT(out, amps, freqs, n, 22, 200.5, .1);
+	genWT(out, amps, freqs, n, 320, 50, 1);
+	genWT(extraout, amps, freqs, n, 350, 10.0, 1.1);
+    normalize2(out,WTS);
+    normalize2(extraout,WTS);
+    for(int i=0;i<WTS;i++)
+    {
+        float s = .7;
+		int k = 20 + 10*sin(double(i)/FREQ*2*M_PI*.5);
+        out[i]=.5*s*(out[i]+out[max(0,i-k)])+(1-s)*extraout[i];
+    }
+    for(int i=0;i<10;i++){
+        lowpass(out,WTS,1.0/FREQ,1.1);
+    }
+    normalize2(out,WTS);
+
+	Envelope env = {.15,.25,.45,.15,.4};
+	for(int i=0; i<WTS; ++i) {
+		//out[i] *= 10 * (WTS-float(i))/WTS;
+        out[i] *= 3* volume(env, double(i)/FREQ);
+        //out[i]*=0.1;
+	}
+}
 void initSounds()
 {
 	genShotgun();
@@ -467,6 +501,7 @@ void initSounds()
 	genExplosion();
     genFlame();
 	genElectro();
+	genRailSound();
 }
 
 void genSounds(float* buf, int l)

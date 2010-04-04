@@ -186,7 +186,9 @@ void ClientSocket::readBullet(DataReader r)
             sounds.push_back(Sound(FLAMESOUND,vol));
             //lastFlame=timef();
         //}
-    }
+    } else if (b.type==RAILGUN) {
+		sounds.push_back(Sound(RAILSOUND,vol));
+	}
     g.bullets_map.insert(b);
 	//g.bullets.push_back(*(Bullet*)r.cur);
 	//g.bulletIndex[g.bullets.back().id] = g.bullets.size()-1;
