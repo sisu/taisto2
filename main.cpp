@@ -903,8 +903,8 @@ int main(int argc, char* argv[])
     initTextures();
     initLCD();
 
-    //	initMusic();
-    //	if (playSounds) SDL_PauseAudio(0);
+   	initMusic();
+    if (playSounds) SDL_PauseAudio(0);
 
 #if 0
     mainLoop();

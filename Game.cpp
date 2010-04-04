@@ -19,10 +19,7 @@ void Game::updateNetwork()
 	socket.handleMessages();
     for(unsigned i=0;i<units.size();i++)
     {
-		if (units[i].id<0) {
-			units[i].id=0;
-			continue;
-		}
+		units[i].id &= 0xffff;
         if(units[i].id>=(int)unitIndex.size())
             unitIndex.resize(units[i].id+20);
         unitIndex[units[i].id]=i;

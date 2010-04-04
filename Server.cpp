@@ -66,6 +66,7 @@ void Server::loop()
 			SDL_Delay(10);
 			continue;
 		}
+		for(unsigned i=0; i<units.size(); ++i) units[i].id &= 0xffff;
         //if(nt>15)end=1;
 		pollConnections();
 		for(unsigned i=0; i<units.size(); ++i) {
@@ -654,6 +655,7 @@ void Server::spawnUnits(double t)
             if(enemyCounts[t]>=f*3*spawnCounts[t][kk])
                 continue;
             Unit b(area.getSpawn(kk), t, botID++);
+			if (botID==1<<16) botID=256;
             units.push_back(b);
             BotInformation* bi = new BotInformation;
             botinfos.resize(botID);

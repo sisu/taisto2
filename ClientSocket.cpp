@@ -159,6 +159,7 @@ void ClientSocket::readState(DataReader r)
 	int mx=g.player->movex, my=g.player->movey;
 	g.units.resize(n);
 	memcpy(&g.units[0], r.cur, n*sizeof(Unit));
+	for(int i=0; i<n; ++i) g.units[i].id &= 0xffff;
 	for(int i=0; i<n; ++i) if (g.units[i].type==0 && g.units[i].id==g.id) {
 		Unit& u = g.units[i];
 		u.d=d;
