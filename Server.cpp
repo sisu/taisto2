@@ -450,9 +450,11 @@ void Server::readInputs()
 void Server::sendStats(){
     DataWriter w;
     w.writeByte(SRV_STATS);
-    kills.resize(nextID+2);
-    teamkills.resize(nextID+2);
-    deaths.resize(nextID+2);
+	if (kills.size()<nextID+2) {
+		kills.resize(nextID+2);
+		teamkills.resize(nextID+2);
+		deaths.resize(nextID+2);
+	}
     int n = clients.size();//kills.size();
     w.writeInt(n);
     for(int i=0;i<n;i++)
@@ -586,6 +588,10 @@ void Server::damageUnit(int i, double d,int shooter,Bullet b)
 	}
 	if (u.type==0) lol=1;
 
+	kills.resize(256);
+	deaths.resize(256);
+	teamkills.resize(256);
+
 	u.health -= d/(lol * shields[u.type]);
     assert(!isnan(u.health));
     if(u.health < ultimate_foo+2)
@@ -604,13 +610,13 @@ void Server::damageUnit(int i, double d,int shooter,Bullet b)
         sendToAll(w);
         if(u.type>=1)
         {
-            if(shooter < 256)
+            if(shooter < 256 && shooter>=0)
                 kills[shooter]++;
         }
 		if (u.type==0){
             clients[clID[u.id]]->u=0, clients[clID[u.id]]->spawnTime=3;
             //if(clients[clID[u.id]]->
-            if(shooter < 256)
+            if(shooter < 256 && shooter>=0)
                 teamkills[shooter]++;
             deaths[u.id]++;
         }else if (randf() < .25) {

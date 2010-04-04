@@ -146,7 +146,7 @@ void drawPlayer(const Unit& u,bool healthbar=1){
     } else if (u.type==5) glColor3f(.8,.3,.8);
 #else
 	if (u.type<0 || u.type>7) {
-		cout<<"UNKNOWN BOT TYPE "<<u.type<<'\n';
+//		cout<<"UNKNOWN BOT TYPE "<<u.type<<'\n';
 		glColor3f(1,1,1);
 	} else
 	glColor3fv(playerColors[u.type]);
