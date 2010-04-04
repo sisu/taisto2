@@ -3,6 +3,7 @@
 
 #include "Vector.hpp"
 
+#pragma pack(push,1)
 const int MACHINEGUN = 0;
 const int SHOTGUN = 1;
 const int BOUNCEGUN = 2;
@@ -32,5 +33,7 @@ Bullet genBullet(int type, Vec2 l, double d, int id);
 #define LIGHTNING_RAD (17.0)
 #define LIGHTNING_TIME (.05)
 #define GRENADE_SIZE (8.0)
+
+#pragma pack(pop)
 
 #endif

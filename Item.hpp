@@ -5,6 +5,7 @@
 
 const int ITEM_HEALTH=0;
 const int ITEM_AMMON=1;
+#pragma pack(push,1)
 struct Item
 {
     int type;
@@ -16,6 +17,7 @@ struct Item
 	Item() {}
 	Item(int t, Vec2 l, int i, float time, float a): type(t), loc(l), id(i), timeLeft(time), a(a) {}
 };
+#pragma pack(pop)
 
 
 
