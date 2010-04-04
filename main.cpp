@@ -826,16 +826,85 @@ int main(int argc, char* argv[])
     }
     SDL_Rect** modes = SDL_ListModes(0, SDL_OPENGL | SDL_FULLSCREEN);
     for(int i=0; modes[i]; ++i) {
-		int w=modes[i]->w, h=modes[i]->h;
-		if (w>=h && w*h > screenW*screenH) screenW=w, screenH=h;
+        int w=modes[i]->w, h=modes[i]->h;
+        if (w>=h && w*h > screenW*screenH) screenW=w, screenH=h;
     }
 
     SDL_SetVideoMode(screenW,screenH,0,SDL_OPENGL | SDL_FULLSCREEN);
+    // {0x00, 0x80, 0x01, 0xc0, 0x03, 0xE0, 0x07, 0xF0, 0x0F, 0xF8, 0x1F, 0xFC, 0x3F, 0xFE, 0x7F, 0xFF };
+    //
+   
+    short mask[] = {
+
+    0b0000000000000000,
+    0b0000001111000000,
+    0b0000110000110000,
+    0b0001000000001000,
+    0b0010000000000100,
+    0b0010000000000100,
+    0b0100000000000010,
+    0b0100000110000010,
+    0b0100000110000010,
+    0b0100000000000010,
+    0b0010000000000100,
+    0b0010000000000100,
+    0b0001000000001000,
+    0b0000110000110000,
+    0b0000001111000000,
+    0b0000000000000000};
+    /*
+    Uint8 mask[] =
+    {       0b00011000
+        ,   0b00100100
+            ,0b01000010
+            ,0b10011001
+            ,0b10011001
+            ,0b01000010
+            ,0b00100100
+            ,0b00011000
+    };
+    */
+    short data[] = {
+    0b0000000000000000,
+    0b0000001111000000,
+    0b0000110000110000,
+    0b0001000000001000,
+    0b0010000000000100,
+    0b0010000000000100,
+    0b0100000000000010,
+    0b0100000110000010,
+    0b0100000110000010,
+    0b0100000000000010,
+    0b0010000000000100,
+    0b0010000000000100,
+    0b0001000000001000,
+    0b0000110000110000,
+    0b0000001111000000,
+    0b0000000000000000
+    };
+
+    for(int y=0;y<16;y++){
+        for(int x=0;x<16;x++)
+        {
+#define GB(x,y) ((data[y]>>(x))&1)
+            if(((x>0&&GB(x-1,y))||(x<16 && GB(x+1,y))||(y>0 && GB(x,y-1))||(y<16&&GB(x,y+1))))
+                mask[y]|=1<<x;
+        }
+    }
+    for(int i=0;i<16;i++){
+
+        mask[i] = mask[i]<<8 | mask[i]>>8;
+        data[i] = data[i]<<8 | data[i]>>8;
+        //data[i] = ~data[i];
+    }
+
+    SDL_Cursor* cursor = SDL_CreateCursor((Uint8*)data, (Uint8*)mask, 16, 16, 8, 8);
+    SDL_SetCursor (cursor);
     initTextures();
     initLCD();
 
-//	initMusic();
-//	if (playSounds) SDL_PauseAudio(0);
+    //	initMusic();
+    //	if (playSounds) SDL_PauseAudio(0);
 
 #if 0
     mainLoop();
