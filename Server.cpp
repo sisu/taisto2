@@ -401,6 +401,7 @@ void Server::spawnClient(ClientInfo& c)
 	int b = max(0, curSpawn-fail);
 	units.push_back(Unit(area.getSpawn(b), 0, c.id));
 	c.u = &units.back();
+	unitID[c.id] = units.size()-1;
 }
 void Server::sendState()
 {
@@ -432,7 +433,7 @@ void Server::readInputs()
 	for(unsigned i=0; i<clients.size(); ) {
 		if (clients[i]->handleMessages()) ++i;
 		else {
-//			cout<<"dropping client "<<i<<'\n';
+			cout<<"dropping client "<<i<<'\n';
 			Unit* u = clients[i]->u;
 			if (u) {
 				int x = u-&units[0];
