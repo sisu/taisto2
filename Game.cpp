@@ -19,6 +19,10 @@ void Game::updateNetwork()
 	socket.handleMessages();
     for(unsigned i=0;i<units.size();i++)
     {
+		if (units[i].id<0) {
+			units[i].id=0;
+			continue;
+		}
         if(units[i].id>=(int)unitIndex.size())
             unitIndex.resize(units[i].id+20);
         unitIndex[units[i].id]=i;
@@ -44,7 +48,7 @@ void Game::updateState(double t)
 		else lightnings[i]=lightnings.back(), lightnings.pop_back();
 	}
 	nextSpawn -= t;
-	defenceTime -= t;
+	defenceTime = t;
 }
 void Game::destroyBullet(int id, double xx, double yy)
 {

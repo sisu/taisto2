@@ -257,6 +257,10 @@ void ClientSocket::readStats(DataReader r){
     for(int i=0;i<n;i++)
     {
         int id = r.readInt();
+		if (id<0 || id>=g.kills.size()) {
+			for(int j=0; j<3; ++j) r.readInt();
+			continue;
+		}
         g.kills[id]=r.readInt();
         g.teamkills[id]=r.readInt();
         g.deaths[id]=r.readInt();
