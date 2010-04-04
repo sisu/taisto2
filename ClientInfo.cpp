@@ -63,7 +63,7 @@ void ClientInfo::sendInit()
 	w.writeInt(a.bases.size());
 	w.write(&a.bases[0], 4*a.bases.size());
 	conn.write(w);
-	cout<<"sent init "<<w.len()<<'\n';;
+//	cout<<"sent init "<<w.len()<<'\n';;
 
 	{
 		DataWriter w;
@@ -85,10 +85,10 @@ void ClientInfo::sendInit()
 		conn.write(w);
 	}
 	sendBCounts();
-    std::cout<<"nextid = "<<server.nextID<<"\n";
+//    std::cout<<"nextid = "<<server.nextID<<"\n";
     for(int i=0;i<=server.nextID;i++)
     {
-        std::cout<<"server.name["<<i<<"] == "<<server.name[i]<<"\n";
+//        std::cout<<"server.name["<<i<<"] == "<<server.name[i]<<"\n";
         if(server.name[i].size()){
             DataWriter w;
             w.writeByte(SRV_NAME);
@@ -97,7 +97,7 @@ void ClientInfo::sendInit()
             memcpy(buf,server.name[i].c_str(),server.name[i].size());
             w.write(buf,32);
             conn.write(w);
-            std::cout<<"sending name "<<buf<<" to "<<server.name[id]<<"\n";
+//            std::cout<<"sending name "<<buf<<" to "<<server.name[id]<<"\n";
         }
     }
 	conn.flush();
@@ -144,5 +144,5 @@ void ClientInfo::sendName(DataReader r)
     w.writeInt(id);
     w.write(buf,32);
     server.sendToAll(w);
-    std::cout<<buf<<" == "<<server.name[id]<<" ("<<id<<") connected\n";
+//    std::cout<<buf<<" == "<<server.name[id]<<" ("<<id<<") connected\n";
 }

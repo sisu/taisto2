@@ -46,7 +46,7 @@ struct Area {
         {
             bases.push_back(i);
         }
-        std::cout<<"konstruktori!\n";
+//        std::cout<<"konstruktori!\n";
 
         const int caves = 2;
         for(int i=0;i<caves;i++)

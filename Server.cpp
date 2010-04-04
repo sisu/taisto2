@@ -41,7 +41,7 @@ Server::Server(): end(0),nextID(1),area(30,900)// area("field.in.1")
 }
 Server::~Server()
 {
-	cout<<"destructing server\n";
+//	cout<<"destructing server\n";
 	for(unsigned i=0; i<clients.size(); ++i)
         delete clients[i];
 #ifndef WIN32
@@ -53,13 +53,13 @@ Server::~Server()
 static double total_time=0;
 void Server::loop()
 {
-	cout<<"starting server loop "<<timef()<<'\n';;
+//	cout<<"starting server loop "<<timef()<<'\n';;
 	double t=timef();
     for(int i=0;i<30;i++){
         //spawnUnits(1);
         updatePhysics(1);
     }
-	cout<<"really starting server loop "<<timef()<<'\n';
+//	cout<<"really starting server loop "<<timef()<<'\n';
 	while(!end) {
 		double nt = SDL_GetTicks()/1e3;
 		if (nt <= t) {
@@ -173,7 +173,7 @@ void Server::updatePhysics(double t)
 			if (i.type==0 && u.health>=1) continue;
             if(length2(u.loc-i.loc)<1)
             {
-                std::cout<<"item used "<<i.id<<' '<<i.type<<"\n";
+//                std::cout<<"item used "<<i.id<<' '<<i.type<<"\n";
 				if (i.type==0) u.health = min(1.0,u.health+.25);
 				else clients[clID[u.id]]->bcnt[i.type] += packSizes[i.type], clients[clID[u.id]]->sendBCounts();
                 DataWriter w;
@@ -368,8 +368,8 @@ void Server::pollConnections()
 		int newsockfd = accept(sockfd, (struct sockaddr *) &cli_addr, &clilen);
 #endif
 		if (newsockfd < 0) break;
-		cout<<"Newsockfd: "<<newsockfd<<endl;
-		cout<<"Adding socket"<<endl;
+//		cout<<"Newsockfd: "<<newsockfd<<endl;
+//		cout<<"Adding socket"<<endl;
 
 		ClientInfo* cl = new ClientInfo(*this, newsockfd);
 		clients.push_back(cl);
@@ -431,7 +431,7 @@ void Server::readInputs()
 	for(unsigned i=0; i<clients.size(); ) {
 		if (clients[i]->handleMessages()) ++i;
 		else {
-			cout<<"dropping client "<<i<<'\n';
+//			cout<<"dropping client "<<i<<'\n';
 			Unit* u = clients[i]->u;
 			if (u) {
 				int x = u-&units[0];
@@ -525,7 +525,7 @@ void Server::updateBullets(double t)
         if(units[i].health<=0 || isnan(units[i].health)){
             if(isnan(units[i].health))
             {
-                std::cout<<"unit "<<units[i].id<<" health is nan\n";
+//                std::cout<<"unit "<<units[i].id<<" health is nan\n";
                 Unit u = units[i];
                 clients[clID[u.id]]->u=0, clients[clID[u.id]]->spawnTime=3;
             }
@@ -555,7 +555,7 @@ void Server::updateBases()
 	int sp=curSpawn;
 	if (c2>0) {
 		++curSpawn;
-		cout<<"updating base "<<curSpawn<<'\n';
+//		cout<<"updating base "<<curSpawn<<'\n';
 	}
 	else if (curSpawn && c1<-2) {
 		--curSpawn;
@@ -700,7 +700,7 @@ void Server::spawnUnits(double t)
 	w.write(&added[0], added.size()*sizeof(Item));
 	sendToAll(w);
 
-	cout<<"spawning bots\n";
+//	cout<<"spawning bots\n";
 
     /*
 	for(int i=1; i<20; ++i) {
@@ -720,7 +720,7 @@ void Server::spawnUnits(double t)
 		}
 	}*/
 	spawnTime = 20;
-	cout<<"spawning done\n";
+//	cout<<"spawning done\n";
 
 	{
 		DataWriter w;
@@ -753,5 +753,5 @@ void Server::genSpawnCounts()
 			itemSpawns[i][j] = fItemCounts[i] + (lItemCounts[i]-fItemCounts[i])*(j-f)/(n-1-f);
 		}
 	}
-	cout<<"genSpawnCounts done\n";
+//	cout<<"genSpawnCounts done\n";
 }

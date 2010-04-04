@@ -46,7 +46,7 @@ void moveUnits(Unit* us, int n, const Area& a,double dt, PC& p)
 {
 	++p.curTick;
 	if ((int)p.cellUnits.size()!=a.w*a.h) {
-		cout<<"resizing "<<a.w<<' '<<a.h<<'\n';
+//		cout<<"resizing "<<a.w<<' '<<a.h<<'\n';
 		p.cellUnits.resize(a.w*a.h);
 		p.cellTimes.resize(a.w*a.h);
 	}

@@ -806,8 +806,6 @@ void menuBackDraw()
 
 int main(int argc, char* argv[])
 {
-    cout<<"jee"<<endl;
-    #if 1
 #ifdef WIN32
     WSAData wsaData;
 	int nCode;
@@ -816,7 +814,6 @@ int main(int argc, char* argv[])
 				endl;
         return 255;
     }
-#endif
 #endif
     nickString = "noname";//getenv("USER");
     srand(time(0));
