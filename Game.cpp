@@ -96,7 +96,7 @@ void Game::destroyBullet(int id, double xx, double yy)
 		}
 	}
 
-	if (bx.type==ROCKET) {
+	if (bx.type==ROCKET || bx.type==GRENADE) {
 		sounds.push_back(Sound(EXPLOSION,
                     distvol(length(bx.loc-player->loc))));
 	}
