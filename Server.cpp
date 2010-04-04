@@ -730,10 +730,10 @@ void Server::spawnUnits(double t)
 	}
 }
 
-int firstBases[32] = {0,0,1,2,0,3,15,0};
+int firstBases[32] = {0,1,2,3,0,4,15,16};
 int firstCounts[32] = {0,3,1,1,0,2,1,0};
 int lastCounts[32] = {0,7,7,4,0,3,1,0};
-int fItemBases[32] = {0,0,1,3,2,4,5};
+int fItemBases[32] = {0,1,2,4,3,5,6};
 int fItemCounts[32] = {5,4,6,4,3,2,4};
 int lItemCounts[32] = {8,10,12,8,6,6,8};
 void Server::genSpawnCounts()
