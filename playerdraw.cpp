@@ -4,6 +4,8 @@
 #include <GL/glu.h>
 #include <cmath>
 #include <GL/gl.h>
+#include <iostream>
+using namespace std;
 
 void drawPlayer_real(const Unit& u)
 {
@@ -143,6 +145,10 @@ void drawPlayer(const Unit& u,bool healthbar=1){
         glColor3f(0.5,0.5,1);
     } else if (u.type==5) glColor3f(.8,.3,.8);
 #else
+	if (u.type<0 || u.type>7) {
+		cout<<"UNKNOWN BOT TYPE "<<u.type<<'\n';
+		glColor3f(1,1,1);
+	} else
 	glColor3fv(playerColors[u.type]);
 #endif
 
