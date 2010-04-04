@@ -7,10 +7,14 @@
 #include "music.hpp"
 #include "DataWriter.hpp"
 #include <sys/types.h>
+#ifndef WIN32
 #include <sys/socket.h>
 #include <netinet/in.h>
-#include <cstring>
 #include <netdb.h>
+#else
+#include <winsock.h>
+#endif
+#include <cstring>
 #include <fcntl.h>
 #include <iostream>
 using namespace std;
@@ -22,16 +26,51 @@ ClientSocket::ClientSocket(Game& g): g(g)
 bool ClientSocket::connect(const char* host,const char* nick)
 {
 	hostent* serv = gethostbyname(host);
+	if (!serv) {
+		cout<<"gethostbyname failed\n";
+		exit(16);
+	}
 	sockaddr_in addr;
+	#ifdef WIN32
+	int sockfd = socket(PF_INET, SOCK_STREAM, 0);
+	#else
 	int sockfd = socket(AF_INET, SOCK_STREAM, 0);
+	#endif
+		#ifdef WIN32
+	if (sockfd==INVALID_SOCKET) {
+		cout<<"binding socket failed "<<WSAGetLastError()<<endl;
+		exit(15);
+	}
+		#endif
 	memset(&addr,0,sizeof(addr));
 	addr.sin_family = AF_INET;
+#ifdef WIN32
+	addr.sin_addr.s_addr = ((struct in_addr *)(serv->h_addr))->s_addr;
+//    memcpy(serv->h_addr, &addr.sin_addr.s_addr, serv->h_length);
+#else
 	bcopy(serv->h_addr, &addr.sin_addr.s_addr, serv->h_length);
+#endif
 	addr.sin_port = htons(SERVER_PORT);
-	if (::connect(sockfd, (sockaddr*)&addr, sizeof(addr))<0) return 0;
+	if (::connect(sockfd, (sockaddr*)&addr, sizeof(addr))<0) {
+		perror("Connecting failed");
+		#ifdef WIN32
+		cout<<"connect error: "<<WSAGetLastError()<<'\n';
+		#endif
+		return 0;
+	}
+	#ifndef WIN32
 	fcntl(sockfd, F_SETFL, O_NONBLOCK);
+	#else
+    unsigned long x=1;
+    ioctlsocket(sockfd, FIONBIO, &x);
+    char flag=1;
+    if (setsockopt(sockfd, IPPROTO_TCP, TCP_NODELAY, &flag, sizeof(flag))<0) {
+    	perror("setsockopt TCP_NODELAY");
+    	exit(16);
+    }
+	#endif
 	conn.fd = sockfd;
-    
+
     DataWriter w;
     w.writeByte(CLI_NAME);
     char buf[33]={};
@@ -46,7 +85,7 @@ void ClientSocket::handleMessages()
 	while(conn.read()) {
 		DataReader r(conn.buf+4);
 		int type=r.readByte();
-//		cout<<"got message "<<type<<'\n';
+		cout<<"got message from server "<<type<<'\n';
 		switch(type) {
 			case SRV_INIT:
 				readInit(r);

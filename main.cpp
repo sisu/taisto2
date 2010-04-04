@@ -1,9 +1,9 @@
+#include <SDL.h>
 
 #include<cassert>
 #include "salama.hpp"
 #include "raide_pysty.c"
 #include "raide_vaaka.c"
-#include <SDL/SDL.h>
 #include"Unit.hpp"
 #include "HUD.hpp"
 #include"texgen.hpp"
@@ -13,6 +13,7 @@
 #include<GL/gl.h>
 #include<GL/glu.h>
 #include<GL/glext.h>
+#include "SDL_thread.h"
 //#include"ukko.c"
 //#include"ukko_walk1.c"
 //#include"ukko_walk2.c"
@@ -28,6 +29,10 @@
 #include "playerdraw.cpp"
 #include "music.hpp"
 using namespace std;
+
+#ifdef WIN32
+#include <winsock.h>
+#endif
 
 Game game;
 
@@ -63,7 +68,7 @@ void handleInput()
     displayStats = keyboard[SDLK_TAB];
 
 	for(int i=1; i<10; ++i) if (keyboard['0'+i] && (game.bcnt[i-1] || i==1)) game.weapon=i-1;
-	
+
 	player.shooting = mouse[0];
 }
 void draw_interp_model(Model* m1,Model* m2,float x)
@@ -112,7 +117,7 @@ void draw_area(Area& area = ::area)
 //    glScalef(0.5,0.5,0.5);
     //glTranslatef(-player.loc.x,-player.loc.y,0.0);
 
-    
+
 //    glTranslatef(-player.loc.x+0.5,-player.loc.y+0.5,0);
     //glTranslatef(-area.w/2,-area.h/2,0);
 
@@ -135,7 +140,7 @@ void draw_area(Area& area = ::area)
                 glPushMatrix();
                 glTranslatef(i,j,0);
                 glScalef(0.51,0.51,2+2*area.height(i,j));
-            
+
                 drawcube(4+4*area.height(i,j));
                 glPopMatrix();
             }
@@ -162,7 +167,7 @@ void draw_area(Area& area = ::area)
     glTranslatef(0.5,0.5,0);
 #endif
 
-    
+
 
     //ground
     glEnable(GL_TEXTURE_2D);
@@ -189,7 +194,7 @@ void draw_area(Area& area = ::area)
         sprintf(nro,"%i",i);
         drawString(nro,-3,game.area.bases[i],1);
         drawString(nro,game.area.w+2,game.area.bases[i],1);
-        
+
         glTranslatef(0,0,-4);
         glEnable(GL_BLEND);
         glBlendFunc(GL_SRC_ALPHA,GL_ONE);
@@ -220,9 +225,9 @@ void draw_area(Area& area = ::area)
 }
 void draw_rocket(Bullet bu){
     Vec2 loc = bu.loc;
-    
+
     glPushMatrix();
-    
+
     glTranslatef(loc.x,loc.y,1);
 
     float a = atan2(bu.v.y,bu.v.x);
@@ -239,12 +244,12 @@ void draw_rocket(Bullet bu){
     glRotatef(timef()*200,0,0,1);
 //>>>>>>> 1c0bce074761328992930dcf72559e3f144de933:main.cpp
     draw_model(&raketti_model);
-    
+
     double d=2*M_PI*rand()/RAND_MAX;
     double v=4;
 //	game.eparts.push_back(ExplosionP(loc,-bu.v+0.2*Vec2(randf(),randf())));
     game.particles.push_back(Particle(Vec3(loc,1),Vec3(-bu.v,0)+0.2*Vec3(2*randf()-1,2*randf()-1,2*randf()-1),EXPLOSION_P));
-    
+
     glPopMatrix();
 }
 
@@ -277,10 +282,10 @@ void draw_bullet(Bullet bu,float scale=1)
     glDisable(GL_LIGHTING);
     //glDisable(GL_DEPTH_TEST);
     glEnable(GL_TEXTURE_2D);
-    glEnable (GL_BLEND); 
-    //glDisable (GL_BLEND); 
+    glEnable (GL_BLEND);
+    //glDisable (GL_BLEND);
     glBindTexture(GL_TEXTURE_2D,ammo.glid);
-    
+
 //    glTranslatef(-player.loc.x+0.5,-player.loc.y+0.5,0);
 //    glTranslatef(loc.x-0.5,loc.y-0.5,0);
     glTranslatef(loc.x,loc.y,0);
@@ -305,7 +310,7 @@ void draw_bullet(Bullet bu,float scale=1)
         if(part>1)part=1;
     }
     glBegin(GL_QUADS);
-        
+
         //glColor4f((part),part,part,(part));
         glNormal3f(-1,0,0);
 		glTexCoord2f(0,0);
@@ -324,7 +329,7 @@ void draw_bullet(Bullet bu,float scale=1)
         glVertex3f(-1,1+-1,1);
 		glTexCoord2f(1,0.5);
         glVertex3f(1,1+-1,1);
-        
+
 		glTexCoord2f(1,0.5);
         glVertex3f(1,1+v-1,1);
 		glTexCoord2f(0,0.5);
@@ -365,7 +370,7 @@ void draw_rail(Bullet bu)
     if(bu.hitt>=0.1){
         ie = loc+bu.v*(timef()-bu.hitt);
     }
-        
+
     //glScalef(0.5,0.5,0.5);
     //glTranslatef(-area.w/2,-area.h/2,0);
     //glColor4f(0.2,0.8,0.2,0.1);
@@ -467,7 +472,7 @@ void drawLightningAim()
     //glEnable(GL_DEPTH_TEST);
 
     //glDepthMask(1);
-    
+
 }
 const float bulletColors[][4] = {
 	{1,.6,0,.5},
@@ -515,7 +520,7 @@ void draw(){
         {
             drawDeadPlayer(u,timef()-u.shootTime);
         }
-        
+
     }
     for(unsigned i=0; i<game.bullets.size(); ++i) {
         Bullet b = game.bullets[i];
@@ -541,7 +546,7 @@ void draw(){
                 enemies.size());
     }
 
-#if 1 
+#if 1
     for(unsigned i=0; i<game.lastBullets.size(); ++i) {
         Bullet b = game.lastBullets[i];
         if(b.type==RAILGUN) {
@@ -610,7 +615,7 @@ void mainLoop()
         double dt=t-lasttime;
         lasttime=t;
         r++;
-        if(r%104==0){
+        if(r%32==0){
             cout<<player.loc<<'\n';
             //            std::cout<<"dir = "<<player.d<<"\n";
             //            std::cout<<"dir = "<<dt<<"\n";
@@ -726,6 +731,7 @@ void runOptionsMenu()
         Uint32 f = fullScreen ? SDL_FULLSCREEN : 0;
         SDL_SetVideoMode(screenW, screenH, 0, SDL_OPENGL | f);
         glViewport(0,0,screenW,screenH);
+        initTextures();
     }
 	bool sound = m.items[2].cur;
 	if (sound != playSounds) {
@@ -800,7 +806,19 @@ void menuBackDraw()
 
 int main(int argc, char* argv[])
 {
-    nickString = getenv("USER");
+    cout<<"jee"<<endl;
+    #if 1
+#ifdef WIN32
+    WSAData wsaData;
+	int nCode;
+    if ((nCode = WSAStartup(MAKEWORD(1, 1), &wsaData)) != 0) {
+		cerr << "WSAStartup() returned error code " << nCode << "." <<
+				endl;
+        return 255;
+    }
+#endif
+#endif
+    nickString = "noname";//getenv("USER");
     srand(time(0));
     SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO | SDL_INIT_TIMER);
     atexit(SDL_Quit);
@@ -812,7 +830,7 @@ int main(int argc, char* argv[])
     SDL_Rect** modes = SDL_ListModes(0, SDL_OPENGL | SDL_FULLSCREEN);
     for(int i=0; modes[i]; ++i) {
 		int w=modes[i]->w, h=modes[i]->h;
-		if (w*h > screenW*screenH) screenW=w, screenH=h;
+		if (w>=h && w*h > screenW*screenH) screenW=w, screenH=h;
     }
 
     SDL_SetVideoMode(screenW,screenH,0,SDL_OPENGL | SDL_FULLSCREEN);

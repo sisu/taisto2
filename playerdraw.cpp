@@ -46,7 +46,7 @@ void drawPlayer_real(const Unit& u)
         float t = dir*timef()*length(Vec2(u.movex,u.movey))*4.5*4;
         float h = sin(t);
         float x = cos(t);
-            
+
         glPushMatrix();
         glTranslatef(1,-2,0);
         glTranslatef(0,std::max(0.0f,x)/2,h/2);
@@ -92,9 +92,9 @@ void drawPlayer(const Unit& u,bool healthbar=1){
     //drawPlayer_real(u);
     //return;
     //
-    
+
     //
-    
+
     glPushMatrix();
     glTranslatef(u.loc.x,u.loc.y,1);
 
@@ -154,7 +154,7 @@ void drawPlayer(const Unit& u,bool healthbar=1){
 
 void drawDeadPlayer(Unit u,float timeDead)
 {
-    
+
     //std::cout<<"draw\n";
     u.movex = u.movey=0;
     glPushMatrix();
@@ -169,7 +169,7 @@ void drawDeadPlayer(Unit u,float timeDead)
     glTranslatef(u.loc.x,u.loc.y,1);
     {
         glPushMatrix();
-        
+
         double a = u.d*180/M_PI;
         glPushMatrix();
         glRotatef(u.lastShotAngle*180/M_PI+90,0,0,1);

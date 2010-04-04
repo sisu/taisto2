@@ -74,6 +74,7 @@ static Texture getAmmo()
     ret.w = 32;
     ret.h = 32;
     ret.pix = new unsigned[ret.w*ret.h];
+	float t[32][32][4];
     for(int x=0;x<ret.w;x++)
     {
         for(int y=0;y<ret.h;y++)
@@ -85,11 +86,13 @@ static Texture getAmmo()
 
             int iz = std::min(int(z),255);
             if(iz<5)iz=0;
-            ret.pix[y*ret.w+x]=iz|iz<<24|(iz)<<16|iz<<8;
+            for(int i=0; i<4; ++i) t[y][x][i]=iz/255.;
+//            ret.pix[y*ret.w+x]=iz|iz<<24|(iz)<<16|iz<<8;
             //ret.pix[y*ret.w+x]=-1;//iz|iz<<24|(iz)<<16|iz<<8;
         }
     }
-	ret.glid =  makeTex(ret.pix, ret.w, GL_UNSIGNED_INT_8_8_8_8);
+	ret.glid =  makeTex(t, ret.w, GL_FLOAT);
+//    ret.glid = 0;
     return ret;
 }
 static Texture getSalama()
@@ -98,6 +101,7 @@ static Texture getSalama()
     ret.w = 64;
     ret.h = 64;
     ret.pix = new unsigned[ret.w*ret.h];
+    float t[64][64][4];
     for(int x=0;x<ret.w;x++)
     {
         for(int y=0;y<ret.h;y++)
@@ -113,9 +117,14 @@ static Texture getSalama()
             iz=(iz+70)/2;
             if(iz<10)iz=0;
             ret.pix[y*ret.w+x]=(std::max(0,std::min(255,iz*2-80)))|std::min(255,iz/2)<<24|std::min(255,iz/2)<<16|std::min(255,int(sqrt(10000*iz)))<<8;
+            t[y][x][3] = (iz*2-80)/255.;
+            t[y][x][2] = sqrt(10000*iz)/255.;
+            t[y][x][1] = iz/2./255.;
+            t[y][x][0] = iz/2./255.;
+            for(int i=0; i<4; ++i) t[y][x][i]=max(0.f,min(1.f,t[y][x][i]));
         }
     }
-	ret.glid = makeTex(ret.pix, ret.w, GL_UNSIGNED_INT_8_8_8_8);
+	ret.glid = makeTex(t, ret.w, GL_FLOAT);
     return ret;
 }
 

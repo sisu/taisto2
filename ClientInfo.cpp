@@ -6,7 +6,7 @@
 #include <iostream>
 #include <errno.h>
 #include <unistd.h>
-#include <sys/socket.h>
+//#include <sys/socket.h>
 #include <cassert>
 using namespace std;
 
@@ -21,7 +21,7 @@ ClientInfo::ClientInfo(Server& s, int fd): server(s), weapon(0)
 ClientInfo::~ClientInfo()
 {
 	delete[] conn.buf;
-	shutdown(conn.fd, SHUT_RDWR);
+//	shutdown(conn.fd, SHUT_RDWR);
 	close(conn.fd);
 }
 
@@ -30,7 +30,7 @@ bool ClientInfo::handleMessages()
 	while(conn.read()) {
 		DataReader r(conn.buf+4);
 		int type=r.readByte();
-//		cout<<"got message "<<type<<'\n';
+		cout<<"got message from client "<<type<<'\n';
 		switch(type) {
 			case CLI_STATE:
 				readState(r);
@@ -64,7 +64,7 @@ void ClientInfo::sendInit()
 	w.write(&a.bases[0], 4*a.bases.size());
 	conn.write(w);
 	cout<<"sent init "<<w.len()<<'\n';;
-    
+
 	{
 		DataWriter w;
 		w.writeByte(SRV_ITEMS);

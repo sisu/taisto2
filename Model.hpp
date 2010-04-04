@@ -8,6 +8,6 @@ struct Model
     int vn;
     int in;
 };
-extern void draw_model(Model* m,unsigned mode= GL_TRIANGLES);
+extern void draw_model(Model* m, unsigned mode= GL_TRIANGLES);
 
 #endif

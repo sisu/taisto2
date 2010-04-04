@@ -1,19 +1,41 @@
 #include "Connection.hpp"
 #include "DataWriter.hpp"
 #include <sys/types.h>
-#include <sys/socket.h>
 #include <fcntl.h>
+#ifndef WIN32
+#include <sys/socket.h>
 #include <netinet/in.h>
+#else
+#include <winsock.h>
+#endif
 #include <unistd.h>
 #include <iostream>
 #include <cassert>
 using namespace std;
 
+#ifdef WIN32
+int get(int fd, void* buf, int n)
+{
+	int r = recv(fd, (char*)buf, n, 0);
+	if (r<0) {
+		int rr = WSAGetLastError();
+		if (rr==WSAEWOULDBLOCK) errno=EAGAIN;
+		else cout<<"rect error: "<<rr<<endl;
+	} else cout<<"got data "<<r<<'\n';
+	return r;
+}
+#else
+int get(int fd, void* buf, int n)
+{
+	return ::read(fd, buf, n);
+}
+#endif
+
 bool Connection::read()
 {
     assert(cur<1<<20);
 	if (cur<4) {
-		int n = ::read(fd, buf+cur, 4-cur);
+		int n = get(fd, buf+cur, 4-cur);
 		if (n<0) return 0;
 //		cout<<"got data: "<<n<<'\n';
 		cur += n;
@@ -23,7 +45,7 @@ bool Connection::read()
 //		assert(need < 1<<10);
 	}
 //	cout<<"asd "<<cur<<' '<<need-(cur-4)<<'\n';
-	int n =::read(fd, buf+cur, need-(cur-4));
+	int n =get(fd, buf+cur, need-(cur-4));
 	if (n<0) return 0;
 //	cout<<"real data: "<<n<<'\n';
 //	for(int i=0; i<n; ++i) cout<<hex<<(int)((char*)buf)[cur+i]<<' ';cout<<'\n';
@@ -52,8 +74,15 @@ void Connection::write(DataWriter& w)
 void Connection::flush()
 {
 	if (obuf.size()) {
-//		cout<<"sending "<<obuf.size()<<" bytes\n";
+		cout<<"sending "<<obuf.size()<<" bytes\n";
+		#ifdef WIN32
+		int r = send(fd, &obuf[0], obuf.size(), 0);
+		if (r != obuf.size()) {
+			cout<<"failed send "<<WSAGetLastError()<<endl;
+		}
+		#else
 		::write(fd, &obuf[0], obuf.size());
+		#endif
 		obuf.clear();
 	}
 }
