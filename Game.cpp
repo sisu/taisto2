@@ -45,7 +45,7 @@ void Game::updateState(double t)
 		else lightnings[i]=lightnings.back(), lightnings.pop_back();
 	}
 	nextSpawn -= t;
-	defenceTime = t;
+	defenceTime -= t;
 }
 void Game::destroyBullet(int id, double xx, double yy)
 {
