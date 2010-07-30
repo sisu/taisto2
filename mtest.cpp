@@ -6,7 +6,8 @@ extern bool playMusic;
 int main()
 {
 	playMusic=1;
-	initMusic();
+	initInstruments();
+	initSoundSystem();
 	SDL_PauseAudio(0);
 	bool done=0;
 	while(!done) {

@@ -5,7 +5,8 @@
 int main(int argc, char* argv[])
 {
     SDL_Init( SDL_INIT_AUDIO | SDL_INIT_TIMER);
-    initMusic();
+	initSounds();
+    initSoundSystem();
 	SDL_PauseAudio(0);
     //sounds.push_back(Sound(EXPLOSION, .5));
     //sounds.push_back(Sound(SHOTGUNSOUND, .5));

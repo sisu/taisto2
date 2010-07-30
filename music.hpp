@@ -3,7 +3,9 @@
 
 #include <vector>
 
-void initMusic();
+void initSoundSystem();
+void initInstruments();
+void initSounds();
 
 enum SoundType {
 	EXPLOSION,

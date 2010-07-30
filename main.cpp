@@ -903,7 +903,9 @@ int main(int argc, char* argv[])
     initTextures();
     initLCD();
 
-   	initMusic();
+	initSounds();
+	//initInstruments();
+	initSoundSystem();
     if (playSounds) SDL_PauseAudio(0);
 
 #if 0

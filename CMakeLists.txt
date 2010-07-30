@@ -16,13 +16,14 @@ add_definitions("-Wall -O2 -g -fno-inline")
 #add_definitions("-Wall -g -Wno-unused-result")
 #add_definitions("-Wall -Wno-unused-result -Os -fomit-frame-pointer -ffast-math")
 
+set(snd music.cpp padsynth.cpp)
 set(sources main.cpp physics.cpp Server.cpp Game.cpp ClientSocket.cpp
         ClientInfo.cpp Connection.cpp DataWriter.cpp Bullet.cpp texgen.cpp
 		Bot.cpp salama.cpp Particle.cpp LCD.cpp Menu.cpp input.cpp Model.cpp
-		music.cpp HUD.cpp)
+		music.cpp HUD.cpp padsynth.cpp)
 
 #MESSAGE( STATUS "flags : ${OPENGL_LIBRARY}" )
 
 add_executable(taisto2 ${sources})
-add_executable(mtest mtest.cpp music.cpp)
-add_executable(soundtest soundtest.cpp music.cpp)
+add_executable(mtest mtest.cpp ${snd})
+add_executable(soundtest soundtest.cpp ${snd})
