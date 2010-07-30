@@ -41,16 +41,6 @@ const double inst[4][3] = {
 	{.7,.2,.1},
 	{.3,.2,.1}
 };
-inline double wave(int pitch, double vol, double t, double fade) {
-	const double freq = 440 * std::pow(2, pitch / 12.0);
-	const double pi = M_PI;
-	const double fade_time = .5;
-	const double wave = std::sin(freq * t * 2 * pi) * (0.65 + 0.35 * std::sin(freq * t * 2 * pi * 2)) * std::min(1.0, pow((32 - pitch) / 60.0, 2)) * vol;
-	if (fade < fade_time) return std::sin(fade / fade_time * pi / 2) * wave;
-	fade = 1 - fade;
-	if (fade < fade_time) return std::sin(fade / fade_time * pi / 2) * wave;
-	return wave;
-}
 double sound(double t, int i)
 {
 	double s = sin(2*M_PI * t);
@@ -58,7 +48,75 @@ double sound(double t, int i)
 	double sqr = 2*(fmod(t,1)<.5)-1;
 	return inst[i][0]*s + inst[i][1]*saw + inst[i][2]*sqr;
 }
-int baseNote[4] = {60,64,48,72};
+int baseNote[4] = {60,72,48,72};
+
+const int CSMAX = 1<<18;
+double csbufs[4][CSMAX];
+int cssize[4];
+int cscur[4];
+
+double rndf()
+{
+	return rand()/(double)RAND_MAX;
+}
+double sinc(double x)
+{
+    return x == 0.0 ? 1.0 : sin(x) / x;
+}
+void makeLowpass(int n, double f, double *coeffs)
+{
+    for (int i = 0; i <= n; ++i)
+    {
+        coeffs[i] = 2 * f * sinc(M_PI * f * (2 * i - n));
+    }
+    return;
+}
+const int CSCNUM = 16;
+double cscoeffs[4][CSCNUM];
+
+void initCS(int c, double f)
+{
+	int smp = FREQ / f;
+	cssize[c] = smp;
+	for(int i=0; i<smp; ++i) {
+		csbufs[c][i] = 2*rndf()-1;
+//		csbufs[c][i] = ;
+	}
+	cscur[c] = 0;
+	makeLowpass(CSCNUM, 1, cscoeffs[c]);
+}
+double distord(double x)
+{
+	return 1-2/(1+exp(3*x));
+}
+double cstmp[CSMAX];
+void filterCS(int c)
+{
+#if 1
+	double a=0;
+	double z = .2;
+	for(int i=0; i<cssize[c]; ++i) {
+		double b = a;
+		a = csbufs[c][i];
+		csbufs[c][i] = (1-z)*a + z*b;
+//		csbufs[c][i] = distord(csbufs[c][i]);
+	}
+#else
+	memcpy(cstmp, csbufs[c], c * cssize[c]);
+	for(int i=0; i<cssize[c]; ++i) {
+		int kl = min(i+1, CSCNUM/2)-1;
+		int kh = min(cssize[c]-1, CSCNUM/2)-1;
+		double r=0;
+		for(int j=-kl; j<=kh; ++j) {
+			r += cstmp[i+j] * cscoeffs[c][CSCNUM/2+j];
+//			cout<<cscoeffs[c][CSCNUM/2+j]<<'\n';
+		}
+		r = cstmp[i];
+//		cout<<'\n';
+		csbufs[c][i] = r;
+	}
+#endif
+}
 
 int curPos=0;
 void callback(void* udata, Uint8* stream, int len)
@@ -71,15 +129,20 @@ void callback(void* udata, Uint8* stream, int len)
 
 	int ms = curPos * 10 / 441;
 	for(int i=0; i<4; ++i) {
-		if (i==3) continue;
+		if (i!=1) continue;
 		const Note* ns = notes[i];
 		int& c = curNote[i];
+		bool init=0;
 		if (ms >= ns[c+1].start) {
 			++c;
 			cout<<ns[c].pitch<<'\n';
+			init=1;
 		}
 		Note n = ns[c];
 		double f = 440*exp2((n.pitch - baseNote[i])/12.);
+
+		if (init) initCS(i, f);
+
 		int ss = n.start * 441 / 10;
 		ss = (ss+SAMPLES-1)/SAMPLES*SAMPLES;
 
@@ -87,8 +150,16 @@ void callback(void* udata, Uint8* stream, int len)
 			int kk = curPos + j;
 			int k = kk - ss;
 			double t = k / (double)FREQ;
+#if 0
 //			double s = wave(n.pitch-baseNote[i], 1, t, min(t,1.));
 			double s=sound(f*t, i);
+#else
+			double s = csbufs[i][cscur[i]++];
+			if (cscur[i]>=cssize[i]) {
+				cscur[i]=0;
+				filterCS(i);
+			}
+#endif
 //			if (i==1) s = rand()/(double)RAND_MAX;
 			buf[j] += s * volume(envelopes[i], t, n.duration/1000.);
 		}
