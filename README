@@ -1,0 +1,12 @@
+Taisto
+======
+
+Taisto is a multiplayer co-operative top-down shooting game where your objective is to beat enemies and conquer bases.
+
+Source code for taisto is available at http://github.com/sisu/taisto2 .
+
+Controls
+--------
+Mouse: Aim, shoot
+wasd: Move
+1-7: Change weapon
