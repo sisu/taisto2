@@ -16,7 +16,7 @@ bool playMusic=0, playSounds=1;
 namespace {
 
 
-const int SAMPLES = 4096;
+const int SAMPLES = 1024;
 const int NWT=4;
 float wtables[NWT][WTS];
 
@@ -49,6 +49,7 @@ Envelope envelopes[NWT+2] = {
 };
 float volume(const Envelope& e, float t)
 {
+	if (t<0) return 0;
 	if (t<e.a) return t/e.a;
 	t -= e.a;
 	if (t<e.d) return 1 + (e.s-1)*t/e.d;
@@ -69,14 +70,16 @@ void genMusic(float* buf, int l)
 		int start= cur0*SPB;
 
 #if 1
-		for(int i=5; i<6; ++i) {
+		for(int i=0; i<6; ++i) {
 			int n = notes[i][cur];
 			if (n==OFF) continue;
 			float f = exp2(n/12.);
 			cout<<"playing note "<<cur<<' '<<n<<'\n';
-			if (i==5) {
+#if 0
+			if (i!=2) {
 				continue;
 			}
+#endif
 			for(int j=0; j<l; ++j) {
 				int k = curS+j;
 				float t = (k - start)/(float)FREQ;
@@ -84,7 +87,7 @@ void genMusic(float* buf, int l)
 				buf[j] += wtables[i][k%WTS] * volume(envelopes[i], t);
 			}
 		}
-#elif 0
+#elif 1
 		if (notes[3][cur]==OFF) continue;
 		for(int i=0; i<l; ++i) {
 			int k = curS+i;

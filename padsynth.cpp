@@ -2,6 +2,7 @@
 #include <algorithm>
 #include <cassert>
 #include <cstring>
+#include <iostream>
 #include "padsynth.hpp"
 #include "timef.h"
 using namespace std;
@@ -69,11 +70,19 @@ void fft(float* rdst, float* idst, const float* rsrc, const float* isrc, int n)
 }
 void ifft(float* rdst, float* idst, float* rsrc, float* isrc, int n)
 {
+	for(int i=0; i<WTS; ++i) {
+		assert(!isnan(rsrc[i]));
+		assert(!isnan(isrc[i]));
+	}
 	for(int i=0; i<n/2; ++i) rsrc[n-1-i]=rsrc[i], isrc[n-1-i]=isrc[i];
 	calc_fft(rdst,idst,rsrc,isrc,n,-2*M_PI);
 	for(int i=0; i<n; ++i) {
 		rdst[i] /= n;
 		idst[i] /= n;
+	}
+	for(int i=0; i<WTS; ++i) {
+		assert(!isnan(rdst[i]));
+		assert(!isnan(idst[i]));
 	}
 }
 void normalize(float* a, int n)
@@ -91,6 +100,7 @@ void normalize2(float* a, int n)
 	float s=0;
 	for(int i=0; i<n; ++i) s+=fabs(a[i]);
 	s /= n;
+	if (s<1e-9) s=1;
 	for(int i=0; i<n; ++i) a[i] /= 2*s;
 }
 void normalize3(float* a, int n)
@@ -156,9 +166,14 @@ void genWT(float* out, const float* amps, const float* freqs, int n, float fundf
 		costable[i] = a*cos(p);
 	}
 
+	cout<<"gen wt "<<n<<'\n';
+	for(int i=0; i<n; ++i) cout<<freqs[i]<<' ';cout<<'\n';
+	for(int i=0; i<n; ++i) cout<<amps[i]<<' ';cout<<'\n';
+
 	ifft(out, nulltable, costable, sintable, WTS);
 //	ifftw(out, costable, sintable, WTS);
 
 	normalize2(out,WTS);
+//	normalize(out,WTS);
 }
 
