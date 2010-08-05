@@ -838,11 +838,25 @@ int main(int argc, char* argv[])
         return 255;
     }
 #endif
-    nickString = "noname";//getenv("USER");
+//    nickString = "noname";//getenv("USER");
+    nickString = getenv("USER");
     srand(time(0));
     SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO | SDL_INIT_TIMER);
     atexit(SDL_Quit);
-    if (argc>1) {
+	bool serverOnly=0;
+	bool explres=0;
+	for(int i=1; i<argc; ++i) {
+		char* s = argv[i];
+		if (s[0]!='-') cout<<"invalid arg "<<s<<'\n';
+		char c = s[1];
+		if (c=='w') fullScreen=0;
+		if (c=='r') {
+			screenW = atoi(argv[++i]);
+			screenH = atoi(argv[++i]);
+			explres=1;
+		}
+	}
+	if (serverOnly) {
         Server s;
         s.loop();
         return 0;
@@ -850,13 +864,14 @@ int main(int argc, char* argv[])
     SDL_Rect** modes = SDL_ListModes(0, SDL_OPENGL | SDL_FULLSCREEN);
     for(int i=0; modes[i]; ++i) {
         int w=modes[i]->w, h=modes[i]->h;
-        if (w>=h && w*h > screenW*screenH) screenW=w, screenH=h;
+        if (!explres && w>=h && w*h > screenW*screenH) screenW=w, screenH=h;
     }
 
-    SDL_SetVideoMode(screenW,screenH,0,SDL_OPENGL | SDL_FULLSCREEN);
+    SDL_SetVideoMode(screenW,screenH,0,SDL_OPENGL | (SDL_FULLSCREEN*fullScreen));
     // {0x00, 0x80, 0x01, 0xc0, 0x03, 0xE0, 0x07, 0xF0, 0x0F, 0xF8, 0x1F, 0xFC, 0x3F, 0xFE, 0x7F, 0xFF };
     //
    
+#ifndef WIN32
     short mask[] = {
 
     0b0000000000000000,
@@ -923,6 +938,7 @@ int main(int argc, char* argv[])
 
     SDL_Cursor* cursor = SDL_CreateCursor((Uint8*)data, (Uint8*)mask, 16, 16, 8, 8);
     SDL_SetCursor (cursor);
+#endif
     initTextures();
     initLCD();
 
