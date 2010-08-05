@@ -50,6 +50,11 @@ double sound(double t, int i)
 	double sqr = 2*(fmod(t,1)<.5)-1;
 	return inst[i][0]*s + inst[i][1]*saw + inst[i][2]*sqr;
 }
+double rndf()
+{
+	return rand()/(double)RAND_MAX;
+}
+
 const int NHARM=16;
 double harms[4][3][NHARM];
 double vibrf[4] = {.01,.01,.02,0};
@@ -68,6 +73,26 @@ double sound2(double t, int c)
 	return r;
 }
 int baseNote[4] = {60,72,60,72};
+
+const double BLEN = .2;
+Envelope beatEnv = {.02,.03,.4,.05};
+struct BeatT {
+	double bfac, nfac;
+	double sfreq;
+	double slowdown;
+
+	double gen(double t) {
+//		cout<<"gen beat "<<sfreq<<'\n';
+		double b = bfac * sin(2*M_PI*sfreq*t / (1+t*slowdown));
+		double n = nfac * (rndf()-.5);
+		return (b+n) * volume(beatEnv, t, BLEN);
+	}
+	bool end(double t) {
+		return t > BLEN;
+	}
+};
+BeatT beats[128];
+int beatStart[128];
 
 struct C64F {
 	double d1,d2,g1,g2,ampl;
@@ -119,11 +144,6 @@ struct C64F {
 };
 C64F post64;
 
-double rndf()
-{
-	return rand()/(double)RAND_MAX;
-}
-
 double distord(double x)
 {
 	return 1-2/(1+exp(3*x));
@@ -140,7 +160,7 @@ void callback(void* udata, Uint8* stream, int len)
 	memset(buf, 0, sizeof(buf));
 
 	int ms = curPos * 10 / 441;
-	for(int i=0; i<4; ++i) {
+	for(int i=0; i<3; ++i) {
 		const Note* ns = notes[i];
 		int& c = curNote[i];
 		bool init=0;
@@ -167,18 +187,38 @@ void callback(void* udata, Uint8* stream, int len)
 			double t = k / (double)FREQ;
 			//			double s = wave(n.pitch-baseNote[i], 1, t, min(t,1.));
 			double s;
-			if (i<3) s=sound2(f*t, i);
-			else {
-				n.duration = 50;
-				if (n.pitch == 40 || n.pitch==36) s = rndf()-.5;
-				else s = 0;
-				s *= 2;
-			}
+			s=sound2(f*t, i);
 			//			if (i==1) s = rand()/(double)RAND_MAX;
 			//			s = wtable[int(k * f / 220)];
 			buf[j] += .4 * s * volume(envelopes[i], t, n.duration/1000.);
 		}
 	}
+
+	// handle beats
+	{
+		int& c = curNote[3];
+		const Note* ns = notes[3];
+		while(c<ncounts[3] && ms>=ns[c+1].start) {
+			++c;
+			Note n = ns[c];
+			beatStart[n.pitch] = curPos;
+			cout<<"starting beat "<<n.pitch<<'\n';
+		}
+		for(int i=0; i<128; ++i) {
+			int ss = beatStart[i];
+			if (curPos > ss+BLEN*FREQ) continue;
+			BeatT b = beats[i];
+//			cout<<"lol "<<i<<'\n';
+			for(int j=0; j<len; ++j) {
+				int kk = curPos + j;
+				int k = kk - ss;
+				double t = k / (double)FREQ;
+				double s = b.gen(t);
+				buf[j] += .5 * s;
+			}
+		}
+	}
+
 	for(int i=0; i<len; ++i) s[i] = post64.apply(s[i]);
 
 	for(int i=0; i<len; ++i) {
@@ -239,6 +279,14 @@ void initFilt()
 {
 	post64.genf(220, 5);
 }
+void initBeats()
+{
+	beats[40] = (BeatT){.2, .5, .045*FREQ, .0012*FREQ};
+	beats[36] = beats[40];
+	beats[45] = (BeatT){.6, .2, .050*FREQ, .0012*FREQ};
+	beats[57] = (BeatT){.9, .2, .055*FREQ, .0012*FREQ};
+	beats[59] = (BeatT){.3, .2, .045*FREQ, .0012*FREQ};
+}
 
 int gcd(int a, int b)
 {
@@ -266,6 +314,7 @@ int main(int argc, char* argv[])
 	}
 	initHarms();
 	initFilt();
+	initBeats();
 	//	return 0;
 	SDL_Init(SDL_INIT_AUDIO | SDL_INIT_VIDEO | SDL_INIT_TIMER);
 	SDL_OpenAudio(&spec, 0);
