@@ -55,7 +55,7 @@ double rndf()
 	return rand()/(double)RAND_MAX;
 }
 
-const int NHARM=16;
+const int NHARM=2;
 double harms[4][3][NHARM];
 double vibrf[4] = {.01,.01,.02,0};
 double sound2(double t, int c)
