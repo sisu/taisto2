@@ -53,7 +53,7 @@ double sound(double t, int i)
 }
 const int NHARM=16;
 double harms[4][3][NHARM];
-double vibrf[4] = {.007,.01,.02,0};
+double vibrf[4] = {.01,.01,.02,0};
 double sound2(double t, int c)
 {
 	double r=0;
@@ -207,9 +207,9 @@ void callback(void* udata, Uint8* stream, int len)
 		const Note* ns = notes[i];
 		int& c = curNote[i];
 		bool init=0;
-		while(ms >= ns[c+1].start) {
+		while(c<ncounts[i] && ms >= ns[c+1].start) {
 			++c;
-			cout<<curPos<<' '<<i<<' '<<ns[c].pitch<<'\n';
+			cout<<double(curPos)/FREQ<<' '<<curPos<<' '<<i<<' '<<ns[c].pitch<<'\n';
 			init=1;
 		}
 		Note n = ns[c];
@@ -217,16 +217,18 @@ void callback(void* udata, Uint8* stream, int len)
 
 		if (init) initCS(i, f);
 
-		int ss = n.start * 441 / 10;
+		int ss = (long long)n.start * 441 / 10;
 		ss = (ss+SAMPLES-1)/SAMPLES*SAMPLES;
 
 		for(int j=0; j<len; ++j) {
 			int kk = curPos + j;
 			int k = kk - ss;
+#if 0
 			if (init && j==0) {
-				if (k!=0) cout<<"k "<<k<<' '<<kk<<' '<<ss<<' '<<curPos<<' '<<i<<'\n';
+				if (k!=0) cout<<"k "<<k<<' '<<kk<<' '<<ss<<' '<<i<<'\n';
 				assert(k==0);
 			}
+#endif
 			double t = k / (double)FREQ;
 #if 1
 			//			double s = wave(n.pitch-baseNote[i], 1, t, min(t,1.));
@@ -340,7 +342,8 @@ int main(int argc, char* argv[])
 {
 	for(int i=0; i<4; ++i) curNote[i]=-1;
 	if (argc>1) {
-		curPos = (FREQ * 10) / SAMPLES * SAMPLES;
+		double s = atof(argv[1]);
+		curPos = int(FREQ * s) / SAMPLES * SAMPLES;
 		int ms = 1000*curPos/FREQ;
 		for(int i=0; i<4; ++i) {
 			while(notes[i][curNote[i]+1].start < ms) ++curNote[i];
