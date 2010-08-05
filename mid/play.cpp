@@ -1,5 +1,4 @@
 #include "music.hpp"
-#include "../padsynth.hpp"
 #include <iostream>
 #include <cstring>
 #include <cmath>
@@ -9,7 +8,7 @@
 #include "SDL.h"
 using namespace std;
 
-//const int FREQ = 44100;
+const int FREQ = 44100;
 const int SAMPLES = 256;
 
 struct Envelope {
@@ -120,76 +119,14 @@ struct C64F {
 };
 C64F post64;
 
-const int CSMAX = 1<<18;
-double csbufs[4][CSMAX];
-int cssize[4];
-int cscur[4];
-
 double rndf()
 {
 	return rand()/(double)RAND_MAX;
 }
-double sinc(double x)
-{
-	return x == 0.0 ? 1.0 : sin(x) / x;
-}
-void makeLowpass(int n, double f, double *coeffs)
-{
-	for (int i = 0; i <= n; ++i)
-	{
-		coeffs[i] = 2 * f * sinc(M_PI * f * (2 * i - n));
-	}
-	return;
-}
-const int CSCNUM = 16;
-double cscoeffs[4][CSCNUM];
-float wtable[4][WTS];
 
-void initCS(int c, double f)
-{
-	int smp = FREQ / f;
-	cssize[c] = smp;
-	for(int i=0; i<smp; ++i) {
-		csbufs[c][i] = 2*rndf()-1;
-		//		csbufs[c][i] = ;
-	}
-	cscur[c] = 0;
-	makeLowpass(CSCNUM, 1, cscoeffs[c]);
-
-	assert(smp <= WTS);
-	for(int i=0; i<smp; ++i) csbufs[c][i]=wtable[c][i];
-}
 double distord(double x)
 {
 	return 1-2/(1+exp(3*x));
-}
-double cstmp[CSMAX];
-void filterCS(int c)
-{
-#if 1
-	double a=0;
-	double z = .2;
-	for(int i=0; i<cssize[c]; ++i) {
-		double b = a;
-		a = csbufs[c][i];
-		csbufs[c][i] = (1-z)*a + z*b;
-		//		csbufs[c][i] = distord(csbufs[c][i]);
-	}
-#else
-	memcpy(cstmp, csbufs[c], c * cssize[c]);
-	for(int i=0; i<cssize[c]; ++i) {
-		int kl = min(i+1, CSCNUM/2)-1;
-		int kh = min(cssize[c]-1, CSCNUM/2)-1;
-		double r=0;
-		for(int j=-kl; j<=kh; ++j) {
-			r += cstmp[i+j] * cscoeffs[c][CSCNUM/2+j];
-			//			cout<<cscoeffs[c][CSCNUM/2+j]<<'\n';
-		}
-		r = cstmp[i];
-		//		cout<<'\n';
-		csbufs[c][i] = r;
-	}
-#endif
 }
 ofstream ndump("m.dat");
 
@@ -215,8 +152,6 @@ void callback(void* udata, Uint8* stream, int len)
 		Note n = ns[c];
 		double f = 440*exp2((n.pitch - baseNote[i])/12.);
 
-		if (init) initCS(i, f);
-
 		int ss = (long long)n.start * 441 / 10;
 		ss = (ss+SAMPLES-1)/SAMPLES*SAMPLES;
 
@@ -230,7 +165,6 @@ void callback(void* udata, Uint8* stream, int len)
 			}
 #endif
 			double t = k / (double)FREQ;
-#if 1
 			//			double s = wave(n.pitch-baseNote[i], 1, t, min(t,1.));
 			double s;
 			if (i<3) s=sound2(f*t, i);
@@ -240,13 +174,6 @@ void callback(void* udata, Uint8* stream, int len)
 				else s = 0;
 				s *= 2;
 			}
-#else
-			double s = csbufs[i][cscur[i]++];
-			if (cscur[i]>=cssize[i]) {
-				cscur[i]=0;
-				filterCS(i);
-			}
-#endif
 			//			if (i==1) s = rand()/(double)RAND_MAX;
 			//			s = wtable[int(k * f / 220)];
 			buf[j] += .4 * s * volume(envelopes[i], t, n.duration/1000.);
@@ -262,27 +189,6 @@ void callback(void* udata, Uint8* stream, int len)
 	curPos += len;
 }
 
-void initWTs()
-{
-	const int n=64;
-	float amps[n];
-	float freqs[n];
-	for(int i=0; i<n; ++i) {
-		double k = 1+i;
-		freqs[i] = k;
-		amps[i] = 1/k;
-		if (i&1) amps[i]*=2;
-	}
-	//	genWT(wtable, amps, freqs, n, 220, 10, .95);
-	genWT(wtable[1], amps, freqs, n, 220*pow(2,-0./12), 5, .95);
-	for(int i=0; i<n; ++i) {
-		double k = 2+i;
-		freqs[i] = 1.*k;
-		amps[i] = 1/k;
-	}
-	genWT(wtable[2], amps, freqs, n, 220*pow(2,-12./12), 10, 5);
-	cout<<"init wts done\n";
-}
 void initHarms()
 {
 #if 0
@@ -358,7 +264,6 @@ int main(int argc, char* argv[])
 		for(int j=2; j<ncounts[i]; ++j) g = gcd(g, ns[j].start - ns[0].start);
 		cout<<g<<'\n';
 	}
-	initWTs();
 	initHarms();
 	initFilt();
 	//	return 0;
