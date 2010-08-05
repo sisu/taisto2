@@ -150,12 +150,20 @@ double distord(double x)
 }
 ofstream ndump("m.dat");
 
+const double MLEN = 96.0;
+const int MSMP = MLEN*FREQ;
+
 int curPos=0;
 void callback(void* udata, Uint8* stream, int len)
 {
 	(void)udata;
 	Sint16* s = (Sint16*)stream;
 	len >>= 1;
+
+	if (curPos >= MSMP) {
+		for(int i=0; i<4; ++i) curNote[i]=0;
+		curPos=0;
+	}
 
 	memset(buf, 0, sizeof(buf));
 

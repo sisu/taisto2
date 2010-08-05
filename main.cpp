@@ -39,7 +39,7 @@ Game game;
 
 int screenW=800, screenH=600;
 string curHost("127.0.0.1");
-extern bool playSounds;
+extern bool playSounds, playMusic;
 
 //double ay=0;
 
@@ -715,6 +715,11 @@ void runOptionsMenu()
 	snd.cur = playSounds;
 	m.items.push_back(snd);
 
+	MenuItem mus = fscr;
+	mus.title = "music";
+	mus.cur = playMusic;
+	m.items.push_back(mus);
+
 	m.items.push_back((MenuItem){"done",EXIT});
 
     m.exec();
@@ -739,9 +744,18 @@ void runOptionsMenu()
 		playSounds=sound;
 		SDL_LockAudio();
 		sounds.clear();
-		SDL_PauseAudio(!playSounds);
+		SDL_PauseAudio(!playSounds && !playMusic);
 		SDL_UnlockAudio();
-		cout<<"setting sounds to "<<playSounds<<'\n';
+		cout<<"setting sounds: "<<playSounds<<'\n';
+	}
+	bool music = m.items[3].cur;
+	if (music != playMusic) {
+		playMusic = music;
+		SDL_LockAudio();
+		resetMusic();
+		SDL_PauseAudio(!playSounds && !playMusic);
+		SDL_UnlockAudio();
+		cout<<"setting music: "<<playMusic<<'\n';
 	}
 }
 Menu createMainMenu()

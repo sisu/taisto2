@@ -146,7 +146,11 @@ void initBeats()
 	beats[57] = (BeatT){.9, .2, .055*FREQ, .0012*FREQ};
 	beats[59] = (BeatT){.3, .2, .045*FREQ, .0012*FREQ};
 }
-}
+
+const double MLEN = 96.0;
+const int MSMP = MLEN*FREQ;
+
+} // end anon namespace
 
 void resetMusic()
 {
@@ -161,6 +165,10 @@ void initMusic()
 }
 void writeMusic(float* buf, int len)
 {
+	if (curPos >= MSMP) {
+		resetMusic();
+	}
+
 	int ms = curPos * 10 / 441;
 	int SAMPLES = len;
 	for(int i=0; i<3; ++i) {
