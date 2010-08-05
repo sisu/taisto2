@@ -12,6 +12,7 @@
 using namespace std;
 
 #define double float
+extern bool inGame;
 
 vector<Sound> sounds;
 bool playMusic=1, playSounds=1;
@@ -291,6 +292,7 @@ void genSounds(float* buf, int l)
 #include<limits.h>
 void callback(void* udata, Uint8* stream, int l)
 {
+	if (!inGame) return;
 	Uint16* s = (Uint16*)stream;
 	l /= 2;
 

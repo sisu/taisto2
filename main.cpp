@@ -36,6 +36,7 @@ using namespace std;
 #endif
 
 Game game;
+bool inGame=0;
 
 int screenW=800, screenH=600;
 string curHost("127.0.0.1");
@@ -601,6 +602,8 @@ void draw(){
 
 void mainLoop()
 {
+	inGame=1;
+	resetMusic();
     game.reset();
     player.loc = Vec2(.5,.5);
     std::cout<<player.loc.x<<" "<<player.loc.y<<"\n";
@@ -650,6 +653,7 @@ void mainLoop()
 #endif
     }
     cout<<"returning from main loop\n";
+	inGame=0;
 }
 
 Server* server;

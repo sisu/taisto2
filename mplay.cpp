@@ -158,6 +158,7 @@ void resetMusic()
 {
 	curPos = 0;
 	for(int i=0; i<128; ++i) beatStart[i]=-1;
+	for(int i=0; i<4; ++i) curNote[i]=0;
 }
 void initMusic()
 {
