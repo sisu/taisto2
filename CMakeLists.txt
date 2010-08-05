@@ -12,9 +12,9 @@ include_directories(${SDL_INCLUDE_DIR})
 #add_definitions("-Wall -g")
 #add_definitions("-Wall -O2")
 #add_definitions("-Wall -g -Wno-unused-result ")
-add_definitions("-Wall -O2 -g -fno-inline")
+#add_definitions("-Wall -O2 -g -fno-inline")
 #add_definitions("-Wall -g -Wno-unused-result")
-#add_definitions("-Wall -Wno-unused-result -Os -fomit-frame-pointer -ffast-math")
+add_definitions("-Wall -Wno-unused-result -Os -fomit-frame-pointer -ffast-math")
 
 set(snd music.cpp padsynth.cpp)
 set(sources main.cpp physics.cpp Server.cpp Game.cpp ClientSocket.cpp

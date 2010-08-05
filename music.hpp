@@ -18,16 +18,16 @@ enum SoundType {
 };
 struct Sound {
 	SoundType type;
-	double vol;
+	float vol;
 	int pos;
 
 	Sound(){}
-	Sound(SoundType t, double v): type(t), vol(v), pos(0) {}
+	Sound(SoundType t, float v): type(t), vol(v), pos(0) {}
 };
 
 extern std::vector<Sound> sounds;
 
-extern double distvol(double d);
+extern float distvol(float d);
 
 const int SAMPLES = 256;
 

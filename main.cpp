@@ -50,6 +50,9 @@ float playerdir;
 string  nickString;
 int mouseState;
 bool displayStats=false;
+
+namespace {
+
 void handleInput()
 {
     static float lasttime = 0;
@@ -775,6 +778,7 @@ Menu createMainMenu()
     return m;
 }
 Area backArea(100,100);
+} // end anon ns
 void menuBackDraw()
 {
     setPerspective();

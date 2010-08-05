@@ -11,6 +11,7 @@
 #include "mplay.hpp"
 using namespace std;
 
+#define double float
 
 vector<Sound> sounds;
 bool playMusic=1, playSounds=1;
@@ -340,8 +341,8 @@ void initSoundSystem()
 	} else cout<<"Audio open succesful\n";
 }
 
-double distvol(double d)
+float distvol(float d)
 {
-    double z = 5;
+    float z = 5;
     return z/(z+d);
 }

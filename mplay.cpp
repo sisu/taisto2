@@ -10,6 +10,8 @@
 #include "music.hpp"
 using namespace std;
 
+#define double float
+
 namespace {
 #include "biisi.hpp"
 
@@ -177,7 +179,7 @@ void writeMusic(float* buf, int len)
 		bool init=0;
 		while(c<ncounts[i] && ms >= ns[c+1].start) {
 			++c;
-			cout<<double(curPos)/FREQ<<' '<<curPos<<' '<<i<<' '<<ns[c].pitch<<'\n';
+//			cout<<double(curPos)/FREQ<<' '<<curPos<<' '<<i<<' '<<ns[c].pitch<<'\n';
 			init=1;
 		}
 		Note n = ns[c];
@@ -208,12 +210,12 @@ void writeMusic(float* buf, int len)
 	// handle beats
 	{
 		int& c = curNote[3];
-		const Note* ns = notes[3];
+		const NoteB* ns = notes2337;
 		while(c<ncounts[3] && ms>=ns[c+1].start) {
 			++c;
-			Note n = ns[c];
+			NoteB n = ns[c];
 			beatStart[n.pitch] = curPos;
-			cout<<"starting beat "<<n.pitch<<'\n';
+//			cout<<"starting beat "<<n.pitch<<'\n';
 		}
 		for(int i=0; i<128; ++i) {
 			int ss = beatStart[i];

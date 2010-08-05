@@ -8,6 +8,7 @@
 #include "timef.h"
 using namespace std;
 
+namespace {
 const int NSIZE = 512;
 double noise[NSIZE][NSIZE];
 
@@ -271,6 +272,7 @@ unsigned genSmokeTex()
 	return makeTex(tex, TS, GL_FLOAT);
 }
 
+}
 
 Texture ammo;
 Texture salama;

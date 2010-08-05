@@ -7,6 +7,20 @@
 #include <iostream>
 using namespace std;
 
+extern int screenW;
+float playerColors[][3] = {
+	{.4,.8,.6},
+	{0.8,.3,.0},
+	{.2,.2,1},
+	{.8,.3,.8},
+	{.1,1,1},
+	{.3,.3,.3},
+	{1,1,0},
+	{1,1,1}
+};
+
+namespace {
+
 void drawPlayer_real(const Unit& u)
 {
     glPushMatrix();
@@ -79,16 +93,6 @@ static void quad(double w,double h)
     glPopMatrix();
 
 }
-float playerColors[][3] = {
-	{.4,.8,.6},
-	{0.8,.3,.0},
-	{.2,.2,1},
-	{.8,.3,.8},
-	{.1,1,1},
-	{.3,.3,.3},
-	{1,1,0},
-	{1,1,1}
-};
 void drawPlayer(const Unit& u,bool healthbar=1){
 
     //drawPlayer_real(u);
@@ -122,7 +126,6 @@ void drawPlayer(const Unit& u,bool healthbar=1){
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA);
     glDepthFunc(GL_LEQUAL);
-    extern int screenW;
     glLineWidth(screenW/500);
     drawPlayer_real(u);
 
@@ -241,4 +244,6 @@ void drawDeadPlayer(Unit u,float timeDead)
         glPopMatrix();
     }
     glPopMatrix();
+}
+
 }

@@ -205,10 +205,10 @@ void callback(void* udata, Uint8* stream, int len)
 	// handle beats
 	{
 		int& c = curNote[3];
-		const Note* ns = notes[3];
+		const NoteB* ns = notes2337;
 		while(c<ncounts[3] && ms>=ns[c+1].start) {
 			++c;
-			Note n = ns[c];
+			NoteB n = ns[c];
 			beatStart[n.pitch] = curPos;
 			cout<<"starting beat "<<n.pitch<<'\n';
 		}
@@ -312,6 +312,7 @@ int main(int argc, char* argv[])
 			cout<<"start note "<<i<<' '<<curNote[i]<<' '<<notes[i][curNote[i]].start<<'\n';
 		}
 	}
+#if 0
 	//	for(int i=0; i<4; ++i) cout<<ncounts[i]<<'\n';
 	for(int i=0; i<4; ++i) {
 		const Note* ns = notes[i];
@@ -320,6 +321,7 @@ int main(int argc, char* argv[])
 		for(int j=2; j<ncounts[i]; ++j) g = gcd(g, ns[j].start - ns[0].start);
 		cout<<g<<'\n';
 	}
+#endif
 	initHarms();
 	initFilt();
 	initBeats();
