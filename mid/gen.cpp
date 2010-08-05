@@ -25,8 +25,8 @@ int main()
 	vector<int> ncnt;
 	for(int i=0; i<1<<16; ++i) {
 		if (sts[i].empty()) continue;
-		if (i==2337) cout<<"const NoteB notes"<<i<<"[] {\n";
-		else cout<<"const Note notes"<<i<<"[] {\n";
+		if (i==2337) cout<<"const NoteB notes"<<i<<"[] = {\n";
+		else cout<<"const Note notes"<<i<<"[] = {\n";
 		int n = sts[i].size();
 		for(int j=0; j<n; ++j) {
 			cout<<"\t{"<<sts[i][j]<<','<<pts[i][j];

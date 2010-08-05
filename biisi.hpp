@@ -2,7 +2,7 @@ struct Note { int start; char pitch; short duration; };
 
 struct NoteB { int start; char pitch; };
 
-const Note notes29[] {
+const Note notes29[] = {
 	{10666,72,2497},
 	{13166,69,80},
 	{13249,71,80},
@@ -214,7 +214,7 @@ const Note notes29[] {
 	{95666,81,163},
 	{95833,85,163}
 };
-const Note notes284[] {
+const Note notes284[] = {
 	{0,57,163},
 	{166,64,163},
 	{333,62,163},
@@ -792,7 +792,7 @@ const Note notes284[] {
 	{95666,57,163},
 	{95833,57,163}
 };
-const Note notes545[] {
+const Note notes545[] = {
 	{0,33,444},
 	{499,33,445},
 	{999,33,278},
@@ -1012,7 +1012,7 @@ const Note notes545[] {
 	{95166,33,445},
 	{95666,33,278}
 };
-const NoteB notes2337[] {
+const NoteB notes2337[] = {
 	{0,40},
 	{0,57},
 	{166,36},

@@ -2,7 +2,7 @@ all: play
 SRC=play.cpp
 
 play: $(SRC) music.hpp
-	g++ $(SRC) -Wall -O2 -std=c++0x `sdl-config --cflags --libs` -o $@
+	g++ $(SRC) -Wall -O2 `sdl-config --cflags --libs` -o $@
 
 music.hpp: gen
 	./gen > $@
