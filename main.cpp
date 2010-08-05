@@ -28,6 +28,7 @@
 #include "Menu.hpp"
 #include "playerdraw.cpp"
 #include "music.hpp"
+#include "mplay.hpp"
 using namespace std;
 
 #ifdef WIN32
@@ -903,9 +904,10 @@ int main(int argc, char* argv[])
     initTextures();
     initLCD();
 
-	initSounds();
+//	initSounds();
 	//initInstruments();
 	initSoundSystem();
+	initMusic();
     if (playSounds) SDL_PauseAudio(0);
 
 #if 0

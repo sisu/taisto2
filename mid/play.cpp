@@ -219,7 +219,7 @@ void callback(void* udata, Uint8* stream, int len)
 		}
 	}
 
-	for(int i=0; i<len; ++i) s[i] = post64.apply(s[i]);
+	for(int i=0; i<len; ++i) buf[i] = post64.apply(buf[i]);
 
 	for(int i=0; i<len; ++i) {
 		s[i] = 10000 * buf[i];

@@ -8,15 +8,15 @@
 #include "music.hpp"
 #include "timef.h"
 #include "padsynth.hpp"
+#include "mplay.hpp"
 using namespace std;
 
 
 vector<Sound> sounds;
-bool playMusic=0, playSounds=1;
+bool playMusic=1, playSounds=1;
 namespace {
 
 
-const int SAMPLES = 1024;
 const int NWT=4;
 float wtables[NWT][WTS];
 
@@ -358,7 +358,8 @@ void callback(void* udata, Uint8* stream, int l)
 	l /= 2;
 
 	float buf[SAMPLES]={};
-	if (playMusic) genMusic(buf, l);
+//	if (playMusic) genMusic(buf, l);
+	if (playMusic) writeMusic(buf, l);
 	float buf2[SAMPLES]={};
 	if (playSounds) genSounds(buf2, l);
 	else sounds.clear();
