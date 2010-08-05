@@ -16,36 +16,11 @@ vector<Sound> sounds;
 bool playMusic=1, playSounds=1;
 namespace {
 
-
-const int NWT=4;
-float wtables[NWT][WTS];
-
-const int BPM = 140;
-// samples per beat
-const int SPB = 60*FREQ / BPM;
 int curS=0;
 
-const int NLEN = 8;
-const short OFF=(1<<15)-1;
-short notes[NWT+2][NLEN] = {
-	{0,1,0,2,3,0,4,2},
-	{OFF,1,2,3,OFF,OFF,0,5},
-	{0,OFF,1,OFF,2,OFF,3,OFF},
-	{0,OFF,0,OFF,0,OFF,0,OFF},
-	{OFF,0,OFF,0,OFF,0,OFF,0},
-	{0,2,4,2,4,3,1,2}
-};
 struct Envelope {
 	float a,d,s,r;
 	float z;
-};
-Envelope envelopes[NWT+2] = {
-	{.2,.2,.3,.1,.3},
-	{.05,.07,.4,.1,.5},
-	{.2,.2,.9,.1,1.5},
-	{.05,.05,.1,.01,.003},
-	{.05,.1,.7,.05,.3},
-	{.1,.1,.3,.1,.2}
 };
 float volume(const Envelope& e, float t)
 {
@@ -58,45 +33,6 @@ float volume(const Envelope& e, float t)
 	t -= e.z;
 	if (t<e.r) return e.s*(1-t/e.d);
 	return 0;
-}
-const float BEAT_FREQ = 1500;
-const float BEAT_SLOW = 200;
-
-void genMusic(float* buf, int l)
-{
-	for(int k=0; k<2; ++k) {
-		int cur0 = (curS-k*SPB)/SPB;
-		int cur = (cur0+NLEN) % NLEN;
-		int start= cur0*SPB;
-
-#if 1
-		for(int i=0; i<6; ++i) {
-			int n = notes[i][cur];
-			if (n==OFF) continue;
-			float f = exp2(n/12.);
-			cout<<"playing note "<<cur<<' '<<n<<'\n';
-#if 0
-			if (i!=2) {
-				continue;
-			}
-#endif
-			for(int j=0; j<l; ++j) {
-				int k = curS+j;
-				float t = (k - start)/(float)FREQ;
-				k *= f;
-				buf[j] += wtables[i][k%WTS] * volume(envelopes[i], t);
-			}
-		}
-#elif 1
-		if (notes[3][cur]==OFF) continue;
-		for(int i=0; i<l; ++i) {
-			int k = curS+i;
-			float t = (k-start)/(float)FREQ;
-			buf[i] += sin(BEAT_FREQ*t/(1+t*BEAT_SLOW)) * volume(envelopes[3], t);
-		}
-#else
-#endif
-	}
 }
 
 void lowpass(float* a, int n, double a0, double a1)
@@ -365,21 +301,13 @@ void callback(void* udata, Uint8* stream, int l)
 	else sounds.clear();
 	// TODO: normalize bufs?
 	for(int i=0; i<l; ++i){
-        int v =buf[i]*20000 + buf2[i]*10000;
+        int v =buf[i]*18000 + buf2[i]*6000;
         if(v>SHRT_MAX)v = SHRT_MAX;
         if(v<SHRT_MIN)v = SHRT_MIN;
         s[i] = v;
     }
 	curS += l;
 }
-
-const int NHARM=64;
-float hfreqs[NWT][NHARM];
-float hamps[NWT][NHARM];
-
-const float fundFreqs[NWT]={220,440,880};
-const float fundBws[NWT]={2,20,60};
-const float bwScales[NWT]={.95,.6,1};
 
 SDL_AudioSpec spec = {
 	FREQ, // freq
@@ -394,43 +322,6 @@ SDL_AudioSpec spec = {
 };
 } // end namespace
 
-void initInstruments()
-{
-	for(int i=0; i<NHARM; ++i) hamps[0][i]=1./(1+i), hfreqs[0][i]=1+i;
-	for(int i=0; i<NHARM; ++i) hamps[1][i]=1./(1+i)*(i&1?2:1), hfreqs[1][i]=1+i*(1+.1*i);
-	for(int i=0; i<NHARM; ++i) {
-		float f1 = 8;
-		hamps[2][i] = exp(-pow((i*f1-600.0)/150.0,2.0))+exp(-pow((i*f1-900.0)/250.0,2.0))+exp(-pow((i*f1-2200.0)/200.0,2.0))+exp(-pow((i*f1-2600.0)/250.0,2.0))+exp(-pow((i*f1)/3000.0,2.0))*0.1;
-//		hamps[2][i] = 1./(1+i);
-
-		hfreqs[2][i]=1+i;
-	}
-
-	for(int i=0; i<3; ++i) {
-		genWT(wtables[i], hamps[i], hfreqs[i], NHARM, fundFreqs[i], fundBws[i], bwScales[i]);
-	}
-
-	// drums
-#if 1
-	for(int i=0; i<WTS/2; ++i) {
-#if 1
-		float d=2*M_PI*randf();
-		float a = cos(i*.01);;
-		sintable[WTS-1-i]=sintable[i]=a*sin(d);
-		costable[WTS-1-i]=costable[i]=a*cos(d);
-#else
-		sintable[WTS-1-i]=costable[WTS-1-i]=0;
-		costable[WTS-1-i]=costable[i]=1;
-#endif
-	}
-	const int HIHAT = 3;
-	ifft(wtables[HIHAT], nulltable, costable, sintable, WTS);
-	normalize(wtables[HIHAT], WTS);
-#else
-	for(int i=0; i<WTS; ++i) wtables[HIHAT][i] = 2*randf()-1;
-#endif
-	cout<<"instrument wt gen done\n";
-}
 void initSounds()
 {
 	genShotgun();
