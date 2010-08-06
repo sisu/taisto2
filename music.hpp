@@ -29,7 +29,7 @@ extern std::vector<Sound> sounds;
 
 extern float distvol(float d);
 
-const int SAMPLES = 256;
+const int SAMPLES = 512;
 
 
 #endif

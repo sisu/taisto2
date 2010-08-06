@@ -307,10 +307,11 @@ int main(int argc, char* argv[])
 		double s = atof(argv[1]);
 		curPos = int(FREQ * s) / SAMPLES * SAMPLES;
 		int ms = 1000*curPos/FREQ;
-		for(int i=0; i<4; ++i) {
+		for(int i=0; i<3; ++i) {
 			while(notes[i][curNote[i]+1].start < ms) ++curNote[i];
 			cout<<"start note "<<i<<' '<<curNote[i]<<' '<<notes[i][curNote[i]].start<<'\n';
 		}
+		while(notes2337[curNote[3]+1].start < ms) ++curNote[3];
 	}
 #if 0
 	//	for(int i=0; i<4; ++i) cout<<ncounts[i]<<'\n';
