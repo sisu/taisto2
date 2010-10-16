@@ -21,7 +21,7 @@
 
 using namespace std;
 //static const double buffer[1000];
-static const double shields[]={20,4,4,0.4,4,4,4,4,4,4};
+static const double shields[]={20,4,3,0.4,4,4,4,4,4,4};
 const int packSizes[] = {0,15,100,50,30,5,5};
 
 Server::Server(): end(0),nextID(1),area(30,900)// area("field.in.1")
@@ -274,7 +274,7 @@ void Server::updatePhysics(double t)
                     Bullet b = genBullet(t, u.loc, u.d, bulletid++);
                     b.shooter = u.id;
                     double d = u.d;
-                    d+=(sn/2-j)*0.2/(sn/5.0);
+                    d+=(sn/2-j)*0.1/(sn/5.0);
                     Vec2 v(cos(d),sin(d));
                     v*=30;
                     b.v=v;
@@ -637,13 +637,13 @@ void Server::damageUnit(int i, double d,int shooter,Bullet b)
 void Server::spawnUnits(double t)
 {
 	double f = max(1.0,sqrt(clients.size()));
-	spawnTime -= t;
     flowSpawnTime-=t;
 	memset(enemyCounts,0,sizeof(enemyCounts));
     for(int i=0;i<(int)units.size();i++)
     {
         enemyCounts[units[i].type]++;
     }
+	botinfos.resize(1<<16);
     if(!win && flowSpawnTime<0){
         for(int i=0;i<curSpawn+1;i++)
         for(int k=curSpawn+2; k<curSpawn+3; ++k) {
@@ -664,35 +664,17 @@ void Server::spawnUnits(double t)
             Unit b(area.getSpawn(kk), t, botID++);
 			if (botID==1<<16) botID=256;
             units.push_back(b);
-            BotInformation* bi = new BotInformation;
-            botinfos.resize(botID);
-            botinfos.at(botID-1) = bi;
-
+			delete botinfos[botID-1];
+            botinfos[botID-1] = new BotInformation;
         }
         flowSpawnTime=1;
         //std::cout<<units.size()<<" units\n";
         //std::cout<<items_map.vec.size()<<" items\n";
     }
+	spawnTime -= t;
 	if (spawnTime > 0) return;
-#if 0
-    for(int i=0;i<10;i++)
-    {
-        Vec2 s = area.getSpawn(curSpawn)+Vec2(randf()-0.5,randf()-0.5);;
-        Item it;
-        it.id = itemid;
-        it.loc = s;
-        it.timeLeft = 200.0f*(5+10*randf())/items_map.vec.size();
-        it.type=ITEM_HEALTH;
-        it.a = 360*randf();
-        DataWriter w;
-        w.writeByte(SRV_ADDITEM);
-        w.write((void*)&it,sizeof(Item));
-        itemid++;
-        sendToAll(w);
-        std::cout<<"add item "<<it.id<<"\n";
-        items_map.insert(it);
-    }
-#endif
+	spawnTime = 20;
+
 	vector<Item> added;
 	for(int i=0; i<20; ++i) {
 		for(int j=0; j<f*itemSpawns[i][curSpawn]; ++j) {
@@ -709,26 +691,6 @@ void Server::spawnUnits(double t)
 	w.write(&added[0], added.size()*sizeof(Item));
 	sendToAll(w);
 
-//	cout<<"spawning bots\n";
-
-    /*
-	for(int i=1; i<20; ++i) {
-		for(int k=curSpawn+1; k<curSpawn+3; ++k) {
-			int kk = min(k, (int)area.bases.size()-1);
-			for(int j=0; j<f*spawnCounts[i][kk]; ++j) {
-                if(enemyCounts[i]>=f*3*spawnCounts[i][kk])
-                    continue;
-				Unit b(area.getSpawn(kk), i, botID++);
-				units.push_back(b);
-                enemyCounts[i]++;
-				BotInformation* bi = new BotInformation;
-				botinfos.resize(botID);
-				botinfos.at(botID-1) = bi;
-				cout<<"spawning "<<i<<' '<<kk<<'\n';
-			}
-		}
-	}*/
-	spawnTime = 20;
 //	cout<<"spawning done\n";
 
 	{

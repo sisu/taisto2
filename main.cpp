@@ -855,6 +855,8 @@ int main(int argc, char* argv[])
 			screenH = atoi(argv[++i]);
 			explres=1;
 		}
+		if (c=='s') serverOnly=1;
+		if (c=='m') playSounds=playMusic=0;
 	}
 	if (serverOnly) {
         Server s;

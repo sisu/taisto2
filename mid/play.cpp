@@ -247,8 +247,9 @@ void initHarms()
 	harms[2][0][0] = .7;
 	harms[2][1][0] = .2;
 #endif
-	harms[2][2][0] = .4;
-	harms[2][2][1] = .2;
+	const double BVOL = 1.8;
+	harms[2][2][0] = .4 * BVOL;
+	harms[2][2][1] = .2 * BVOL;
 	harms[1][1][0] = .7;
 
 	harms[0][2][0] = 1.5;
