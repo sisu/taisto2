@@ -215,7 +215,7 @@ void writeMusic(float* buf, int len)
 		while(c<ncounts[3] && ms>=ns[c+1].start) {
 			++c;
 			NoteB n = ns[c];
-			beatStart[n.pitch] = curPos;
+			beatStart[(int)n.pitch] = curPos;
 //			cout<<"starting beat "<<n.pitch<<'\n';
 		}
 		for(int i=0; i<128; ++i) {
@@ -235,3 +235,59 @@ void writeMusic(float* buf, int len)
 
 	curPos += len;
 }
+
+#ifdef MTEST
+#include <climits>
+void callback(void* udata, Uint8* stream, int l)
+{
+	Sint16* s = (Sint16*)stream;
+	l/=2;
+	float buf[SAMPLES]={};
+	writeMusic(buf, l);
+	for(int i=0; i<l; ++i){
+        int v =buf[i]*18000;
+        if(v>SHRT_MAX)v = SHRT_MAX;
+        if(v<SHRT_MIN)v = SHRT_MIN;
+        s[i] = v;
+    }
+}
+SDL_AudioSpec spec = {
+	FREQ, // freq
+	AUDIO_S16, // format
+	1, // channels
+	0, // silence
+	SAMPLES, // samples
+	0, // padding
+	0, // size
+	callback, // callback
+	0 // userdata
+};
+int main(int argc, char* argv[])
+{
+	initMusic();
+	if (argc>1) {
+		double s = atof(argv[1]);
+		curPos = int(FREQ * s) / SAMPLES * SAMPLES;
+		int ms = 1000*curPos/FREQ;
+		for(int i=0; i<3; ++i) {
+			while(notes[i][curNote[i]+1].start < ms) ++curNote[i];
+			cout<<"start note "<<i<<' '<<curNote[i]<<' '<<notes[i][curNote[i]].start<<'\n';
+		}
+		while(notes2337[curNote[3]+1].start < ms) ++curNote[3];
+	}
+	//	return 0;
+	SDL_Init(SDL_INIT_AUDIO | SDL_INIT_TIMER);
+	SDL_OpenAudio(&spec, 0);
+	SDL_PauseAudio(0);
+	bool done=0;
+	while(!done) {
+		SDL_Delay(50);
+		SDL_Event e;
+		while(SDL_PollEvent(&e)) {
+			if (e.type==SDL_QUIT) done=1;
+		}
+	}
+	SDL_PauseAudio(1);
+	SDL_Quit();
+}
+#endif // MTEST

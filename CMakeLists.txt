@@ -14,9 +14,11 @@ include_directories(${SDL_INCLUDE_DIR})
 #add_definitions("-Wall -g -Wno-unused-result ")
 #add_definitions("-Wall -O2 -g -fno-inline")
 #add_definitions("-Wall -g -Wno-unused-result")
-add_definitions("-Wall -Wno-unused-result -Os -fomit-frame-pointer -ffast-math -fno-exceptions")
+add_definitions("-Wall -Wno-unused-result")
+set(sopt "-Os -fomit-frame-pointer -ffast-math -fno-exceptions")
+set(dopt "-Wall -O2 -g -fno-inline")
 
-set(snd music.cpp padsynth.cpp)
+set(snd music.cpp padsynth.cpp mplay.cpp)
 set(sources main.cpp physics.cpp Server.cpp Game.cpp ClientSocket.cpp
         ClientInfo.cpp Connection.cpp DataWriter.cpp Bullet.cpp texgen.cpp
 		Bot.cpp salama.cpp Particle.cpp LCD.cpp Menu.cpp input.cpp Model.cpp
@@ -25,5 +27,7 @@ set(sources main.cpp physics.cpp Server.cpp Game.cpp ClientSocket.cpp
 #MESSAGE( STATUS "flags : ${OPENGL_LIBRARY}" )
 
 add_executable(taisto2 ${sources})
-#add_executable(mtest mtest.cpp ${snd})
+set_target_properties(taisto2 PROPERTIES COMPILE_FLAGS ${sopt})
+add_executable(mtest mplay.cpp)
+set_target_properties(mtest PROPERTIES COMPILE_FLAGS "-DMTEST ${dopt}")
 #add_executable(soundtest soundtest.cpp ${snd})

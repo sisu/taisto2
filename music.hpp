@@ -4,7 +4,6 @@
 #include <vector>
 
 void initSoundSystem();
-void initInstruments();
 void initSounds();
 
 enum SoundType {

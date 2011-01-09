@@ -22,7 +22,7 @@
 using namespace std;
 //static const double buffer[1000];
 static const double shields[]={20,4,3,0.4,4,4,4,4,4,4};
-const int packSizes[] = {0,15,100,50,30,5,5};
+const int packSizes[] = {0,15,100,50,30,5,10};
 
 Server::Server(): end(0),nextID(1),area(30,900)// area("field.in.1")
 {
@@ -637,6 +637,7 @@ void Server::damageUnit(int i, double d,int shooter,Bullet b)
 void Server::spawnUnits(double t)
 {
 	double f = max(1.0,sqrt(clients.size()));
+	f *= 2;
     flowSpawnTime-=t;
 	memset(enemyCounts,0,sizeof(enemyCounts));
     for(int i=0;i<(int)units.size();i++)
@@ -646,7 +647,8 @@ void Server::spawnUnits(double t)
 	botinfos.resize(1<<16);
     if(!win && flowSpawnTime<0){
         for(int i=0;i<curSpawn+1;i++)
-        for(int k=curSpawn+2; k<curSpawn+3; ++k) {
+        for(int k=curSpawn-1; k<curSpawn+3; ++k) {
+			if (k!=curSpawn+2 && (curSpawn<(int)area.bases.size()-2 || k!=curSpawn-1)) continue;
             int kk = min(k, (int)area.bases.size()-1);
             int tot = 0;
             for(int i=0;i<20;i++)
