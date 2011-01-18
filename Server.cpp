@@ -548,12 +548,14 @@ void Server::updateBases()
 {
 	int y1=area.bases[curSpawn],y2=area.bases[curSpawn+1];
 	int c2=0,c1=0;
+	int curPl=0;
 	for(unsigned i=0; i<units.size(); ++i) {
 		Unit& u = units[i];
 //		cout<<"u "<<u.type<<'\n';
 		int a=u.type==0?1:-1;
 		if (abs(u.loc.y-y2)<BASE_SIZE) c2+=a;
 		if (abs(u.loc.y-y1)<BASE_SIZE) c1+=a;
+		if (u.type==0 && u.loc.y >= y1) ++curPl;
 	}
 //	cout<<"zxc "<<curSpawn<<' '<<c1<<' '<<c2<<'\n';
 	int sp=curSpawn;
@@ -561,7 +563,7 @@ void Server::updateBases()
 		++curSpawn;
 //		cout<<"updating base "<<curSpawn<<'\n';
 	}
-	else if (curSpawn && c1<-2) {
+	else if (curSpawn && c1<-2 && curPl==0) {
 		--curSpawn;
 	}
 	if (curSpawn!=sp) {
