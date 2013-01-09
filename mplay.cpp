@@ -242,8 +242,8 @@ void callback(void* udata, Uint8* stream, int l)
 {
 	Sint16* s = (Sint16*)stream;
 	l/=2;
-	float buf[SAMPLES]={};
-	writeMusic(buf, l);
+	vector<float> buf(l);
+	writeMusic(&buf[0], l);
 	for(int i=0; i<l; ++i){
         int v =buf[i]*18000;
         if(v>SHRT_MAX)v = SHRT_MAX;

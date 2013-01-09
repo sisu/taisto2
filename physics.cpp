@@ -28,7 +28,7 @@ static void handleWalls(Unit& u, const Area& a)
 {
 	Vec2& v=u.loc;
 	double x=v.x, y=v.y;
-	int ix=x, iy=y;
+	int ix=floor(x), iy=floor(y);
 	double d=UNIT_RAD;
 
 	if (a.blocked(ix-1,iy)) fix(v, ix, y, d);
@@ -39,6 +39,9 @@ static void handleWalls(Unit& u, const Area& a)
 	if (a.blocked(ix+1,iy-1)) fix(v, ix+1,iy, d);
 	if (a.blocked(ix+1,iy+1)) fix(v, ix+1,iy+1, d);
 	if (a.blocked(ix-1,iy+1)) fix(v, ix,iy+1, d);
+
+	// hack to prevent getting stuck inside walls
+	if (a.blocked(ix,iy)) u.loc.x=rand()%a.w+.5;
 }
 
 typedef PhysicsContext PC;

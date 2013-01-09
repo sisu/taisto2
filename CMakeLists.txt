@@ -27,7 +27,7 @@ set(sources main.cpp physics.cpp Server.cpp Game.cpp ClientSocket.cpp
 #MESSAGE( STATUS "flags : ${OPENGL_LIBRARY}" )
 
 add_executable(taisto2 ${sources})
-set_target_properties(taisto2 PROPERTIES COMPILE_FLAGS ${sopt})
+set_target_properties(taisto2 PROPERTIES COMPILE_FLAGS ${dopt})
 add_executable(mtest mplay.cpp)
 set_target_properties(mtest PROPERTIES COMPILE_FLAGS "-DMTEST ${dopt}")
 #add_executable(soundtest soundtest.cpp ${snd})
